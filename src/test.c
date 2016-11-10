@@ -1,3 +1,4 @@
+#include <math.h>
 #include "matrix.h"
 
 void print_m (matrix_t* m) {
@@ -7,6 +8,11 @@ void print_m (matrix_t* m) {
 		}
 		printf("\n");
 	}
+}
+
+double sigmoid (double val) {
+	double ret = 1 / (1 + exp(-val));
+	return ret;
 }
 
 int main() {
@@ -35,5 +41,19 @@ int main() {
 	double b = 0.35;
 	vector_scalar_addition(res, b);
 	print_m(res);
+	printf("\n");
+
+	function_on_vector(res, sigmoid);
+	print_m(res);
+
+	free_matrix(w);
+	free_matrix(v);
+	free_matrix(res);
+
+
+	printf("\nRandom matrix:\n");
+	matrix_t* rm = random_matrix(5,5,3.0);
+	print_m(rm);
+	free_matrix(rm);
 }
 

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 
 typedef struct matrix_t {
@@ -18,8 +19,11 @@ matrix_t* matrix_vector_product(matrix_t* m, matrix_t* vec);
 
 int vector_scalar_addition (matrix_t* m, double scalar);
 
-int free_matrix(matrix_t* matrix);
+int function_on_vector (matrix_t* vec, double (*f)(double));
 
+matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval);
+
+int free_matrix(matrix_t* matrix);
 
 #endif
 

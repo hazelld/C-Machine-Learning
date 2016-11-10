@@ -10,7 +10,7 @@ matrix_t* init_matrix(unsigned int rows, unsigned int columns) {
 	m->matrix = malloc(sizeof(double*) * rows);
 
 	for (int i = 0; i < rows; i++) 
-		m->matrix[i] = malloc(sizeof(double));
+		m->matrix[i] = malloc(sizeof(double) * columns);
 
 	return m;
 }
@@ -36,4 +36,34 @@ int vector_scalar_addition (matrix_t* m, double scalar) {
 	}
 	
 	return 1;
+}
+
+int function_on_vector (matrix_t* vec, double (*f)(double)) {
+	for (int i = 0; i < vec->rows; i++) {
+		vec->matrix[i][0] = (*f)(vec->matrix[i][0]);
+	}
+	return 1;
+}
+
+
+matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) {
+	srand(time(NULL));
+	matrix_t* random_matrix = init_matrix(rows, columns);
+	double div = RAND_MAX / (interval * 2);
+
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < columns; j++) {
+			random_matrix->matrix[i][j] = -interval + (rand() / div);
+		}
+	}	
+	return random_matrix;
+}
+
+
+int free_matrix (matrix_t* m) {
+	
+	for (int i = 0; i < m->rows; i++)
+		free(m->matrix[i]);
+	free(m->matrix);
+	free(m);
 }
