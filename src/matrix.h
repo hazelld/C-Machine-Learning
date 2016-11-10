@@ -13,7 +13,7 @@ typedef struct matrix_t {
 } matrix_t;
 
 
-/*	init_matrix
+/* init_matrix
  *
  *	This function initializes a matrix_t on the heap with 
  *	the specified dimensions. To free the matrix_t use
@@ -23,7 +23,7 @@ typedef struct matrix_t {
 matrix_t* init_matrix(unsigned int rows, unsigned int columns);
 
 
-/*	matrix_vector_product
+/* matrix_vector_product
  *
  *	This function takes a matrix, and a vector (single column matrix) and
  *	will return a matrix that is the result of the matrix-vector product.
@@ -47,7 +47,19 @@ matrix_t* init_matrix(unsigned int rows, unsigned int columns);
 matrix_t* matrix_vector_product(matrix_t* m, matrix_t* vec);
 
 
-/*	function_on_vector
+/* vector_scalar_addition
+ *
+ * 	This function adds a constant to each element of a vector.
+ *
+ * 	Returns:
+ *	0 => Success
+ *	_ => Failure
+ *
+ */
+int vector_scalar_addition (matrix_t* m, double scalar);
+
+
+/* function_on_vector
  *
  *	This function applys a function onto each value of the matrix. 
  *
@@ -61,7 +73,7 @@ matrix_t* matrix_vector_product(matrix_t* m, matrix_t* vec);
  *
  * 	 Returns:
  * 	 0 => Success 
- * 	 - => Failure
+ * 	 _ => Failure
  */
 int function_on_vector (matrix_t* vec, double (*f)(double));
 

@@ -31,18 +31,15 @@ matrix_t* matrix_vector_product(matrix_t* m, matrix_t* vec) {
 }
 
 int vector_scalar_addition (matrix_t* m, double scalar) {	
-	for(int i = 0; i < m->rows; i++) {
-		m->matrix[i][0] += scalar;
-	}
-	
-	return 1;
+	for(int i = 0; i < m->rows; i++) 
+		m->matrix[i][0] += scalar;	
+	return 0;
 }
 
 int function_on_vector (matrix_t* vec, double (*f)(double)) {
-	for (int i = 0; i < vec->rows; i++) {
+	for (int i = 0; i < vec->rows; i++) 
 		vec->matrix[i][0] = (*f)(vec->matrix[i][0]);
-	}
-	return 1;
+	return 0;
 }
 
 
