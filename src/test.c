@@ -55,9 +55,9 @@ int main() {
 	matrix_t* rm = random_matrix(2,5,3.0);
 	print_m(rm);
 	printf("\nTransposed:\n");
-	transpose(&rm);
-	print_m(rm);
+	matrix_t* rmm = transpose_r(rm);
+	print_m(rmm);
 	free_matrix(rm);
-
+	free_matrix(rmm);
 }
 

@@ -79,9 +79,24 @@ int function_on_vector (matrix_t* vec, double (*f)(double));
 
 
 /*	transpose
+ *	
+ *	This function transposes a matrix inplace. 
  *
+ *	Return:
+ *		0 => Success, m now holds the transposed matrix
+ *		_ => Failure, m is unchanged
  */
 int transpose (matrix_t** m);
+
+
+/*	transpose_r
+ *
+ *	This function returns a transposed matrix, leaving the 
+ *	original matrix intact.
+ *
+ */
+matrix_t* transpose_r (matrix_t* const m);
+
 
 /*	random_matrix
  *

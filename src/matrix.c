@@ -59,6 +59,17 @@ int transpose (matrix_t** m) {
 	return 0;
 }
 
+matrix_t* transpose_r (matrix_t* const m) {
+	matrix_t* new_matrix = init_matrix(m->columns, m->rows);
+
+	for (int i = 0; i < new_matrix->columns; i++) {
+		for (int j = 0; j < new_matrix->rows; j++) {
+			new_matrix->matrix[j][i] = m->matrix[i][j]; 
+		}
+	}
+	return new_matrix;	
+}
+
 matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) {
 	srand(time(NULL));
 	matrix_t* random_matrix = init_matrix(rows, columns);
