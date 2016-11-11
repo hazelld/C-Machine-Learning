@@ -43,6 +43,22 @@ int function_on_vector (matrix_t* vec, double (*f)(double)) {
 }
 
 
+int transpose (matrix_t** m) {
+	matrix_t* old_matrix = *m;
+	matrix_t* new_matrix = init_matrix((*m)->columns, (*m)->rows);
+	
+	for (int i = 0; i < new_matrix->columns; i++) {
+		for (int j = 0; j < new_matrix->rows; j++) {
+			new_matrix->matrix[j][i] = old_matrix->matrix[i][j]; 
+		}
+	}
+
+	/* Free memory of old matrix and point m to new one */
+	free_matrix(old_matrix);
+	*m = new_matrix;
+	return 0;
+}
+
 matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) {
 	srand(time(NULL));
 	matrix_t* random_matrix = init_matrix(rows, columns);

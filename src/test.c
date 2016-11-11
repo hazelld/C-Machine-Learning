@@ -45,15 +45,19 @@ int main() {
 
 	function_on_vector(res, sigmoid);
 	print_m(res);
-
+	
 	free_matrix(w);
 	free_matrix(v);
 	free_matrix(res);
 
 
 	printf("\nRandom matrix:\n");
-	matrix_t* rm = random_matrix(5,5,3.0);
+	matrix_t* rm = random_matrix(2,5,3.0);
+	print_m(rm);
+	printf("\nTransposed:\n");
+	transpose(&rm);
 	print_m(rm);
 	free_matrix(rm);
+
 }
 

@@ -78,6 +78,11 @@ int vector_scalar_addition (matrix_t* m, double scalar);
 int function_on_vector (matrix_t* vec, double (*f)(double));
 
 
+/*	transpose
+ *
+ */
+int transpose (matrix_t** m);
+
 /*	random_matrix
  *
  *	This function initializes a matrix and populates it with uniform random
