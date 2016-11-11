@@ -34,7 +34,7 @@ int main() {
 	print_m(v);
 	printf("\n");
 	
-	matrix_t* res = matrix_vector_product(w, v);
+	matrix_t* res = matrix_vector_dot(w, v);
 	print_m(res);
 	printf("\n");
 
@@ -60,4 +60,3 @@ int main() {
 	free_matrix(rm);
 	free_matrix(rmm);
 }
-

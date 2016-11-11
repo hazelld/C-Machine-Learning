@@ -15,7 +15,7 @@ matrix_t* init_matrix(unsigned int rows, unsigned int columns) {
 	return m;
 }
 
-matrix_t* matrix_vector_product(matrix_t* m, matrix_t* vec) {
+matrix_t* matrix_vector_dot(matrix_t* m, matrix_t* vec) {
 	
 	matrix_t* result = init_matrix(vec->rows, 1);
 	int i, j;

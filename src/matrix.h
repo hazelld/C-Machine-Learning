@@ -44,7 +44,7 @@ matrix_t* init_matrix(unsigned int rows, unsigned int columns);
  *
  *    Note: the matrix m and vector vec are not deallocated in this function
  */
-matrix_t* matrix_vector_product(matrix_t* m, matrix_t* vec);
+matrix_t* matrix_vector_dot(matrix_t* m, matrix_t* vec);
 
 
 /* vector_scalar_addition
