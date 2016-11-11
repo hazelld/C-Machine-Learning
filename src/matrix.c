@@ -1,5 +1,11 @@
 #include "matrix.h"
 
+/* Run on startup to seed rng. This is temporary, atleast till the move to 
+ * CUDA is done. */
+__attribute__((constructor))
+static void seed_rng() {
+	srand(time(NULL));
+}
 
 matrix_t* init_matrix(unsigned int rows, unsigned int columns) {
 	matrix_t* m = malloc(sizeof(matrix_t));
@@ -70,8 +76,15 @@ matrix_t* transpose_r (matrix_t* const m) {
 	return new_matrix;	
 }
 
+matrix_t* multiply_vector(matrix_t* m, matrix_t* n) {
+	// ERROR CHECK
+	matrix_t* res = init_matrix(m->rows, m->columns);
+	for (int i = 0; i < m->rows; i++) 
+		res->matrix[i][0] = m->matrix[i][0] * n->matrix[i][0];
+	return res;
+}
+
 matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) {
-	srand(time(NULL));
 	matrix_t* random_matrix = init_matrix(rows, columns);
 	double div = RAND_MAX / (interval * 2);
 
@@ -82,7 +95,6 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
 	}	
 	return random_matrix;
 }
-
 
 int free_matrix (matrix_t* m) {
 	

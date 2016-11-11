@@ -52,11 +52,18 @@ int main() {
 
 
 	printf("\nRandom matrix:\n");
-	matrix_t* rm = random_matrix(2,5,3.0);
-	print_m(rm);
-	printf("\nTransposed:\n");
-	matrix_t* rmm = transpose_r(rm);
-	print_m(rmm);
-	free_matrix(rm);
-	free_matrix(rmm);
+	matrix_t* m = random_matrix(5,1,1.0);
+	print_m(m);
+	matrix_t* n = random_matrix(5, 1, 1);
+	printf("\n");
+	print_m(n);
+	printf("\n");
+	
+	matrix_t* mn = multiply_vector(m, n);
+	print_m(mn);
+	printf("\n");
+
+	free_matrix(m);
+	free_matrix(n);
+	free_matrix(mn);
 }

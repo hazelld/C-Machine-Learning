@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-
+#include <linux/random.h>
 
 typedef struct matrix_t {
 	double** matrix;
@@ -96,6 +96,22 @@ int transpose (matrix_t** m);
  *
  */
 matrix_t* transpose_r (matrix_t* const m);
+
+
+/*	multiply_vector
+ *
+ *	Multiply two equal dimensional vectors together.
+ *	
+ *	ie.
+ *	 _  _		 _  _		 _    _
+ *	| x1 |		| y1 |		| x1y1 |
+ *	| .. |	x	| .. |	=	| ...  |
+ *	| xn |		| yn |		| xnyn |
+ *   -  -		 -  -		 -	  -
+ *	
+ *	Returns the result, the original two vectors are untouched.
+ */
+matrix_t* multiply_vector(matrix_t* m, matrix_t* n);
 
 
 /*	random_matrix
