@@ -124,6 +124,29 @@ matrix_t* multiply_vector(matrix_t* m, matrix_t* n);
 matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval);
 
 
+/* kronecker_vectors
+ *
+ * This function applys the kronecker product across two vectors, one
+ * being a horizontal vector, one being vertical.
+ *
+ * ie.
+ *	 _  _		 
+ *	| x1 |		 -     -
+ *	| x2 |	k	| y1 y2 |
+ *	| x3 |		 -     -
+ *	 -  -		
+ *	   _         -
+ *	  | x1y1 x1y2 |
+ *	= | x2y1 x2y2 |
+ *	  | x3y1 x3y2 |
+ *	   -         -
+ *
+ * Note this function returns NULL if it is not supplied with 2 
+ * 1 dimensional vectors.
+ */
+matrix_t* kronecker_vectors (matrix_t* vec1, matrix_t* vec2);
+
+
 /*	free_matrix
  *
  *	This function frees all resources associated with a matrix, including 

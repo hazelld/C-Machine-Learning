@@ -96,6 +96,36 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
 	return random_matrix;
 }
 
+
+matrix_t* kronecker_vectors (matrix_t* vec1, matrix_t* vec2) {
+	unsigned int rows, columns;
+	matrix_t *vertical_v, *horiz_v;
+
+	/* Determine matrix dimensions and which is horizontal vector */
+	if (vec1->rows == 1 && vec1->columns > 0) {
+		rows = vec2->rows;
+		columns = vec1->columns;
+		horiz_v = vec1;
+		vertical_v = vec2;
+	} else if (vec2->rows == 1 && vec2->columns > 0) {
+		rows = vec1->rows;
+		columns = vec2->columns;
+		horiz_v = vec2;
+		vertical_v = vec1;
+	} else { return NULL; }
+
+	matrix_t* kv = init_matrix(rows, columns);
+	
+	for (int i = 0; i < kv->rows; i++) {
+		for (int j = 0; j < kv->columns; j++) {
+			kv->matrix[i][j] = vertical_v->matrix[i][0] * horiz_v->matrix[0][j];
+		}
+	}
+	
+	return kv;
+}
+
+
 int free_matrix (matrix_t* m) {
 	
 	for (int i = 0; i < m->rows; i++)
