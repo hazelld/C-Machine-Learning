@@ -20,7 +20,7 @@ typedef struct matrix_t {
  *	free_matrix().
  *
  */
-matrix_t* init_matrix(unsigned int rows, unsigned int columns);
+int init_matrix(matrix_t* m, unsigned int rows, unsigned int columns);
 
 
 /* matrix_vector_product

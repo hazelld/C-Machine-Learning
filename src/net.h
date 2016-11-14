@@ -25,15 +25,15 @@ typedef struct layer {
 } layer;
 
 typedef struct net {
-	layer* layers;
+	layer** layers;
 	int layer_count;
 	int* topology;
 	activation af;
 	activation_prime ap;
 } net;
 
-net* init_net (int lc, int* topology_arr, activation act, activation_prime actp);
-layer init_layer (layer_type lt, int in_node, int out_node);
+int init_net (net* n,int lc, int* topology_arr, activation act, activation_prime actp);
+int init_layer (layer* l, layer_type lt, int in_node, int out_node);
 int feed_forward (net* n, matrix_t* input);
 int free_net(net* n);
 int free_layer(layer* l);
