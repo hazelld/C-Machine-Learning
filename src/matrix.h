@@ -77,6 +77,9 @@ int vector_scalar_addition (matrix_t* m, double scalar);
  */
 int function_on_vector (matrix_t* vec, double (*f)(double));
 
+int function_on_matrix (matrix_t* m, double(*f)(double));
+
+matrix_t* matrix_subtraction (matrix_t* m, matrix_t* n);
 
 /*	transpose
  *	
@@ -113,6 +116,8 @@ matrix_t* transpose_r (matrix_t* const m);
  */
 matrix_t* multiply_vector(matrix_t* m, matrix_t* n);
 
+
+matrix_t* subtract_vector(matrix_t* m, matrix_t* n);
 
 /*	random_matrix
  *

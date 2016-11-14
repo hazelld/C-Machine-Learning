@@ -23,7 +23,7 @@ matrix_t* init_matrix(unsigned int rows, unsigned int columns) {
 
 matrix_t* matrix_vector_dot(matrix_t* m, matrix_t* vec) {
 	
-	matrix_t* result = init_matrix(vec->rows, 1);
+	matrix_t* result = init_matrix(m->rows, 1);
 	int i, j;
 		
 	for (i = 0; i < m->rows; i++) {
@@ -48,6 +48,24 @@ int function_on_vector (matrix_t* vec, double (*f)(double)) {
 	return 0;
 }
 
+int function_on_matrix (matrix_t* m, double(*f)(double)) {
+	for (int i = 0; i < m->rows; i++) {
+		for (int j = 0; j < m->columns; j++) {
+			m->matrix[i][j] = (*f)(m->matrix[i][j]);
+		}
+	}
+}
+
+matrix_t* matrix_subtraction (matrix_t* m, matrix_t* n) {
+	// Error check
+	matrix_t* result = init_matrix(m->rows, m->columns);
+	for (int i = 0; i < m->rows; i++) {
+		for (int j = 0; j < m->columns; j++) {
+			result->matrix[i][j] = m->matrix[i][j] - n->matrix[i][j];
+		}
+	}
+	return result;
+}
 
 int transpose (matrix_t** m) {
 	matrix_t* old_matrix = *m;
@@ -82,6 +100,13 @@ matrix_t* multiply_vector(matrix_t* m, matrix_t* n) {
 	for (int i = 0; i < m->rows; i++) 
 		res->matrix[i][0] = m->matrix[i][0] * n->matrix[i][0];
 	return res;
+}
+
+matrix_t* subtract_vector(matrix_t* m, matrix_t* n) {
+	matrix_t* diff = init_matrix(m->rows, m->columns);
+	for (int i = 0; i < m->rows; i++) 
+		diff->matrix[i][0] = m->matrix[i][0] - n->matrix[i][0];
+	return diff;
 }
 
 matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) {

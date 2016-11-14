@@ -1,5 +1,6 @@
 #include <math.h>
 #include "matrix.h"
+#include "net.h"
 
 void print_m (matrix_t* m) {
 	for (int i = 0; i < m->rows; i++) {
@@ -8,6 +9,11 @@ void print_m (matrix_t* m) {
 		}
 		printf("\n");
 	}
+	printf("\n");
+}
+
+double learning_weight(double val) {
+	return val * 0.5;
 }
 
 double sigmoid (double val) {
@@ -15,55 +21,25 @@ double sigmoid (double val) {
 	return ret;
 }
 
+double sigmoid_prime (double val) {
+	return val * (1 - val);
+}
+
 int main() {
-
-	matrix_t* w = init_matrix(2,2);
+	int topology[3] = { 2, 2, 1 };
+	net* nn = init_net(3, topology, sigmoid, sigmoid_prime);
 	
-	w->matrix[0][0] = 0.15;
-	w->matrix[0][1] = 0.20;
-	w->matrix[1][0] = 0.25;
-	w->matrix[1][1] = 0.30;
+	printf("Weight matrices:\n");
+	print_m(nn->layers[1].weights);
+	print_m(nn->layers[2].weights);
+
+	printf("Biases:\n");
+	printf("%lf\n%lf\n\n", nn->layers[1].bias, nn->layers[2].bias);
 	
-	print_m(w);
-	printf("\n");
-
-	matrix_t* v = init_matrix(2, 1);
-	v->matrix[0][0] = 0.05;
-	v->matrix[1][0] = 0.1;
-
-	print_m(v);
-	printf("\n");
+	matrix_t* input = random_matrix (2, 1, 1);
+	printf("Inputs:\n");
+	print_m(input);
+	feed_forward(nn, input);
 	
-	matrix_t* res = matrix_vector_dot(w, v);
-	print_m(res);
-	printf("\n");
-
-	double b = 0.35;
-	vector_scalar_addition(res, b);
-	print_m(res);
-	printf("\n");
-
-	function_on_vector(res, sigmoid);
-	print_m(res);
-	
-	free_matrix(w);
-	free_matrix(v);
-	free_matrix(res);
-
-
-	printf("\nRandom matrix:\n");
-	matrix_t* m = random_matrix(5,1,1.0);
-	print_m(m);
-	matrix_t* n = random_matrix(5, 1, 1);
-	printf("\n");
-	print_m(n);
-	printf("\n");
-	
-	matrix_t* mn = multiply_vector(m, n);
-	print_m(mn);
-	printf("\n");
-
-	free_matrix(m);
-	free_matrix(n);
-	free_matrix(mn);
+	printf("Resulting feedforward: %lf\n", nn->layers[2].input->matrix[0][0]);
 }
