@@ -26,7 +26,7 @@ double sigmoid_prime (double val) {
 }
 
 int main() {
-	int topology[3] = { 2, 2, 1 };
+	int topology[3] = { 2, 3, 2 };
 	net* nn = malloc(sizeof(net));
 	init_net(nn, 3, topology, sigmoid, sigmoid_prime);
 	
@@ -42,7 +42,26 @@ int main() {
 	print_m(input);
 	feed_forward(nn, input);
 	
-	printf("Resulting feedforward: %lf\n", nn->layers[2]->input->matrix[0][0]);
+	printf("Resulting feedforward: %lf\n\n", nn->layers[2]->input->matrix[0][0]);
+	
+	matrix_t* expected = random_matrix(2,1,1);
+	printf("Expected Output:\n");
+	print_m(expected);
+
+	net_error(nn, expected);
+	
+	printf("Error of output layer:\n");
+	print_m(nn->layers[2]->layer_error);
+	
+	printf("Error of hidden layer:\n");
+	print_m(nn->layers[1]->layer_error);
+	
+	update_weights(nn);
+	printf("New Weights:\n");
+	print_m(nn->layers[1]->weights);
+	print_m(nn->layers[2]->weights);
+	
+
 	free_net(nn);
 	free_matrix(input);
 }

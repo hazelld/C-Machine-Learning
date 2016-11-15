@@ -91,6 +91,55 @@ int feed_forward (net* n, matrix_t* input) {
 	return 0;
 }
 
+int net_error (net* n, matrix_t* expected) {
+	
+	/* Calculate the error of the other layers, excluding the dummy 
+	 * input layer */
+	for (int i = n->layer_count-1; i > 0; i--) {
+		layer* clayer = n->layers[i];
+		matrix_t* buff_err;
+		matrix_t* tweights = NULL;
+
+		if (clayer->ltype != output) {
+			layer* nlayer = n->layers[i+1];
+			tweights = transpose_r(nlayer->weights);
+			buff_err = matrix_vector_dot(tweights, nlayer->layer_error);
+		} else {
+			buff_err = subtract_vector(clayer->output, expected);
+		}
+			
+		function_on_vector(clayer->output, n->ap);
+		matrix_t* err_vec = multiply_vector(buff_err, clayer->output);
+		matrix_t* transposed_input = transpose_r(clayer->input);
+		clayer->layer_error = kronecker_vectors(err_vec, transposed_input);
+
+		free_matrix(err_vec);
+		free_matrix(transposed_input);
+		free_matrix(tweights);
+		free_matrix(buff_err);
+	}
+
+	// Eventually return total error?
+	return 0;
+}
+
+double learning_rate(double val) {
+	return val * 0.05;
+}
+
+int update_weights (net* n) {
+	for (int i = 1; i < n->layer_count; i++) {
+		layer* clayer = n->layers[i];
+		function_on_matrix(clayer->layer_error, learning_rate);
+		matrix_t* f_weights = matrix_subtraction(clayer->weights, clayer->layer_error);
+		free_matrix(clayer->weights);
+		clayer->weights = f_weights;
+	}
+	
+	return 0;
+}
+
+
 int free_net (net* n) {
 	for (int i = 0; i < n->layer_count; i++) 
 		free_layer(n->layers[i]);
