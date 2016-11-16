@@ -34,7 +34,6 @@ int main() {
 	matrix_t* input3 = malloc(sizeof(matrix_t));
 	matrix_t* input4 = malloc(sizeof(matrix_t));
 	
-	
 	matrix_t* e1 = malloc(sizeof(matrix_t));
 	matrix_t* e2 = malloc(sizeof(matrix_t));
 	matrix_t* e3 = malloc(sizeof(matrix_t));
@@ -68,9 +67,9 @@ int main() {
 	init_net(nn, 3, topology, sigmoid, sigmoid_prime);
 	
 	
-	for (int i = 0; i < 100000; i++) {
+	for (int i = 0; i < 15000; i++) {
 		
-		printf("Starting epoch %d\n", i);
+		printf("Starting epoch %d", i);
 		
 		feed_forward(nn, input1);
 		net_error(nn, e1);

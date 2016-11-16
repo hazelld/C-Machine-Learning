@@ -134,12 +134,12 @@ matrix_t* kronecker_vectors (matrix_t* vec1, matrix_t* vec2) {
 	matrix_t *vertical_v, *horiz_v;
 
 	/* Determine matrix dimensions and which is horizontal vector */
-	if (vec1->rows == 1 && vec1->columns > 0) {
+	if (vec1->rows == 1 && vec1->columns > 1) {
 		rows = vec2->rows;
 		columns = vec1->columns;
 		horiz_v = vec1;
 		vertical_v = vec2;
-	} else if (vec2->rows == 1 && vec2->columns > 0) {
+	} else if (vec2->rows == 1 && vec2->columns > 1) {
 		rows = vec1->rows;
 		columns = vec2->columns;
 		horiz_v = vec2;

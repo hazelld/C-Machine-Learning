@@ -1,6 +1,16 @@
 #include <linux/random.h>
 #include "net.h"
 
+void printm (matrix_t* m) {
+	for (int i = 0; i < m->rows; i++) {
+		for (int j = 0; j < m->columns; j++) {
+			printf("%lf ", m->matrix[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
 int init_net (net* nn, int lc, int* topology_arr, activation act, activation_prime actp) {
 	if (nn == NULL) return 1;
 	nn->af = act;
@@ -55,7 +65,7 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	}
 
 	/* Weight matrix has output_nodes columns and input_nodes rows */
-	double interval = 1.0;
+	double interval = 0.5;
 	l->weights = random_matrix(out_node, in_node, interval);
 	l->bias = -interval + (rand() / (RAND_MAX / interval * 2)); 
 	return 0;
@@ -105,7 +115,8 @@ int net_error (net* n, matrix_t* expected) {
 			tweights = transpose_r(nlayer->weights);
 			buff_err = matrix_vector_dot(tweights, nlayer->layer_error);
 		} else {
-			buff_err = subtract_vector(clayer->output, expected);
+			buff_err = subtract_vector(clayer->output, expected);	
+			fprintf(stderr, "%lf\n", buff_err->matrix[0][0]);
 		}
 			
 		function_on_vector(clayer->output, n->ap);
@@ -118,8 +129,6 @@ int net_error (net* n, matrix_t* expected) {
 		free_matrix(tweights);
 		free_matrix(buff_err);
 	}
-
-	// Eventually return total error?
 	return 0;
 }
 
@@ -148,7 +157,7 @@ int update_bias (net* n) {
 		for (int j = 0; j < clayer->layer_error->rows; j++) 
 			error_sum += clayer->layer_error->matrix[j][0];
 		
-		clayer->bias -= 0.05 * error_sum;
+		clayer->bias -= 0.2 * error_sum;
 	}
 }
 
