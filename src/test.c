@@ -67,9 +67,9 @@ int main() {
 	init_net(nn, 3, topology, sigmoid, sigmoid_prime);
 	
 	
-	for (int i = 0; i < 15000; i++) {
+	for (int i = 0; i < 1000000; i++) {
 		
-		printf("Starting epoch %d", i);
+		printf("Starting epoch %d\n", i);
 		
 		feed_forward(nn, input1);
 		net_error(nn, e1);

@@ -56,6 +56,7 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	l->input = NULL;
 	l->output = NULL;
 	l->layer_error = NULL;
+	l->weight_delta = NULL;
 
 	/* Output layer has no weights or bias */
 	if (lt == input) {
@@ -116,15 +117,14 @@ int net_error (net* n, matrix_t* expected) {
 			buff_err = matrix_vector_dot(tweights, nlayer->layer_error);
 		} else {
 			buff_err = subtract_vector(clayer->output, expected);	
-			fprintf(stderr, "%lf\n", buff_err->matrix[0][0]);
 		}
 			
 		function_on_vector(clayer->output, n->ap);
-		matrix_t* err_vec = multiply_vector(buff_err, clayer->output);
+		clayer->layer_error = multiply_vector(buff_err, clayer->output);
+		
 		matrix_t* transposed_input = transpose_r(clayer->input);
-		clayer->layer_error = kronecker_vectors(err_vec, transposed_input);
+		clayer->weight_delta = kronecker_vectors(clayer->layer_error, transposed_input);
 
-		free_matrix(err_vec);
 		free_matrix(transposed_input);
 		free_matrix(tweights);
 		free_matrix(buff_err);
@@ -139,9 +139,10 @@ double learning_rate(double val) {
 int update_weights (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
-		function_on_matrix(clayer->layer_error, learning_rate);
-		matrix_t* f_weights = matrix_subtraction(clayer->weights, clayer->layer_error);
+		function_on_matrix(clayer->weight_delta, learning_rate);
+		matrix_t* f_weights = matrix_subtraction(clayer->weights, clayer->weight_delta);
 		free_matrix(clayer->weights);
+		free_matrix(clayer->weight_delta);
 		clayer->weights = f_weights;
 	}
 	

@@ -22,6 +22,7 @@ typedef struct layer {
 	matrix_t* weights;
 	matrix_t* output;
 	matrix_t* layer_error;
+	matrix_t* weight_delta;
 } layer;
 
 typedef struct net {
