@@ -124,7 +124,7 @@ int net_error (net* n, matrix_t* expected) {
 }
 
 double learning_rate(double val) {
-	return val * 0.05;
+	return val * 0.2;
 }
 
 int update_weights (net* n) {
@@ -137,6 +137,19 @@ int update_weights (net* n) {
 	}
 	
 	return 0;
+}
+
+
+int update_bias (net* n) {
+	for (int i = 1; i < n->layer_count; i++) {
+		double error_sum = 0;
+		layer* clayer = n->layers[i];
+		
+		for (int j = 0; j < clayer->layer_error->rows; j++) 
+			error_sum += clayer->layer_error->matrix[j][0];
+		
+		clayer->bias -= 0.05 * error_sum;
+	}
 }
 
 

@@ -37,6 +37,7 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node);
 int feed_forward (net* n, matrix_t* input);
 int net_error(net* n, matrix_t* expected);
 int update_weights(net* n);
+int update_bias(net* n);
 int free_net(net* n);
 int free_layer(layer* l);
 

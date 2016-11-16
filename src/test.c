@@ -13,7 +13,7 @@ void print_m (matrix_t* m) {
 }
 
 double learning_weight(double val) {
-	return val * 0.5;
+	return val * 0.05;
 }
 
 double sigmoid (double val) {
@@ -26,42 +26,94 @@ double sigmoid_prime (double val) {
 }
 
 int main() {
-	int topology[3] = { 2, 3, 2 };
+	int topology[3] = { 2, 5, 1 };
 	net* nn = malloc(sizeof(net));
+	
+	matrix_t* input1 = malloc(sizeof(matrix_t));
+	matrix_t* input2 = malloc(sizeof(matrix_t));
+	matrix_t* input3 = malloc(sizeof(matrix_t));
+	matrix_t* input4 = malloc(sizeof(matrix_t));
+	
+	
+	matrix_t* e1 = malloc(sizeof(matrix_t));
+	matrix_t* e2 = malloc(sizeof(matrix_t));
+	matrix_t* e3 = malloc(sizeof(matrix_t));
+	matrix_t* e4 = malloc(sizeof(matrix_t));
+
+	init_matrix(input1, 2, 1);
+	init_matrix(input2, 2, 1);
+	init_matrix(input3, 2, 1);
+	init_matrix(input4, 2, 1);
+	init_matrix(e1, 1, 1);
+	init_matrix(e2, 1, 1);
+	init_matrix(e3, 1, 1);
+	init_matrix(e4, 1, 1);
+
+	input1->matrix[0][0] = 0;
+	input1->matrix[1][0] = 0;
+	e1->matrix[0][0] = 1;
+
+	input2->matrix[0][0] = 1;
+	input2->matrix[1][0] = 0;
+	e2->matrix[0][0] = 0;
+	
+	input3->matrix[0][0] = 0;
+	input3->matrix[1][0] = 1;
+	e3->matrix[0][0] = 0;
+	
+	input4->matrix[0][0] = 1;
+	input4->matrix[1][0] = 1;
+	e4->matrix[0][0] = 1;
+	
 	init_net(nn, 3, topology, sigmoid, sigmoid_prime);
 	
-	printf("Weight matrices:\n");
-	print_m(nn->layers[1]->weights);
-	print_m(nn->layers[2]->weights);
+	
+	for (int i = 0; i < 100000; i++) {
+		
+		printf("Starting epoch %d\n", i);
+		
+		feed_forward(nn, input1);
+		net_error(nn, e1);
+		update_weights(nn);
+		update_bias(nn);
 
-	printf("Biases:\n");
-	printf("%lf\n%lf\n\n", nn->layers[1]->bias, nn->layers[2]->bias);
-	
-	matrix_t* input = random_matrix (2, 1, 1);
-	printf("Inputs:\n");
-	print_m(input);
-	feed_forward(nn, input);
-	
-	printf("Resulting feedforward: %lf\n\n", nn->layers[2]->input->matrix[0][0]);
-	
-	matrix_t* expected = random_matrix(2,1,1);
-	printf("Expected Output:\n");
-	print_m(expected);
+		feed_forward(nn, input2);
+		net_error(nn, e2);
+		update_weights(nn);
+		update_bias(nn);
+		
+		feed_forward(nn, input3);
+		net_error(nn, e3);
+		update_weights(nn);
+		update_bias(nn);
 
-	net_error(nn, expected);
-	
-	printf("Error of output layer:\n");
-	print_m(nn->layers[2]->layer_error);
-	
-	printf("Error of hidden layer:\n");
-	print_m(nn->layers[1]->layer_error);
-	
-	update_weights(nn);
-	printf("New Weights:\n");
-	print_m(nn->layers[1]->weights);
-	print_m(nn->layers[2]->weights);
-	
+		feed_forward(nn, input4);
+		net_error(nn, e4);
+		update_weights(nn);
+		update_bias(nn);
+	}
 
+
+	printf("TESTING\n");
+	feed_forward(nn, input1);
+	printf("0 0 -> %lf\n", nn->layers[2]->output->matrix[0][0]);
+	feed_forward(nn, input2);
+	printf("1 0 -> %lf\n", nn->layers[2]->output->matrix[0][0]);
+	feed_forward(nn, input3);
+	printf("0 1 -> %lf\n", nn->layers[2]->output->matrix[0][0]);
+	feed_forward(nn, input4);
+	printf("1 1 -> %lf\n", nn->layers[2]->output->matrix[0][0]);
+	
 	free_net(nn);
-	free_matrix(input);
+
+	free_matrix(input1);
+	free_matrix(input2);
+	free_matrix(input3);
+	free_matrix(input4);
+
+	free_matrix(e1);
+	free_matrix(e2);
+	free_matrix(e3);
+	free_matrix(e4);
+
 }
