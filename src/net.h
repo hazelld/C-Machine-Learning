@@ -81,7 +81,7 @@ typedef struct data_pair {
 typedef struct data_set {
 	data_pair** data;
 	int count;
-};
+} data_set;
 
 /*	Public Functions	*/
 /* init_net
