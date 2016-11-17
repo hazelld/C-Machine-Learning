@@ -57,8 +57,33 @@ typedef struct net {
 	act_prime_f ap;
 } net;
 
-/*	Public Functions	*/
 
+/* struct data_pair
+ *
+ *	This structure contains two matrices, one for the input to the 
+ *	net, and the expected output for the input. This allows for the 
+ *	data to be passed around easier, and for parsing the data. 
+ */
+typedef struct data_pair {
+	matrix_t* input;
+	matrix_t* expected_output;
+} data_pair;
+
+
+/* struct data_set
+ *
+ *	This is simply an array of data_pairs that has an associated count.
+ *	The purpose of this is to allow for building functions that parse 
+ *	data sets and return just this struct, instead of an array of data_pairs
+ *	and the count.
+ *
+ */
+typedef struct data_set {
+	data_pair** data;
+	int count;
+}
+
+/*	Public Functions	*/
 /* init_net
  *
  * 	This function is used to initialize an allocated struct net with the 
