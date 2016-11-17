@@ -1,22 +1,23 @@
 #include <linux/random.h>
 #include "net.h"
 
-void printm (matrix_t* m) {
-	for (int i = 0; i < m->rows; i++) {
-		for (int j = 0; j < m->columns; j++) {
-			printf("%lf ", m->matrix[i][j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
+/* File wide learning rate, used by _learning_rate() */
+static double learning_rate;
 
-int init_net (net* nn, int lc, int* topology_arr, activation act, activation_prime actp) {
+/* Local functions */
+static int feed_forward(net* n, matrix_t* input);
+static int net_error(net* n, matrix_t* expected);
+static int update_weights(net* n);
+static int update_bias(net* n);
+
+/* PUBLIC FUNCTIONS */
+int init_net (net* nn, int lc, int* topology_arr, act_f act, act_prime_f actp, double lr){
 	if (nn == NULL) return 1;
 	nn->af = act;
 	nn->ap = actp;
 	nn->layer_count = lc;
-	
+	learning_rate = lr;
+
 	nn->topology = malloc(sizeof(int) * lc);
 	nn->layers = malloc(sizeof(layer) * lc);
 	
@@ -45,6 +46,8 @@ int init_net (net* nn, int lc, int* topology_arr, activation act, activation_pri
 	return 0;
 }
 
+
+/**/
 int init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	if (l == NULL) return 1;
 	
@@ -72,7 +75,65 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	return 0;
 }
 
-int feed_forward (net* n, matrix_t* input) {
+
+/**/
+int train (net* n, matrix_t** inputs, matrix_t** expected, int epochs, int input_count) {
+	for (int j = 0; j < epochs; j++) {
+		printf("Training epoch %d\n", j);
+		for (int i = 0; i < input_count; i++) {
+			feed_forward(n, inputs[i]);
+			net_error(n, expected[i]);
+			update_weights(n);
+			update_bias(n);
+		}
+	}
+	return 0;
+}
+
+
+/**/
+matrix_t* predict (net* n, matrix_t* input) {
+	int last_layer = n->layer_count - 1;
+	feed_forward(n, input);
+	return n->layers[last_layer]->output;
+}
+
+/**/
+int free_net (net* n) {
+	if (n == NULL)
+		return 1;
+
+	for (int i = 0; i < n->layer_count; i++) 
+		free_layer(n->layers[i]);
+	free(n->layers);
+	free(n->topology);
+	free(n);
+	return 0;
+}
+
+
+/* NOTE:
+ *
+ * layer->input is never free'd because it is never allocated. It only
+ * ever points the previous layer's output which will be free'd by 
+ * layer->output. Or, it is the input for the whole neural net so it 
+ * will be the responsibility of the creator of the net to dealloc.
+ *
+ */
+int free_layer (layer* l) {
+	if (l == NULL)
+		return 1;
+
+	free_matrix(l->output);
+	free_matrix(l->weights);
+	free_matrix(l->layer_error);
+	free(l);
+	return 0;
+}
+
+
+/**/
+static int feed_forward (net* n, matrix_t* input) {
 	//assert that n->topology[0] == input->columns
 	layer* clayer;
 	n->layers[1]->input = input;
@@ -98,11 +159,12 @@ int feed_forward (net* n, matrix_t* input) {
 		if (clayer->ltype != output) 
 			n->layers[i+1]->input = clayer->output;
 	}
-	
 	return 0;
 }
 
-int net_error (net* n, matrix_t* expected) {
+
+/**/
+static int net_error (net* n, matrix_t* expected) {
 	
 	/* Calculate the error of the other layers, excluding the dummy 
 	 * input layer */
@@ -132,25 +194,29 @@ int net_error (net* n, matrix_t* expected) {
 	return 0;
 }
 
-double learning_rate(double val) {
-	return val * 0.2;
+
+/**/
+double _learning_rate (double val) {
+	return learning_rate * val;
 }
 
-int update_weights (net* n) {
+
+/**/
+static int update_weights (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
-		function_on_matrix(clayer->weight_delta, learning_rate);
+		function_on_matrix(clayer->weight_delta, _learning_rate);
 		matrix_t* f_weights = matrix_subtraction(clayer->weights, clayer->weight_delta);
 		free_matrix(clayer->weights);
 		free_matrix(clayer->weight_delta);
 		clayer->weights = f_weights;
-	}
-	
+	}	
 	return 0;
 }
 
 
-int update_bias (net* n) {
+/**/
+static int update_bias (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		double error_sum = 0;
 		layer* clayer = n->layers[i];
@@ -158,36 +224,6 @@ int update_bias (net* n) {
 		for (int j = 0; j < clayer->layer_error->rows; j++) 
 			error_sum += clayer->layer_error->matrix[j][0];
 		
-		clayer->bias -= 0.2 * error_sum;
+		clayer->bias -= error_sum;
 	}
-}
-
-
-int free_net (net* n) {
-	for (int i = 0; i < n->layer_count; i++) 
-		free_layer(n->layers[i]);
-	free(n->layers);
-	free(n->topology);
-	free(n);
-	return 0;
-}
-
-
-/* NOTE:
- *
- * layer->input is never free'd because it is never allocated. It only
- * ever points the previous layer's output which will be free'd by 
- * layer->output. Or, it is the input for the whole neural net so it 
- * will be the responsibility of the creator of the net to dealloc.
- *
- */
-int free_layer (layer* l) {
-	if (l == NULL)
-		return 1;
-
-	free_matrix(l->output);
-	free_matrix(l->weights);
-	free_matrix(l->layer_error);
-	free(l);
-	return 0;
 }
