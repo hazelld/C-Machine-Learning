@@ -152,7 +152,12 @@ static int feed_forward (net* n, matrix_t* input) {
 			clayer->layer_error = NULL;
 		}
 
-		clayer->output = matrix_vector_dot(clayer->weights, clayer->input);
+		clayer->output = malloc(sizeof(matrix_t));
+		int val = matrix_vector_dot(clayer->weights, clayer->input, &clayer->output); 
+		
+		if (val == FAILURE)
+			return FAILURE;
+		
 		vector_scalar_addition(clayer->output, clayer->bias);
 		function_on_vector(clayer->output, n->af);
 		
@@ -170,28 +175,40 @@ static int net_error (net* n, matrix_t* expected) {
 	 * input layer */
 	for (int i = n->layer_count-1; i > 0; i--) {
 		layer* clayer = n->layers[i];
-		matrix_t* buff_err;
+		matrix_t* buff_err = malloc(sizeof(matrix_t));
 		matrix_t* tweights = NULL;
+		int err = SUCCESS;
 
 		if (clayer->ltype != output) {
 			layer* nlayer = n->layers[i+1];
 			tweights = transpose_r(nlayer->weights);
-			buff_err = matrix_vector_dot(tweights, nlayer->layer_error);
+			err = matrix_vector_dot(tweights, nlayer->layer_error, &buff_err);
 		} else {
-			buff_err = subtract_vector(clayer->output, expected);	
+			err = matrix_subtraction(clayer->output, expected, &buff_err);	
 		}
-			
-		function_on_vector(clayer->output, n->ap);
-		clayer->layer_error = multiply_vector(buff_err, clayer->output);
+		if (err == FAILURE) return FAILURE;
 		
+		/* g'(z) */	
+		function_on_vector(clayer->output, n->ap);
+		
+		/* S * g'(z) */
+		clayer->layer_error = malloc(sizeof(matrix_t));
+		err = multiply_vector(buff_err, clayer->output, &clayer->layer_error);
+		if (err == FAILURE) return err;
+	
 		matrix_t* transposed_input = transpose_r(clayer->input);
-		clayer->weight_delta = kronecker_vectors(clayer->layer_error, transposed_input);
+		
+		/* Get weight delta matrix */
+		clayer->weight_delta = malloc(sizeof(matrix_t));
+		err = kronecker_vectors(clayer->layer_error, transposed_input, &clayer->weight_delta);
+		if (err == FAILURE) return err;
 
 		free_matrix(transposed_input);
 		free_matrix(tweights);
 		free_matrix(buff_err);
 	}
-	return 0;
+
+	return SUCCESS;
 }
 
 
@@ -205,13 +222,20 @@ double _learning_rate (double val) {
 static int update_weights (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
+		matrix_t* f_weights = malloc(sizeof(f_weights));
+
 		function_on_matrix(clayer->weight_delta, _learning_rate);
-		matrix_t* f_weights = matrix_subtraction(clayer->weights, clayer->weight_delta);
+		int ret = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
+		if (ret == FAILURE) return FAILURE;
+
+		/* Free old memory */
 		free_matrix(clayer->weights);
 		free_matrix(clayer->weight_delta);
+		
+		/* Set new weights */
 		clayer->weights = f_weights;
 	}	
-	return 0;
+	return SUCCESS;
 }
 
 

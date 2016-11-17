@@ -6,6 +6,14 @@
 #include <time.h>
 #include <linux/random.h>
 
+#define SUCCESS 0
+#define FAILURE 1
+
+#define NULL_ARG 0
+#define MATRIX_WRONG_DIM 1
+#define ZERO_DIM_MATRIX 2
+#define NOT_VECTOR 3
+
 typedef struct matrix_t {
 	double** matrix;
 	unsigned int rows; // m
@@ -44,7 +52,7 @@ int init_matrix(matrix_t* m, unsigned int rows, unsigned int columns);
  *
  *    Note: the matrix m and vector vec are not deallocated in this function
  */
-matrix_t* matrix_vector_dot(matrix_t* m, matrix_t* vec);
+int matrix_vector_dot(matrix_t* m, matrix_t* vec, matrix_t** result);
 
 
 /* vector_scalar_addition
@@ -59,7 +67,7 @@ matrix_t* matrix_vector_dot(matrix_t* m, matrix_t* vec);
 int vector_scalar_addition (matrix_t* m, double scalar);
 
 
-/* function_on_vector
+/* function_on_matrix
  *
  *	This function applys a function onto each value of the matrix. 
  *
@@ -75,11 +83,34 @@ int vector_scalar_addition (matrix_t* m, double scalar);
  * 	 0 => Success 
  * 	 _ => Failure
  */
-int function_on_vector (matrix_t* vec, double (*f)(double));
-
 int function_on_matrix (matrix_t* m, double(*f)(double));
 
-matrix_t* matrix_subtraction (matrix_t* m, matrix_t* n);
+
+/* function_on_vector
+ *
+ * 	Functionally the same as function_on_matrix, however this
+ * 	only applys the function to a column-wise matrix_t.
+ *
+ * 	Returns:
+ * 	0 => Success
+ * 	_ => Failure
+ */
+int function_on_vector (matrix_t* vec, double (*f)(double));
+
+
+/* matrix_subtraction
+ *	
+ *	This function subtracts the values of matrix n from 
+ *	the values of matrix m. This function requires m & n to
+ *	have equal dimensions.
+ *
+ *	Returns:
+ *	0 => Success
+ *	_ => Failure
+ *
+ */
+int matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result);
+
 
 /*	transpose
  *	
@@ -114,10 +145,8 @@ matrix_t* transpose_r (matrix_t* const m);
  *	
  *	Returns the result, the original two vectors are untouched.
  */
-matrix_t* multiply_vector(matrix_t* m, matrix_t* n);
+int multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result);
 
-
-matrix_t* subtract_vector(matrix_t* m, matrix_t* n);
 
 /*	random_matrix
  *
@@ -149,7 +178,7 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
  * Note this function returns NULL if it is not supplied with 2 
  * 1 dimensional vectors.
  */
-matrix_t* kronecker_vectors (matrix_t* vec1, matrix_t* vec2);
+int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
 
 
 /*	free_matrix
