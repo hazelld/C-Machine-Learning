@@ -22,4 +22,4 @@ $(BUILDDIR)/%.o: $(TESTDIR)/%.c
 	$(CC) $(CFLAGS) -I$(HEADERDIR) -c $< -o $@ $(LDFLAGS)
 
 clean:
-	rm -f build/xor_test $(OBJECTS) $(TESTOBJ)
+	rm -f xor_test $(OBJECTS) $(TESTOBJ)
