@@ -226,4 +226,5 @@ static int update_bias (net* n) {
 		
 		clayer->bias -= error_sum;
 	}
+	return 0;
 }

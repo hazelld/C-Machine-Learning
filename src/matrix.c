@@ -55,6 +55,7 @@ int function_on_matrix (matrix_t* m, double(*f)(double)) {
 			m->matrix[i][j] = (*f)(m->matrix[i][j]);
 		}
 	}
+	return 0;
 }
 
 matrix_t* matrix_subtraction (matrix_t* m, matrix_t* n) {
