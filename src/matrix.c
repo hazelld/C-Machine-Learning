@@ -196,7 +196,7 @@ int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
 		columns = vec1->columns;
 		horiz_v = vec1;
 		vertical_v = vec2;
-	} else if (vec2->rows == 1 && vec2->columns > 1) {
+	} else if (vec2->rows == 1 && vec2->columns >= 1) {
 		rows = vec1->rows;
 		columns = vec2->columns;
 		horiz_v = vec2;
@@ -254,7 +254,7 @@ static int log_error (int err, char* func, char* var) {
 			break;
 	}
 
-	fprintf(stderr, "Error: %s Occured in: %s(). Offending variable:%s", \
+	fprintf(stderr, "Error: %s Occured in: %s(). Offending variable:%s\n", \
 			err_str, func, var);
 	
 	return FAILURE;
