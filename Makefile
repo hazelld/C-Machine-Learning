@@ -11,13 +11,14 @@ SOURCES= $(wildcard $(SOURCEDIR)/*.c)
 OBJECTS= $(patsubst $(SOURCEDIR)/%.c, $(BUILDDIR)/%.o, $(SOURCES))
 TESTS= $(wildcard $(TESTDIR)/*.c)
 TESTOBJ= $(patsubst $(TESTDIR)/%.c, $(BUILDDIR)/%.o, $(TESTS))
+TESTBIN= $(patsubst $(BUILDDIR)/%.o, $(BUILDDIR)/%, $(TESTOBJ))
 
+all: tests
 
-xor_test: $(BUILDDIR)/$(OBJECTS) $(BUILDDIR)/xor_test.o
-	$(CC) $(CFLAGS) -I$(HEADERDIR) $(OBJECTS) $(BUILDDIR)/xor_test.o -o $@ $(LDFLAGS)
+tests: $(TESTBIN)
 
-sin_test: $(BUILDDIR)/$(OBJECTS) $(BUILDDIR)/sin_test.o
-	$(CC) $(CFLAGS) -I$(HEADERDIR) $(OBJECTS) $(BUILDDIR)/sin_test.o -o $@ $(LDFLAGS)
+$(TESTBIN): $(BUILDDIR)/$(OBJECTS) $(BUILDDIR)/$(TESTOBJ)
+	$(CC) $(CFLAGS) -I$(HEADERDIR) $(OBJECTS) $@.o -o $@ $(LDFLAGS)
 
 $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c
 	$(CC) $(CFLAGS) -I$(HEADERDIR) -c $< -o $@ $(LDFLAGS)
@@ -26,4 +27,4 @@ $(BUILDDIR)/%.o: $(TESTDIR)/%.c
 	$(CC) $(CFLAGS) -I$(HEADERDIR) -c $< -o $@ $(LDFLAGS)
 
 clean:
-	rm -f sin_test xor_test $(OBJECTS) $(TESTOBJ)
+	rm -f $(TESTBIN) $(OBJECTS) $(TESTOBJ)
