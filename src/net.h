@@ -150,7 +150,7 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node);
  *	Memory Allocated:
  *		NONE
  */
-int train (net* n, matrix_t** inputs, matrix_t** expected, int epochs, int input_count);
+int train (net* n, data_set* data, int epochs);
 
 
 /* predict

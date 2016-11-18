@@ -1,56 +1,94 @@
 #include "matrix-builder.h"
 
-/* TODO: 
- * - Add support for other delims and line endings
- */
-matrix_t** from_csv (FILE* f, int* result) {
-	int lines = 0;
-	int items_per_line = 0;
-	matrix_t** input = malloc(sizeof(matrix_t*));
-	char* linebuff = malloc(sizeof(char) * MAXLINELEN);
-	char* token;
-	double* values;
+data_set* parse_from_csv(FILE* fh) {
+	int lines, inputs_per_line, outputs_per_line;
+	char *token, *inputs, *outputs;
 
-	while (fgets(linebuff, MAXLINELEN, f) != NULL) {
-		int current_items = 0;
-		values = malloc(sizeof(double));
-		token = strtok(linebuff, ",");
+	data_set* data = malloc(sizeof(data_set));
+	data->data = malloc(sizeof(data_pair*));
+	char* line_buffer = malloc(sizeof(char) * MAXLINELEN);
+	lines = inputs_per_line = outputs_per_line = 0;
 
-		/* Get all values from line */
+	const char delim[2] = ",";
+	const char split[2] = ";";
+
+	while( fgets(line_buffer, MAXLINELEN, fh) != NULL) {
+		int item_count = 0;
+
+		/* Allocate more space */
+		data->count = lines++;
+		data->data = realloc(data->data, sizeof(data_pair*) * lines);
+		data->data[data->count] = malloc(sizeof(data_pair));
+		data->data[data->count]->input = malloc(sizeof(matrix_t));
+		data->data[data->count]->expected_output = malloc(sizeof(matrix_t));
+		
+		/* Get first and second half of line */
+		double* value_buffer = malloc(sizeof(double));
+		inputs = strtok(line_buffer, split);
+		outputs = strtok(NULL, split);
+
+		token = strtok(inputs, delim);
 		while (token != NULL) {
-			current_items++;
-			values = realloc(values, sizeof(double) * current_items);
-			values[current_items-1] = strtod(token, NULL);
+			item_count++;
+			value_buffer = realloc(value_buffer, sizeof(double) * item_count);
+			value_buffer[item_count-1] = strtod(token, NULL);
+			token = strtok(NULL, delim);
+		}
+		
+		/* If this is first iteration, save the values */
+		if (lines == 1) 
+			inputs_per_line = item_count;
+
+		if (inputs_per_line != item_count) {
+			fprintf(stderr, "Inconsistent amount of inputs on line %d...Dying\n", lines);
+			exit(1);
 		}
 
-		if (items_per_line == 0 && current_items > 0) 
-			items_per_line = current_items;
+		/* Put into data_pair* */
+		init_matrix(data->data[data->count]->input, item_count, 1);
+		for (int i = 0; i < item_count; i++)
+			data->data[data->count]->input->matrix[i][0] = value_buffer[i];
+		
+		/* Reset for output */
+		item_count = 0;
+		double* vals = malloc(sizeof(double));
+		
+		token = strtok(outputs, delim);
+		while (token != NULL) {
+			item_count++;
+			vals = realloc(vals, sizeof(double) * item_count);
+			vals[item_count-1] = strtod(token, NULL);
+			token = strtok(NULL, delim);
+		}
 
-		/* Mismatched amount of items */
-		if (current_items != items_per_line) 
-			goto die;
-	
-		/* Re-alloc more space, and add new matrix in */
-		lines++;
-		input = realloc(input, sizeof(matrix_t*) * lines);
-		input[lines-1] = malloc(sizeof(matrix_t));
-		init_matrix(input[lines-1], items_per_line, 1);
+		if (lines == 1)
+			outputs_per_line = item_count;
+		
+		if (outputs_per_line != item_count) {
+			fprintf(stderr, "Inconsistent amount of outputs on line %d...Dying\n", lines);
+			exit(1);
+		}
 
-		for (int i = 0; i < items_per_line; i++)
-			input[lines-1]->matrix[i][0] = values[i];
-		free(values);
+		init_matrix(data->data[data->count]->expected_output, item_count, 1);
+		for (int i = 0; i < item_count; i++) 
+			data->data[data->count]->expected_output->matrix[i][0] = vals[i];
+		
+		free(value_buffer);
+		free(vals);
 	}
+	data->count++;
+	free(line_buffer);	
+	return data;
+}
 
 
-	/* If we have to abort the function early, free all memory allocated */
-die:
-	free(values);
-	free(linebuff);
-	
-	for(int i = 0; i < lines; i++) 
-		free_matrix(input[i]);
-	free(input);
-
-	*result = 1;
-	return NULL;
+int free_data_set (data_set* data) {
+	for (int i = 0; i < data->count; i++) {
+		free_matrix(data->data[i]->input);
+		free_matrix(data->data[i]->expected_output);
+		free(data->data[i]);
+	}
+	free(data->data);
+	free(data);
+	return SUCCESS;
 }

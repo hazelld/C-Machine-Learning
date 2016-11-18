@@ -6,6 +6,7 @@ static double learning_rate;
 
 /* Local functions */
 static int feed_forward(net* n, matrix_t* input);
+static int backprop (net* n, matrix_t* expected); 
 static int net_error(net* n, matrix_t* expected);
 static int update_weights(net* n);
 static int update_bias(net* n);
@@ -23,6 +24,8 @@ int init_net (net* nn, int lc, int* topology_arr, act_f act, act_prime_f actp, d
 	
 	for(int i = 0; i < lc; i++) {
 		
+		nn->topology[i] = topology_arr[i];
+		
 		/* Allocate space for layer */
 		nn->layers[i] = malloc(sizeof(layer));
 
@@ -39,8 +42,6 @@ int init_net (net* nn, int lc, int* topology_arr, act_f act, act_prime_f actp, d
 			init_layer(nn->layers[i], input, 0, topology_arr[i]);
 			continue;
 		}
-
-		nn->topology[i] = topology_arr[i];
 		init_layer(nn->layers[i], lt, topology_arr[i-1], topology_arr[i]);
 	}
 	return 0;
@@ -77,14 +78,12 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 
 
 /**/
-int train (net* n, matrix_t** inputs, matrix_t** expected, int epochs, int input_count) {
+int train (net* n, data_set* data, int epochs) {
 	for (int j = 0; j < epochs; j++) {
-		printf("Training epoch %d\n", j);
-		for (int i = 0; i < input_count; i++) {
-			feed_forward(n, inputs[i]);
-			net_error(n, expected[i]);
-			update_weights(n);
-			update_bias(n);
+		//printf("Training epoch %d\n", j);
+		for (int i = 0; i < data->count; i++) {
+			feed_forward(n, data->data[i]->input);
+			backprop(n, data->data[i]->expected_output);
 		}
 	}
 	return 0;
@@ -132,12 +131,28 @@ int free_layer (layer* l) {
 }
 
 
-/**/
+/* feed_forward
+ *
+ *	This function is used to feed an input through the net. It is 
+ *	important that the defined input topology (n->topology[0]) has the
+ *	same amount of rows that the input vector has. 
+ *
+ *	Arguments:
+ *	net => Neural network
+ *	input => Input matrix to feed through the net
+ *	
+ *	Returns:
+ *	SUCCESS => Successfully fed through network
+ *	FAILURE => Error 
+ *
+ */
 static int feed_forward (net* n, matrix_t* input) {
-	//assert that n->topology[0] == input->columns
 	layer* clayer;
 	n->layers[1]->input = input;
 	
+	if (n->topology[0] != input->rows)
+		return FAILURE;
+
 	for (int i = 1; i < n->layer_count; i++) {
 		clayer = n->layers[i];
 		
@@ -155,8 +170,7 @@ static int feed_forward (net* n, matrix_t* input) {
 		clayer->output = malloc(sizeof(matrix_t));
 		int val = matrix_vector_dot(clayer->weights, clayer->input, &clayer->output); 
 		
-		if (val == FAILURE)
-			return FAILURE;
+		if (val == FAILURE) return FAILURE;
 		
 		vector_scalar_addition(clayer->output, clayer->bias);
 		function_on_vector(clayer->output, n->af);
@@ -168,7 +182,39 @@ static int feed_forward (net* n, matrix_t* input) {
 }
 
 
-/**/
+/* backprop
+ *
+ * 	This function is used to provide a single interface 
+ * 	to the steps needed to back propogate the network. 
+ *
+ * 	Arguments:
+ * 	n => Neural Network
+ * 	expected => Expected value after the feed forward
+ *
+ * 	Returns:
+ * 	SUCCESS => Successfully backproped the network
+ * 	FAILURE => Could not backprop the network
+ */
+static int backprop (net* n, matrix_t* expected) {
+	if (net_error(n, expected) == FAILURE) return FAILURE;
+	if (update_weights(n) == FAILURE) return FAILURE;
+	if (update_bias(n) == FAILURE) return FAILURE;
+	return SUCCESS;
+}
+
+/* net_error
+ *	
+ *	This function calculates the weight delta matrix based
+ *	off the error of each layer.
+ *
+ * 	Arguments:
+ * 	n => Neural Network
+ * 	expected => The matrix with the expected result 
+ *
+ * 	Returns:
+ * 	SUCCESS => Calculated error successfully
+ * 	FAILURE => Could not calculate error 
+ */
 static int net_error (net* n, matrix_t* expected) {
 	
 	/* Calculate the error of the other layers, excluding the dummy 
@@ -212,17 +258,33 @@ static int net_error (net* n, matrix_t* expected) {
 }
 
 
-/**/
+/*	_learning_rate
+ *
+ *	This function is used to apply the learning rate to any value 
+ *	given. This allows for it to be applied to a whole matrix through
+ *	the use of the function_on_matrix() function that takes a function
+ *	as an argument.
+ *
+ *	Note: learning_rate is a global variable set by init_net()
+ */
 double _learning_rate (double val) {
 	return learning_rate * val;
 }
 
 
-/**/
+/* update_weights
+ *
+ * 	This function is used to update the weights by the values of their 
+ * 	weight delta matrix. It should be called after the net_error() function.
+ *
+ * 	Returns:
+ * 	SUCCESS => Updated weights successfully 
+ * 	FAILURE => Could not update weights
+ */
 static int update_weights (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
-		matrix_t* f_weights = malloc(sizeof(f_weights));
+		matrix_t* f_weights = malloc(sizeof(matrix_t));
 
 		function_on_matrix(clayer->weight_delta, _learning_rate);
 		int ret = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
@@ -239,7 +301,15 @@ static int update_weights (net* n) {
 }
 
 
-/**/
+/* update_bias
+ *
+ * 	This function is used to update the network biases. It 
+ * 	should be called after the net_error() function.
+ *
+ * 	Returns:
+ * 	SUCCESS => Updated the biases
+ * 	FAILURE => Could not update the weights
+ */
 static int update_bias (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		double error_sum = 0;
