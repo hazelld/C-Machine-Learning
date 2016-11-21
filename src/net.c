@@ -11,13 +11,19 @@ static int net_error(net* n, matrix_t* expected);
 static int update_weights(net* n);
 static int update_bias(net* n);
 
+/* Local activation functions, for when a user can't provide own */
+static double clog_sigmoid (double);
+static double clog_sigmoid_prime (double);
+
+
 /* PUBLIC FUNCTIONS */
 int init_net (net* nn, int lc, int* topology_arr, act_f act, act_prime_f actp, double lr){
 	if (nn == NULL) return 1;
-	nn->af = act;
-	nn->ap = actp;
 	nn->layer_count = lc;
 	learning_rate = lr;
+	
+	(act == NULL) ? (nn->af = clog_sigmoid) : (nn->af = act);
+	(actp == NULL) ? (nn->ap = clog_sigmoid_prime) : (nn->ap = actp);
 
 	nn->topology = malloc(sizeof(int) * lc);
 	nn->layers = malloc(sizeof(layer) * lc);
@@ -321,4 +327,30 @@ static int update_bias (net* n) {
 		clayer->bias -= error_sum;
 	}
 	return 0;
+}
+
+/* clog_sigmoid 
+ *
+ * 	This function provides a default activation function if no other functions 
+ * 	are specified. This returns the result of the continous log-sigmoid function
+ * 	that is defined as:
+ *
+ * 	f(x) = 1 / (1 + e^(-t))
+ *
+ */
+static double clog_sigmoid (double x) {
+	return 1 / (1 + exp(-x));
+}	
+
+/* clog_sigmoid_prime
+ *
+ * 	This function is the derivative of the clog_sigmoid() function, that 
+ * 	is defined as:
+ *
+ * 	df(x)
+ * 	_____ = f(x) * ( 1 - f(x))
+ * 	dt
+ */
+static double clog_sigmoid_prime (double fx) {
+	return fx * ( 1 - fx);
 }

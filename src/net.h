@@ -2,6 +2,7 @@
 #define _NET_H_
 
 #include <stdlib.h>
+#include <math.h>
 #include "matrix.h"
 
 typedef double (*act_f)(double);
