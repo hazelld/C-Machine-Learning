@@ -9,7 +9,27 @@
 
 #define MAXLINELEN 256
 
+/* 
+ *
+ */
 data_set* data_set_from_csv (FILE* fh); 
+
+
+/*
+ *
+ */
 int free_data_set(data_set* data);
+
+/*
+ *
+ */
+int load_net (net* n, FILE* fh);
+
+
+/*
+ *
+ */
+int save_net (net* n, FILE* fh);
+
 
 #endif

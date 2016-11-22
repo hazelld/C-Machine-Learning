@@ -82,6 +82,60 @@ data_set* data_set_from_csv(FILE* fh) {
 }
 
 
+int load_net (net* n, FILE* fh) {
+	return SUCCESS;	
+}
+
+int save_net (net* n, FILE* fh) {
+	if (n == NULL || fh == NULL) return FAILURE;
+
+	fprintf(fh, "BEGIN NET\n");
+	fprintf(fh, "layers=%d\n", n->layer_count);
+	fprintf(fh, "topology=");
+
+	for (int i = 0; i < n->layer_count; i++) {
+		fprintf(fh, "%d", n->topology[i]);
+
+		if (i < n->layer_count - 1)
+			fprintf(fh, ",");
+		else
+			fprintf(fh, ";\n");
+	}
+
+	for (int i = 0; i < n->layer_count; i++) {
+		layer* clayer = n->layers[i];
+		fprintf(fh, "BEGIN LAYER\n");
+		fprintf(fh, "type=");
+		
+		if (clayer->ltype == input) fprintf(fh, "input\n");
+		if (clayer->ltype == hidden) fprintf(fh, "hidden\n");
+		if (clayer->ltype == output) fprintf(fh, "output\n");
+		
+		fprintf(fh, "input-nodes=%d\n", clayer->input_nodes);
+		fprintf(fh, "output-nodes=%d\n", clayer->output_nodes);
+		fprintf(fh, "bias=%lf\n", clayer->bias);
+		
+		fprintf(fh, "BEGIN WEIGHT MATRIX\n");
+		
+		if (clayer->weights != NULL) {
+			matrix_t* buff = clayer->weights;
+
+			for (int n = 0; n < buff->rows; n++) {
+				for (int j = 0; j < buff->columns; j++) {
+					fprintf(fh, "%lf", buff->matrix[n][j]);
+					
+					if (j < buff->columns - 1)
+						fprintf(fh, ",");
+				}
+				fprintf(fh, ";\n");
+			}
+		}
+		fprintf(fh, "END WEIGHT MATRIX\nEND LAYER\n");
+	}
+	fprintf(fh, "END NET");
+	return SUCCESS;
+}
+
 int free_data_set (data_set* data) {
 	for (int i = 0; i < data->count; i++) {
 		free_matrix(data->data[i]->input);

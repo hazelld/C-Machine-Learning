@@ -53,8 +53,12 @@ int main() {
 		 */
 		printf("GOT: %lf\n", (2 * res->matrix[0][0]) - 1);
 	}
-	
+		
 	fclose(fh);
+	
+	FILE* f = fopen("sin.net", "w");
+	save_net(nn, f);
+
 	free_data_set(data);
 	free_net(nn);
 }
