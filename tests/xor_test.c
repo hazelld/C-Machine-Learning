@@ -1,7 +1,7 @@
 #include <math.h>
 #include "matrix.h"
 #include "net.h"
-#include "matrix-builder.h"
+#include "builder.h"
 
 void print_m (matrix_t* m) {
 	for (int i = 0; i < m->rows; i++) {
@@ -30,7 +30,7 @@ int main() {
 	data_set* data;
 	FILE* fh = fopen("tests/xor.csv", "r");
 
-	data = parse_from_csv(fh);
+	data = data_set_from_csv(fh);
 	init_net(nn, 3, topology, sigmoid, sigmoid_prime, 0.3);
 	train(nn, data, 3000);
 

@@ -9,7 +9,7 @@
 
 #define MAXLINELEN 256
 
-data_set* parse_from_csv (FILE* fh); 
+data_set* data_set_from_csv (FILE* fh); 
 int free_data_set(data_set* data);
 
 #endif

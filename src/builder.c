@@ -1,6 +1,6 @@
-#include "matrix-builder.h"
+#include "builder.h"
 
-data_set* parse_from_csv(FILE* fh) {
+data_set* data_set_from_csv(FILE* fh) {
 	int lines, inputs_per_line, outputs_per_line;
 	char *token, *inputs, *outputs;
 
