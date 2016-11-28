@@ -5,6 +5,7 @@ SOURCEDIR= src
 TESTDIR= tests
 BUILDDIR= build
 HEADERDIR= src
+MKDIR= mkdir -p
 
 SOURCES= $(wildcard $(SOURCEDIR)/*.c)
 OBJECTS= $(patsubst $(SOURCEDIR)/%.c, $(BUILDDIR)/%.o, $(SOURCES))
@@ -12,7 +13,9 @@ TESTS= $(wildcard $(TESTDIR)/*.c)
 TESTOBJ= $(patsubst $(TESTDIR)/%.c, $(BUILDDIR)/%.o, $(TESTS))
 TESTBIN= $(patsubst $(BUILDDIR)/%.o, $(BUILDDIR)/%, $(TESTOBJ))
 
-all: tests
+.PHONY: directories tests clean
+
+all: directories tests
 
 tests: $(TESTBIN)
 
@@ -25,5 +28,10 @@ $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c
 $(BUILDDIR)/%.o: $(TESTDIR)/%.c
 	$(CC) $(CFLAGS) -I$(HEADERDIR) -c $< -o $@ $(LDFLAGS)
 
+directories: $(BUILDDIR)
+
+$(BUILDDIR):
+	$(MKDIR) $(BUILDDIR)
+
 clean:
-	rm -f $(TESTBIN) $(OBJECTS) $(TESTOBJ)
+	rm -rf $(TESTBIN) $(OBJECTS) $(TESTOBJ) $(BUILDDIR)
