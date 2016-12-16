@@ -1,5 +1,5 @@
 #include "builder.h"
-
+/*
 static int parse_net (net* n, FILE* fh);
 static int parse_layer (layer** l, FILE* fh);
 static int parse_matrix (matrix_t** m, FILE* fh);
@@ -13,6 +13,7 @@ static int chomp (char* str) {
 	*str = '\0';
 	return SUCCESS;
 }
+*/
 
 data_set* data_set_from_csv(FILE* fh) {
 	int lines, inputs_per_line, outputs_per_line;
@@ -95,7 +96,7 @@ data_set* data_set_from_csv(FILE* fh) {
 	return data;
 }
 
-
+/*
 int load_net (net* n, FILE* fh) {
 	return parse_net(n, fh);	
 }
@@ -111,6 +112,7 @@ static int parse_layer (layer** l, FILE* fh) {
 static int parse_matrix (matrix_t** m, FILE* fh) {
 
 }
+*/
 
 int save_net (net* n, FILE* fh) {
 	if (n == NULL || fh == NULL) return FAILURE;
