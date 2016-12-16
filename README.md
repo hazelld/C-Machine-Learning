@@ -2,7 +2,8 @@
 This program is a very basic implementation of a feedforward neural network in C. It is more or less a proof of concept, as the plan is to port the NN to a functional language in the future. It uses a half-baked matrix library that was quickly thrown together as the basis for the operations performed. It uses a sigmoid activation function for the neuron's activation. 
   
 # Install
-    git clone 
+    git clone git@github.com:whazell/C-Neural-Network.git  
+    cd C-Neural-Network  
     make
     
 # Usage  
