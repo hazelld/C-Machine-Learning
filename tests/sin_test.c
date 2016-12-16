@@ -21,7 +21,7 @@ double sigmoid (double val) {
 
 double sigmoid_prime (double val) {
 	return val * (1 - val);
-}
+	}
 
 
 int main() {
@@ -58,7 +58,9 @@ int main() {
 	
 	FILE* f = fopen("sin.net", "w");
 	save_net(nn, f);
+	fclose(f);
 
 	free_data_set(data);
 	free_net(nn);
+	
 }
