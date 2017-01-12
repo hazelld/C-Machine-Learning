@@ -1,4 +1,3 @@
-#include <linux/random.h>
 #include "net.h"
 
 /* File wide learning rate, used by _learning_rate() */

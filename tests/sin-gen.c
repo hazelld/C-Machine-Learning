@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <linux/random.h>
 #include <time.h>
 #include <math.h>
 
