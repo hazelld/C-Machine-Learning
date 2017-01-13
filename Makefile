@@ -1,4 +1,4 @@
-CFLAGS= -g -Wall -O3
+CFLAGS= -std=c99 -Wall -O3
 LDFLAGS= -lm
 
 SOURCEDIR= src
