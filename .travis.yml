@@ -1,6 +1,6 @@
 language: c
 install: make
-script: make && ./build/tests
+script: make && ./build/sin_test
 compiler:
     -clang
     -gcc
