@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <linux/random.h>
 
 #define SUCCESS 0
 #define FAILURE 1
