@@ -1,0 +1,7 @@
+language: c
+install: make
+script: make && ./build/tests
+compiler:
+    -clang
+    -gcc
+
