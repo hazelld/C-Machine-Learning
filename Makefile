@@ -2,7 +2,7 @@ CFLAGS= -std=c99 -Wall -O3
 LDFLAGS= -lm
 
 SOURCEDIR= src
-TESTDIR= tests
+TESTDIR= $(SOURCEDIR)/tests
 BUILDDIR= build
 HEADERDIR= src
 MKDIR= mkdir -p

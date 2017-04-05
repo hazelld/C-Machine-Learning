@@ -21,14 +21,20 @@ double sigmoid (double val) {
 
 double sigmoid_prime (double val) {
 	return val * (1 - val);
-	}
+}
 
 
 int main() {
 	int topology[4] = { 1, 5, 5, 1 };
 	net* nn = malloc(sizeof(net));
 	data_set* data;
-	FILE* fh = fopen("tests/sin.csv", "r");
+	FILE* fh = fopen("src/tests/data/sin.csv", "r");
+
+	if (fh == NULL) {
+		printf("Could not open file: src/tests/data/sin.csv. Ensure you are running from root \
+				project directory.\n");
+		exit(EXIT_FAILURE);
+	}
 
 	data = data_set_from_csv(fh);
 	init_net(nn, 4, topology, sigmoid, sigmoid_prime, 0.3);
