@@ -9,12 +9,17 @@ add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Find Source Files and create the library
-file(GLOB SOURCES src/*.c)
+# Find Source Files and create the core library object
+file(GLOB SOURCES src/core/*.c)
+add_library(${PROJECT_NAME}-core OBJECT ${SOURCES})
+
+
+# Merge together to make a .so 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
+
 # Add the include folder
-include_directories(src)
+include_directories(src/core)
 add_executable(sin_test src/test/sin_test.c)
 add_executable(xor_test src/test/xor_test.c)
 
@@ -33,9 +38,9 @@ target_link_libraries(sin-gen ${PROJECT_NAME})
 target_link_libraries(sin-gen m)
 
 # Add the Test folder
-enable_testing()
-add_test( xor xor_test )
-add_test( sin sin_test )
+#enable_testing()
+#add_test( xor xor_test )
+#add_test( sin sin_test )
 
 # Install Library
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
