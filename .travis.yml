@@ -2,8 +2,9 @@ language: c
 install: mkdir build && cd build && cmake ../
 script: 
     - make 
-    - ./bin/sin_test
-    - ./bin/xor_test
+    - cd ../
+    - ./build/bin/sin_test
+    - ./build/bin/xor_test
 compiler:
     - clang
     - gcc

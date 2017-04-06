@@ -28,10 +28,10 @@ int main() {
 	int topology[3] = { 2, 8, 1 };
 	net* nn = malloc(sizeof(net));
 	data_set* data;
-	FILE* fh = fopen("src/test/data/xor.csv", "r");
+	FILE* fh = fopen("data/xor.csv", "r");
 	
 	if (fh == NULL) {
-		printf("Could not open file src/test/data/xor.csv Ensure you are running from the root project directory.\n");
+		printf("Could not open file data/xor.csv Ensure you are running from the root project directory.\n");
 		exit(EXIT_FAILURE);
 	}
 	

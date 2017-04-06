@@ -1,5 +1,9 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 2.8)
 project (cnn)
+
+# Set the compiler flags for gcc
+set(GCC_COVERAGE_COMPILE_FLAGS "-std=c99")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 
 #  Library Dir Locally
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
