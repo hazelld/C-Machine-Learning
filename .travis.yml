@@ -1,6 +1,9 @@
 language: c
-install: make
-script: make && ./build/sin_test
+install: mkdir build && cd build && cmake ../
+script: 
+    - make 
+    - ./bin/sin_test
+    - ./bin/xor_test
 compiler:
     - clang
     - gcc
