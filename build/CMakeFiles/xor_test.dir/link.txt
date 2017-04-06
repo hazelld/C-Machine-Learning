@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/xor_test.dir/src/test/xor_test.c.o  -o bin/xor_test -lm lib/libcnn.so -Wl,-rpath,/home/whaze/dev/C-Neural-Network/build/lib 
