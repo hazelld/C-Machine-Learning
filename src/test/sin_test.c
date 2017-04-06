@@ -28,10 +28,10 @@ int main() {
 	int topology[4] = { 1, 5, 5, 1 };
 	net* nn = malloc(sizeof(net));
 	data_set* data;
-	FILE* fh = fopen("src/test/data/sin.csv", "r");
+	FILE* fh = fopen("data/sin.csv", "r");
 
 	if (fh == NULL) {
-		printf("Could not open file: src/tests/data/sin.csv. Ensure you are running from root project directory.\n");
+		printf("Could not open file: data/sin.csv. Ensure you are running from root project directory.\n");
 		exit(EXIT_FAILURE);
 	}
 
