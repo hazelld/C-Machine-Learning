@@ -1,0 +1,18 @@
+#!/bin/bash
+
+BUILD_DIR=build
+
+if [[ ${1} == "clean" ]]; then
+	rm -rf ${BUILD_DIR}
+	exit
+fi
+
+if [[ ${1} == "rebuild" ]]; then
+	rm -rf ${BUILD_DIR}
+	mkdir ${BUILD_DIR} && cd ${BUILD_DIR}
+	cmake ../ && make
+	exit
+fi
+
+mkdir ${BUILD_DIR} && cd ${BUILD_DIR}
+cmake ../ && make
