@@ -1,1 +1,0 @@
-/usr/bin/cc     CMakeFiles/sin_test.dir/src/test/sin_test.c.o  -o bin/sin_test -lm lib/libcnn.so -Wl,-rpath,/home/whaze/dev/C-Neural-Network/build/lib 

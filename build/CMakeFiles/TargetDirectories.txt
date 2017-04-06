@@ -1,7 +1,0 @@
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/test.dir
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/edit_cache.dir
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/rebuild_cache.dir
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/cnn.dir
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/sin-gen.dir
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/sin_test.dir
-/home/whaze/dev/C-Neural-Network/build/CMakeFiles/xor_test.dir

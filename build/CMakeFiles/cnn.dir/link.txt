@@ -1,1 +1,0 @@
-/usr/bin/cc  -fPIC   -shared -Wl,-soname,libcnn.so -o lib/libcnn.so CMakeFiles/cnn.dir/src/builder.c.o CMakeFiles/cnn.dir/src/matrix.c.o CMakeFiles/cnn.dir/src/net.c.o 
