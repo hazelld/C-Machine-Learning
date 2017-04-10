@@ -1,6 +1,6 @@
 language: c
 before_install:
-    - sudo apt-get install -qq -y cmake=3.5.2-2ubuntu1
+    - sudo apt-get install --only-upgrade -y cmake
 install: 
     - ./configure
 script: 
