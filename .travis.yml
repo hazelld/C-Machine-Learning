@@ -1,5 +1,8 @@
 language: c
-install: mkdir build && cd build && cmake ../
+install: 
+    - mkdir build
+    - cd build
+    - cmake ../
 script: 
     - make 
     - cd ../
