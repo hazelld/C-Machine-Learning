@@ -2,9 +2,7 @@ language: c
 before-install:
     - sudo apt-get install -qq -y cmake=3.5.2-2ubuntu1
 install: 
-    - mkdir build
-    - cd build
-    - cmake ../
+    - ./configure
 script: 
     - make 
     - cd ../
