@@ -9,36 +9,54 @@
 
 /* API for net.h */
 static PyObject* CNN_init_net(PyObject* self, PyObject* args);
+/*
 static PyObject* CNN_train(PyObject* self, PyObject* args);
 static PyObject* CNN_predict(PyObject* self, PyObject* args);
 static PyObject* CNN_free_net(PyObject* self, PyObject* args);
-
+*/
 
 /* API for builder.h */
-static PyObject* CNN_data_from_csv(PyObject* self, PyObject* args);
+/*static PyObject* CNN_data_from_csv(PyObject* self, PyObject* args);
 static PyObject* CNN_free_data(PyObject* self, PyObject* args);
-
+*/
 
 /* Set up the python stuff */
 static PyMethodDef CNNMethods[] = {
 	{"init_net", CNN_init_net, METH_VARARGS},
-	{"train", CNN_train, METH_VARARGS},
-	{"predict", CNN_predict, METH_VARAGS},
+/*	{"train", CNN_train, METH_VARARGS},
+	{"predict", CNN_predict, METH_VARARGS},
 	{"free_net", CNN_free_net, METH_VARARGS},
 	{"data_from_csv", CNN_data_from_csv, METH_VARARGS},
-	{"free_data", CNN_free_data, METH_VARAGRS},
-	{NULL, NULL}
+	{"free_data", CNN_free_data, METH_VARARGS},
+*/	{NULL, NULL}
 };
 
 static struct PyModuleDef cnnModuleDef = {
 	PyModuleDef_HEAD_INIT,
-	"CNN",
+	"cnn",
 	NULL,
 	-1,
 	CNNMethods,
 };
 
-PyMODINIT_FUNC PyInit_CNN (void) { return PyModule_Create(&cnnModuleDef); }
+/* PyInit_cnn
+ *
+ * 	This function is called when the Python module is loaded. We 
+ * 	want to set up a pointer to the neural network here, so it 
+ * 	can be accessed through any other API function.
+ *
+ */
+PyMODINIT_FUNC PyInit_cnn (void) { 
+	
+	PyObject* module = PyModule_Create(&cnnModuleDef);
+	if (module == NULL)
+		return NULL;
+	
+	net* nn = malloc(sizeof(net));
+	PyObject* neural_net = PyCapsule_New((void*)nn, "cnn._neuralnet_C_API", NULL);
+	PyModule_AddObject(module, "_neuralnet_C_API", neural_net);
+	return module;
+}
 
 
 /* CNN_init_net
@@ -59,47 +77,34 @@ PyMODINIT_FUNC PyInit_CNN (void) { return PyModule_Create(&cnnModuleDef); }
 PyObject* CNN_init_net (PyObject* self, PyObject* args) {
 	int* topology;
 	PyObject* topology_list;
-	net* nn;
-	char* function_name;
 	double learning_rate;
 
-	PyArg_ParseTuple(args, "Osd",  &topology_list, function_name, learning_rate);
-	nn = malloc(sizeof(net));
-
-	/* Check function name here, set to proper value */
+	/* Get the arguments from the PyObject */
+	PyArg_ParseTuple(args, "Od", &topology_list, &learning_rate);
 	
-	/* Convert topology list to an int array */
-	if (!PyList_Check(topology_list)) {
-		// Return Error
-	} else {
-		len = PyList_Size(topology_list);
-	}
+	/* Get the net's pointer */
+	net* nn = (net*)PyCapsule_Import("cnn._neuralnet_C_API", 0);
 
+	/*	Extract the topology list */
+	PyObject* seq = PySequence_Fast(topology_list, "Expected a Sequence");
+	int len = PySequence_Size(topology_list);
 	topology = malloc(sizeof(int) * len);
+	
 	for (int i = 0; i < len; i++) {
-		PyObject* item = PyList_GetItem(topology_list, i);
+		PyObject* item = PySequence_Fast_GET_ITEM(seq, i);
 		
-		/* Check that it is the right type */
-		if (!PyInt_Check(item)) {
-			fprintf(stderr, "Item sent to init_net isn't an int");
-			exit(EXIT_FAILURE);
-			// Throw error
+		/* Ensure we have an integer */
+		int val;
+		if (PyLong_Check(item)) {
+			val = (int) PyLong_AsSize_t(item);
+		} else {
+			// TODO: throw exception 
 		}
-		/* I have to assume you will never use layers with a size larger than
-		 * what an int can hold. */
-		topology[i] = (int)PyInt_AsLong(item);
+		topology[i] = val;
 	}
 
-	/* Initialize the net */
-	int err;
-	err = init_net(nn, len, topology, NULL, NULL, learning_rate);  
-	/* Handle the error */
-
+	/* Initialize the object and return 1 */
+	init_net(nn, len, topology, NULL, NULL, learning_rate);
 	free(topology);
-	
-	/* Return the reference to the pointer */
+	return Py_BuildValue("i", 1);
 }
-
-
-
-
