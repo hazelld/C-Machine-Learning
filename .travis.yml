@@ -1,5 +1,5 @@
 language: c
-before-install:
+before_install:
     - sudo apt-get install -qq -y cmake=3.5.2-2ubuntu1
 install: 
     - ./configure
