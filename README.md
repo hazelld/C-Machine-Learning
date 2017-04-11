@@ -4,11 +4,13 @@ This program is a very basic implementation of a feedforward neural network in C
 # Install
     git clone git@github.com:whazell/C-Neural-Network.git  
     cd C-Neural-Network  
+    mkdir build && cd build
+    cmake ../
     make
     
 # Usage  
-    ./build/xor_test
-    ./build/sin_test
+    ./build/bin/xor_test
+    ./build/bin/sin_test
     
 Currently there are two basic examples for this neural network. The first is xor_test, which trains the network to predict the xor function. The second is the sin_test which predicts values from the sin() function.  
 
