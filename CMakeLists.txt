@@ -11,8 +11,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Find Source Files and create the core library object
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/core/*.c)
-add_library(${PROJECT_NAME}-core OBJECT ${SOURCES})
-
 
 # Merge together to make a .so 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
