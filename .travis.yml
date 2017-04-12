@@ -1,11 +1,7 @@
 language: c
-before_install:
-    - sudo apt-get install --only-upgrade -y cmake
 install: 
-    - ./configure
+    - ./configure build
 script: 
-    - make 
-    - cd ../
     - ./build/bin/sin_test
     - ./build/bin/xor_test
 compiler:
