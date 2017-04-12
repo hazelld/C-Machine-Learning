@@ -8,10 +8,10 @@ int main() {
 	
 	srand(time(NULL));
 	// Random numbers from [-10, 10]
-	double interval = 2;
+	double interval = 4;
 	double div = RAND_MAX / (interval * 2);
 	
-	for (int i = 0; i < 150; i++) {
+	for (int i = 0; i < 10000; i++) {
 		
 		double rnum = -interval + ((double)rand() / div);
 		double sin_val = sin(rnum);

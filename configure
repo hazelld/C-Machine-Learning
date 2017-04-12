@@ -9,16 +9,20 @@ fi
 
 if [[ ${1} == "rebuild" ]]; then
 	rm -rf ${BUILD_DIR}
-	mkdir ${BUILD_DIR} && cd ${BUILD_DIR}
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 	cmake ../ && make
 	exit
 fi
 
 # Quick way to build python api for testing
 if [[ ${1} == "pylib" ]]; then
-	gcc src/api/py-cnn.c src/core/*.c -Isrc/core/ -Lbuild/lib -shared -o cnn.so `pkg-config --cflags python3`  `python3-config --ldflags` -fPIC 
+	mkdir -p ${BUILD_DIR}/lib
+	gcc src/api/py-cnn.c src/core/*.c -Isrc/core/ -Lbuild/lib -shared -o build/lib/cnn.so `pkg-config --cflags python3`  `python3-config --ldflags` -fPIC 
 	exit
 fi
 
-mkdir ${BUILD_DIR} && cd ${BUILD_DIR}
-cmake ../ && make
+if [[ ${1} == "build" ]]; then
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
+	cmake ../ && make
+	exit
+fi
