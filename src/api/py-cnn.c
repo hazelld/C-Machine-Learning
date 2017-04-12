@@ -9,6 +9,8 @@
 
 /* API for net.h */
 static PyObject* CNN_init_net(PyObject* self, PyObject* args);
+static PyObject* CNN_test_predict(PyObject* self, PyObject* args);
+static PyObject* CNN_test_train(PyObject* self, PyObject* args);
 /*
 static PyObject* CNN_train(PyObject* self, PyObject* args);
 static PyObject* CNN_predict(PyObject* self, PyObject* args);
@@ -28,7 +30,9 @@ static PyMethodDef CNNMethods[] = {
 	{"free_net", CNN_free_net, METH_VARARGS},
 	{"data_from_csv", CNN_data_from_csv, METH_VARARGS},
 	{"free_data", CNN_free_data, METH_VARARGS},
-*/	{NULL, NULL}
+*/	{"test_train", CNN_test_train, METH_VARARGS},
+	{"test_predict", CNN_test_predict, METH_VARARGS},
+	{NULL, NULL}
 };
 
 static struct PyModuleDef cnnModuleDef = {
@@ -106,5 +110,49 @@ PyObject* CNN_init_net (PyObject* self, PyObject* args) {
 	/* Initialize the object and return 1 */
 	init_net(nn, len, topology, NULL, NULL, learning_rate);
 	free(topology);
-	return Py_BuildValue("i", 1);
+	return Py_BuildValue("i", 0);
+}
+
+
+/*	Very basic function to test functionality. In future this needs
+ * 	whole overhaul to how the data is loaded. 
+ */
+PyObject* CNN_test_train (PyObject* self, PyObject* args) {
+	char* fname;
+	net* nn = (net*)PyCapsule_Import("cnn._neuralnet_C_API", 0);
+
+	/* Get filename as argument */
+	PyArg_ParseTuple(args, "s", &fname);
+
+	/* Try to open file */
+	FILE* fh = fopen(fname, "r");
+
+	if (fh == NULL) 
+		return Py_BuildValue("i", 1);
+
+	data_set* data = data_set_from_csv(fh);
+	fclose(fh);
+
+	// Train the network
+	train(nn, data, 10000);
+	free_data_set(data);
+
+	return Py_BuildValue("i", 0);
+}
+
+/*
+ *
+ */
+PyObject* CNN_test_predict (PyObject* self, PyObject* args) {
+	double input;
+	PyArg_ParseTuple(args, "d", &input);
+	
+	net* nn = (net*)PyCapsule_Import("cnn._neuralnet_C_API", 0);
+
+	matrix_t* in = malloc(sizeof(matrix_t));
+	init_matrix(in, 1, 1);
+	in->matrix[0][0] = input;
+	matrix_t* res = predict(nn, in);
+
+	return Py_BuildValue("d", res->matrix[0][0]);
 }
