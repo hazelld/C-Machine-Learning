@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "matrix.h"
+#include "err.h"
 
 typedef double (*act_f)(double);
 typedef double (*act_prime_f)(double);
@@ -37,11 +38,11 @@ typedef struct layer {
 	matrix_t* weight_delta;
 } layer;
 
+
 /*	struct net
  *
  *	This defines the whole net. It has an array of layers, and the count
- *	of layers. The activation function and activation derivative function
- *	are pointers to functions.
+ *	of layers.
  *
  *	The topology array is to keep track of the nodes per layer. If you want
  *	a 2-5-1 net, this array would be:
@@ -108,7 +109,7 @@ typedef struct data_set {
  *		net->layers[i]
  *	
  */
-int init_net (net* n,int lc, int* topology_arr, act_f act, act_prime_f actp, double lr);
+error_t init_net (net* n,int lc, int* topology_arr, act_f act, act_prime_f actp, double lr);
 
 
 /* init_layer
@@ -130,7 +131,7 @@ int init_net (net* n,int lc, int* topology_arr, act_f act, act_prime_f actp, dou
  *		l->weights (Through random_matrix())
  *
  */
-int init_layer (layer* l, layer_type lt, int in_node, int out_node);
+error_t init_layer (layer* l, layer_type lt, int in_node, int out_node);
 
 
 /* train
@@ -151,7 +152,7 @@ int init_layer (layer* l, layer_type lt, int in_node, int out_node);
  *	Memory Allocated:
  *		NONE
  */
-int train (net* n, data_set* data, int epochs);
+error_t train (net* n, data_set* data, int epochs);
 
 
 /* predict
@@ -189,7 +190,7 @@ matrix_t* predict (net* n, matrix_t* input);
  *	Memory Allocated:
  *		NONE
  */
-int free_net(net* n);
+error_t free_net(net* n);
 
 
 /* free_layer
@@ -207,7 +208,7 @@ int free_net(net* n);
  *	Memory Allocated:
  *		NONE
  */
-int free_layer(layer* l);
+error_t free_layer(layer* l);
 
 #endif
 

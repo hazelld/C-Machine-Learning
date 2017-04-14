@@ -1,19 +1,4 @@
 #include "builder.h"
-/*
-static int parse_net (net* n, FILE* fh);
-static int parse_layer (layer** l, FILE* fh);
-static int parse_matrix (matrix_t** m, FILE* fh);
-
-static int chomp (char* str) {
-	while (*str != '\n') {
-		if (*str == '\0')
-			return SUCCESS;
-		(*str)++;
-	}	
-	*str = '\0';
-	return SUCCESS;
-}
-*/
 
 data_set* data_set_from_csv(FILE* fh) {
 	int lines, inputs_per_line, outputs_per_line;
@@ -114,8 +99,8 @@ static int parse_matrix (matrix_t** m, FILE* fh) {
 }
 */
 
-int save_net (net* n, FILE* fh) {
-	if (n == NULL || fh == NULL) return FAILURE;
+error_t save_net (net* n, FILE* fh) {
+	if (n == NULL || fh == NULL) return E_NULL_ARG;
 
 	fprintf(fh, "BEGIN NET\n");
 	fprintf(fh, "layers=%d\n", n->layer_count);
@@ -153,7 +138,7 @@ int save_net (net* n, FILE* fh) {
 		fprintf(fh, "END MATRIX\nEND LAYER\n");
 	}
 	fprintf(fh, "END NET");
-	return SUCCESS;
+	return E_SUCCESS;
 }
 
 int free_data_set (data_set* data) {
@@ -164,5 +149,5 @@ int free_data_set (data_set* data) {
 	}
 	free(data->data);
 	free(data);
-	return SUCCESS;
+	return E_SUCCESS;
 }
