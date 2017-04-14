@@ -1,0 +1,28 @@
+#!/bin/bash
+
+BUILD_DIR=build
+
+if [[ ${1} == "clean" ]]; then
+	rm -rf ${BUILD_DIR}
+	exit
+fi
+
+if [[ ${1} == "rebuild" ]]; then
+	rm -rf ${BUILD_DIR}
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
+	cmake ../ && make
+	exit
+fi
+
+# Quick way to build python api for testing
+if [[ ${1} == "pylib" ]]; then
+	mkdir -p ${BUILD_DIR}/lib
+	gcc src/api/py-cnn.c src/core/*.c -Isrc/core/ -Lbuild/lib -std=c99 -shared -o build/lib/cnn.so `pkg-config --cflags python3`  `python3-config --ldflags` -fPIC 
+	exit
+fi
+
+if [[ ${1} == "build" ]]; then
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
+	cmake ../ && make
+	exit
+fi
