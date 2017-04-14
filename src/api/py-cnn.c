@@ -134,7 +134,7 @@ PyObject* CNN_test_train (PyObject* self, PyObject* args) {
 	fclose(fh);
 
 	// Train the network
-	train(nn, data, 1000);
+	train(nn, data, 1);
 	free_data_set(data);
 
 	return Py_BuildValue("i", 0);
