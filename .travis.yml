@@ -1,13 +1,15 @@
 language: c
+os:
+    - linux
 before_install:
     - sudo apt-get install python3
 install: 
     - ./configure build
     - ./configure pylib
 script: 
-    - ./build/bin/sin_test
-    - ./build/bin/xor_test
-    - python3 src/test/pytest.py
+    - ./build/bin/examples/sin_test
+    - ./build/bin/examples/xor_test
+    - python3 examples/pytest.py
 compiler:
     - clang
     - gcc
