@@ -16,6 +16,24 @@
  */
 
 
+/* build_net
+ *
+ * 	This function starts the process of building the net. It is very basic, and really
+ * 	only has the purpose of mallocing the pointer to the layer* array. The caller could 
+ * 	just do this, but in the interest of keeping implementation details hidden this 
+ * 	will just be done in this function. In the future, extra logic may need to go here.
+ *	The init_net() function in net.c has too much extra things (ie setting up topology)
+ *	that it doesn't make sense to use. 
+ *
+ * Arguments:
+ * 	net* -> Pointer to a neural net structure to be initialized.
+ *
+ * Returns:
+ * 	E_SUCCESS
+ */
+error_t build_net (net* nn);
+
+
 /* build_layer
  *
  * 	This function is to build a single layer of the neural network. The struct layer 
@@ -44,7 +62,7 @@ error_t build_layer (layer* l, layer_type lt, int bias, int nodes, act_f af, act
 /* add_layer
  *
  *	This function adds a pre-defined layer into the neural network. The order that the 
- *	layers are added in does not matter, as the order is sorted out once the net_sort() 
+ *	layers are added in does not matter, as the order is sorted out once the net_build() 
  *	function is called. It will check to make sure that an extra input/output layer
  *	is not added.
  *
@@ -64,11 +82,28 @@ error_t build_layer (layer* l, layer_type lt, int bias, int nodes, act_f af, act
 error_t add_layer (net* nn, layer* l);
 
 
+/* net_build
+ *
+ * 	This function is used once all the needed layers have been added. This will connect
+ * 	each layer together within the neural net. 
+ *
+ * Arguments:
+ * 	net* -> The pointer to the neural network that has all layers added
+ *	
+ * Returns:
+ * 	E_SUCCESS -> The net has been built and is ready to use 
+ *
+ * Note: If this function returns anything but the E_SUCCESS, it is not ready to use, and 
+ * other functions should not be called with it.
+ *
+ */
+error_t net_build (net* nn);
+
+
 
 /* Not quite sure where the functions below stand. I want to move most of the 
  * data set stuff into python.
  */
-
 
 /* 
  *
