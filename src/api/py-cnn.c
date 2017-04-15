@@ -108,7 +108,7 @@ PyObject* CNN_init_net (PyObject* self, PyObject* args) {
 	}
 
 	/* Initialize the object and return 1 */
-	init_net(nn, len, topology, NULL, NULL, learning_rate);
+	init_net(nn, len, topology, learning_rate);
 	free(topology);
 	return Py_BuildValue("i", 0);
 }

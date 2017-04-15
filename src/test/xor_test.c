@@ -37,7 +37,7 @@ int main() {
 	}
 	
 	data = data_set_from_csv(fh);
-	init_net(nn, 3, topology, sigmoid, sigmoid_prime, 0.1);
+	init_net(nn, 3, topology, 0.1);
 	error_t e = train(nn, data, 30000);
 
 	if (e != E_SUCCESS) {
