@@ -18,13 +18,14 @@ import os
 
 cnn_lib_path = 'build/lib/'
 lib_folder = os.getcwd() + '/' + cnn_lib_path
+print(lib_folder)
 
 # Add the library to the path
 if lib_folder not in sys.path:
     sys.path.insert(0, lib_folder)
 
 # Should be able to import the library now
-import cnn as cnn
+import cnnpy as cnn
 
 # Some basic setup values
 topology = [1, 5, 5, 1]
