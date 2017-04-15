@@ -30,12 +30,15 @@ typedef struct layer {
 	layer_type ltype;
 	int input_nodes;
 	int output_nodes;
+	int using_bias;
 	double bias;
 	matrix_t* input;
 	matrix_t* weights;
 	matrix_t* output;
 	matrix_t* layer_error;
 	matrix_t* weight_delta;
+	act_f af;
+	act_prime_f ap;
 } layer;
 
 
@@ -55,8 +58,6 @@ typedef struct net {
 	layer** layers;
 	int layer_count;
 	int* topology;
-	act_f af;
-	act_prime_f ap;
 } net;
 
 
@@ -109,7 +110,7 @@ typedef struct data_set {
  *		net->layers[i]
  *	
  */
-error_t init_net (net* n,int lc, int* topology_arr, act_f act, act_prime_f actp, double lr);
+error_t init_net (net* n,int lc, int* topology_arr, double lr);
 
 
 /* init_layer

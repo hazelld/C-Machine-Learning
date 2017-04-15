@@ -16,14 +16,11 @@ static double clog_sigmoid_prime (double);
 
 
 /* PUBLIC FUNCTIONS */
-error_t init_net (net* nn, int lc, int* topology_arr, act_f act, act_prime_f actp, double lr){
+error_t init_net (net* nn, int lc, int* topology_arr, double lr){
 	if (nn == NULL) return E_NULL_ARG;
 	nn->layer_count = lc;
 	learning_rate = lr;
 	
-	(act == NULL) ? (nn->af = clog_sigmoid) : (nn->af = act);
-	(actp == NULL) ? (nn->ap = clog_sigmoid_prime) : (nn->ap = actp);
-
 	nn->topology = malloc(sizeof(int) * lc);
 	nn->layers = malloc(sizeof(layer) * lc);
 	
@@ -66,6 +63,10 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	l->output = NULL;
 	l->layer_error = NULL;
 	l->weight_delta = NULL;
+	
+	/* TODO: Add flexiblity to this*/
+	l->af = clog_sigmoid;
+	l->ap = clog_sigmoid_prime;
 
 	/* Output layer has no weights or bias */
 	if (lt == input) {
@@ -192,11 +193,13 @@ static error_t feed_forward (net* n, matrix_t* input) {
 
 		clayer->output = malloc(sizeof(matrix_t));
 		error_t err = matrix_vector_mult(clayer->weights, clayer->input, &clayer->output); 
-		
 		if (err != E_SUCCESS) return err;
 		
-		vector_scalar_addition(clayer->output, clayer->bias);
-		function_on_vector(clayer->output, n->af);
+		/* Check if we have bias to add */
+		if (clayer->using_bias)
+			vector_scalar_addition(clayer->output, clayer->bias);
+		
+		function_on_vector(clayer->output, clayer->af);
 		
 		if (clayer->ltype != output) 
 			n->layers[i+1]->input = clayer->output;
@@ -275,7 +278,7 @@ static error_t net_error (net* n, matrix_t* expected) {
 		if (err != E_SUCCESS) return err;
 		
 		/* g'(z) */	
-		function_on_vector(clayer->output, n->ap);
+		function_on_vector(clayer->output, clayer->ap);
 		
 		/* S * g'(z) */
 		clayer->layer_error = malloc(sizeof(matrix_t));
@@ -358,6 +361,10 @@ static error_t update_bias (net* n) {
 		double error_sum = 0;
 		layer* clayer = n->layers[i];
 		
+		/* If the layer doesn't use bias, move to the next */
+		if (!clayer->using_bias)
+			continue;
+
 		for (int j = 0; j < clayer->layer_error->rows; j++) 
 			error_sum += clayer->layer_error->matrix[j][0];
 		
