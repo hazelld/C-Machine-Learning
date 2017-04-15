@@ -28,7 +28,7 @@ int main() {
 	int topology[4] = { 1, 5, 5, 1 };
 	net* nn = malloc(sizeof(net));
 	data_set* data;
-	FILE* fh = fopen("data/sin.csv", "r");
+	FILE* fh = fopen("examples/data/sin.csv", "r");
 
 	if (fh == NULL) {
 		printf("Could not open file: data/sin.csv. Ensure you are running from root project directory.\n");

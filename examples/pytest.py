@@ -18,13 +18,14 @@ import os
 
 cnn_lib_path = 'build/lib/'
 lib_folder = os.getcwd() + '/' + cnn_lib_path
+print(lib_folder)
 
 # Add the library to the path
 if lib_folder not in sys.path:
     sys.path.insert(0, lib_folder)
 
 # Should be able to import the library now
-import cnn as cnn
+import cnnpy as cnn
 
 # Some basic setup values
 topology = [1, 5, 5, 1]
@@ -40,7 +41,7 @@ def die_on_failure (code, statement):
 ret = cnn.init_net(topology, learning_rate)
 die_on_failure(ret, "cnn.init_net failed")
 
-ret = cnn.test_train('data/sin.csv')
+ret = cnn.test_train('examples/data/sin.csv')
 die_on_failure(ret, "cnn.test_train failed")
 
 testval = math.pi
