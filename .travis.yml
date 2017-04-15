@@ -2,10 +2,10 @@ language: c
 os:
     - linux
 before_install:
-    - sudo apt-get install python3
+    - sudo apt-get install python3.5
+    - sudo apt-get install python3.5-dev
 install: 
     - ./configure build
-    - ./configure pylib
 script: 
     - ./build/bin/examples/sin_test
     - ./build/bin/examples/xor_test

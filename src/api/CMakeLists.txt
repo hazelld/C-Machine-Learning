@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 
 # Ensure the proper python exists
 set(Python_ADDITIONAL_VERSIONS 3.5)
-find_package(PythonInterp REQUIRED)
+find_package(PythonInterp 3 REQUIRED)
 find_package(PythonLibs 3 REQUIRED)
 
 # Include python directory & core includes
