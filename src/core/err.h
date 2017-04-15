@@ -39,6 +39,8 @@ enum _cnn_error {
 	/* Error codes for issues between data and neural net */
 	E_WRONG_INPUT_SIZE,
 	E_WRONG_OUTPUT_SIZE,
+
+
 };
 
 typedef enum _cnn_error error_t;

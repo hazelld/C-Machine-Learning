@@ -2,8 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (cnn)
 
 # Set the compiler flags for gcc
-set(GCC_COVERAGE_COMPILE_FLAGS "-std=c99")
-add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+set(TEST_COMPILE_FLAGS "-std=c99 -O3")
 
 #  Library Dir Locally
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -19,7 +18,10 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 # Add the include folder
 include_directories(src/core)
 add_executable(sin_test ${PROJECT_SOURCE_DIR}/src/test/sin_test.c)
+set_target_properties(sin_test PROPERTIES COMPILE_FLAGS ${TEST_COMPILE_FLAGS})
+
 add_executable(xor_test ${PROJECT_SOURCE_DIR}/src/test/xor_test.c)
+set_target_properties(xor_test PROPERTIES COMPILE_FLAGS ${TEST_COMPILE_FLAGS})
 
 # Link the math library
 target_link_libraries(sin_test m)
@@ -35,14 +37,4 @@ add_executable(sin-gen ${PROJECT_SOURCE_DIR}/src/test/sin-gen.c)
 target_link_libraries(sin-gen ${PROJECT_NAME})
 target_link_libraries(sin-gen m)
 
-# Add the Test folder
-#enable_testing()
-#add_test( xor xor_test )
-#add_test( sin sin_test )
 
-# Install Library
-#install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
-
-# Install Library headers 
-#file(GLOB HEADERS src/*.h)
-#install(FILES ${HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
