@@ -1,9 +1,15 @@
-language: c
+language: 
+    - c
+    - python
 os:
     - linux
+python:
+    - "3.5"
+    - "3.5-dev"
+    - "3.6"
 before_install:
-    - sudo apt-get install python3.5
-    - sudo apt-get install python3.5-dev
+    - sudo apt-get install python3
+    - sudo apt-get install python3-dev
 install: 
     - ./configure build
 script: 
