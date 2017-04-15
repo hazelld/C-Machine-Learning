@@ -40,7 +40,7 @@ def die_on_failure (code, statement):
 ret = cnn.init_net(topology, learning_rate)
 die_on_failure(ret, "cnn.init_net failed")
 
-ret = cnn.test_train('data/sin.csv')
+ret = cnn.test_train('examples/data/sin.csv')
 die_on_failure(ret, "cnn.test_train failed")
 
 testval = math.pi
