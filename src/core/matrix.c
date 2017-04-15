@@ -1,8 +1,5 @@
 #include "matrix.h"
 
-/* Error logging function */
-static int log_error (int err, char* func, char* var);
-
 /* Run on startup to seed rng. This is temporary, atleast till the move to 
  * CUDA is done. */
 __attribute__((constructor))
@@ -11,8 +8,8 @@ static void seed_rng() {
 }
 
 
-int init_matrix(matrix_t* m, unsigned int rows, unsigned int columns) {
-	if (m == NULL) return 1;
+error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns) {
+	if (m == NULL) return E_NULL_ARG;
 
 	m->rows = rows;
 	m->columns = columns;
@@ -26,23 +23,23 @@ int init_matrix(matrix_t* m, unsigned int rows, unsigned int columns) {
 		for (int j = 0; j < columns; j++) 
 			m->matrix[i][j] = 0;
 	}
-	return 0;
+	return E_SUCCESS;
 }
 
 
-int matrix_vector_dot(matrix_t* m, matrix_t* vec, matrix_t** result) {
+error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result) {
 	
 	if (m == NULL || vec == NULL || *result == NULL || result == NULL)
-		return log_error(NULL_ARG, "matrix_vector_dot", "");
+		return E_NULL_ARG;
 
 	if ( (vec->rows > 1 && vec->columns > 1) || vec->columns < 1 || vec->rows < 1) 
-		return log_error(NOT_VECTOR, "matrix_vector_dot", "matrix_t* vec");
+		return E_NOT_VECTOR;
 	
 	if (m->rows < 1 || m->columns < 1)
-		return log_error(ZERO_DIM_MATRIX, "matrix_vector_dot", "matrix_t* m");
+		return E_ZERO_DIM_MATRIX;
 	
 	if (m->columns != vec->rows)
-		return log_error(MATRIX_WRONG_DIM, "matrix_vector_dot", "");
+		return E_MATRIX_WRONG_DIM;
 
 	init_matrix(*result, m->rows, 1);
 	
@@ -53,59 +50,61 @@ int matrix_vector_dot(matrix_t* m, matrix_t* vec, matrix_t** result) {
 			(*result)->matrix[i][0] += m->matrix[i][j] * vec->matrix[j][0];
 		}
 	}
-	return SUCCESS;
+	return E_SUCCESS;
 }
 
 
-int vector_scalar_addition (matrix_t* m, double scalar) {	
+error_t vector_scalar_addition (matrix_t* m, double scalar) {	
 	if (m == NULL)
-		return log_error(NULL_ARG, "vector_scalar_addition", "matrix_t* m");
+		return E_NULL_ARG;
 	
 	if (m->rows > 1 && m->columns > 1)
-		return log_error(NOT_VECTOR, "vector_scalar_addition", "matrix_t* m");
+		return E_NOT_VECTOR;
 
 	if (m->rows < 1 || m->columns < 1)
-		return log_error(ZERO_DIM_MATRIX, "vector_scalar_addition", "matrix_t* m");
+		return E_ZERO_DIM_MATRIX;
 
 	for(int i = 0; i < m->rows; i++) 
 		m->matrix[i][0] += scalar;	
-	return 0;
+	
+	return E_SUCCESS;
 }
 
 
-int function_on_vector (matrix_t* vec, double (*f)(double)) {
+error_t function_on_vector (matrix_t* vec, double (*f)(double)) {
 	if (f == NULL)
-		return log_error(NULL_ARG, "function_on_vector", "double (*f)(double)");
+		return E_NULL_ARG;
 	
 	for (int i = 0; i < vec->rows; i++) 
 		vec->matrix[i][0] = (*f)(vec->matrix[i][0]);
-	return SUCCESS;
+	
+	return E_SUCCESS;
 }
 
 
-int function_on_matrix (matrix_t* m, double(*f)(double)) {
+error_t function_on_matrix (matrix_t* m, double(*f)(double)) {
 	if (m == NULL || f == NULL) 
-		return log_error(NULL_ARG, "function_on_matrix", "");
+		return E_NULL_ARG;
 
 	if (m->rows < 1 || m->columns < 1)
-		return log_error(ZERO_DIM_MATRIX, "function_on_matrix", "matrix_t* m");
+		return E_ZERO_DIM_MATRIX;
 
 	for (int i = 0; i < m->rows; i++) {
 		for (int j = 0; j < m->columns; j++) {
 			m->matrix[i][j] = (*f)(m->matrix[i][j]);
 		}
 	}
-	return SUCCESS;
+	return E_SUCCESS;
 }
 
 
-int matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result) {
+error_t matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result) {
 	
 	if (m == NULL || n == NULL || result == NULL || *result == NULL)
-		return log_error(NULL_ARG, "matrix_subtraction", "");
+		return E_NULL_ARG;
 	
 	if (m->rows != n->rows || m->columns != n->columns)
-		return log_error(MATRIX_WRONG_DIM, "matrix_subtraction", "");
+		return E_MATRIX_WRONG_DIM;
 
 	init_matrix(*result, m->rows, m->columns);
 	
@@ -114,11 +113,11 @@ int matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result) {
 			(*result)->matrix[i][j] = m->matrix[i][j] - n->matrix[i][j];
 		}
 	}
-	return SUCCESS;
+	return E_SUCCESS;
 }
 
 
-int transpose (matrix_t** m) {
+error_t transpose (matrix_t** m) {
 	matrix_t* old_matrix = *m;
 	matrix_t* new_matrix = malloc(sizeof(matrix_t));
 	init_matrix(new_matrix, (*m)->columns, (*m)->rows);
@@ -132,7 +131,7 @@ int transpose (matrix_t** m) {
 	/* Free memory of old matrix and point m to new one */
 	free_matrix(old_matrix);
 	*m = new_matrix;
-	return 0;
+	return E_SUCCESS;
 }
 
 
@@ -149,23 +148,23 @@ matrix_t* transpose_r (matrix_t* const m) {
 }
 
 
-int multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result) {
+error_t multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result) {
 	if (m == NULL || n == NULL || result == NULL || *result == NULL)
-		return log_error(NULL_ARG, "multiply_vector", "");
+		return E_NULL_ARG;
 
 	if (m->columns > 1 || n->columns > 1)
-		return log_error(NOT_VECTOR, "multiply_vector", "");
+		return E_NOT_VECTOR;
 	
 	if (m->columns < 1 || m->rows < 1 || n->rows < 1 || n->columns < 1)
-		return log_error(ZERO_DIM_MATRIX, "multiply_vector", "");
+		return E_ZERO_DIM_MATRIX;
 	
 	if (m->rows != n->rows)
-		return log_error(MATRIX_WRONG_DIM, "multiply_vector", "matrix_t* m, n");
+		return E_MATRIX_WRONG_DIM;
 
 	init_matrix(*result, m->rows, m->columns);
 	for (int i = 0; i < m->rows; i++) 
 		(*result)->matrix[i][0] = m->matrix[i][0] * n->matrix[i][0];
-	return SUCCESS;
+	return E_SUCCESS;
 }
 
 
@@ -183,9 +182,9 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
 }
 
 
-int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
+error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
 	if (vec1 == NULL || vec2 == NULL || result == NULL || *result == NULL)
-		return log_error(NULL_ARG, "kronecker_vectors", "");
+		return E_NULL_ARG;
 	
 	unsigned int rows, columns;
 	matrix_t *vertical_v, *horiz_v;
@@ -202,7 +201,7 @@ int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
 		horiz_v = vec2;
 		vertical_v = vec1;
 	} else { 
-		return log_error(NOT_VECTOR, "kronecker_vectors", "");	
+		return E_NOT_VECTOR;	
 	}
 
 	init_matrix(*result, rows, columns);
@@ -212,50 +211,19 @@ int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
 		}
 	}	
 
-	return SUCCESS;
+	return E_SUCCESS;
 }
 
 
-int free_matrix (matrix_t* m) {
+error_t free_matrix (matrix_t* m) {
 	if (m == NULL) 
-		return 1;
+		return E_NULL_ARG;
 
 	for (int i = 0; i < m->rows; i++)
 		free(m->matrix[i]);
 	free(m->matrix);
 	free(m);
-	return 0;
+
+	return E_SUCCESS;
 }
 
-
-static int log_error (int err, char* func, char* var) {
-	char* err_str;
-
-	switch (err) {
-
-		case NULL_ARG: 
-			err_str = "Argument passed to function is NULL.";
-			break;
-
-		case MATRIX_WRONG_DIM:
-			err_str = "Matrix dimensions do not match expected.";
-			break;
-
-		case ZERO_DIM_MATRIX:
-			err_str = "Matrix has dimensions less than 1.";
-			break;
-
-		case NOT_VECTOR:
-			err_str = "Expected a 1 dimension vector, got a matrix.";
-			break;
-		
-		default:
-			err_str = "Unrecognized error code.";
-			break;
-	}
-
-	fprintf(stderr, "Error: %s Occured in: %s(). Offending variable:%s\n", \
-			err_str, func, var);
-	
-	return FAILURE;
-}

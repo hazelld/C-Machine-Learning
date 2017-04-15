@@ -4,14 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include "err.h"
 
-#define SUCCESS 0
-#define FAILURE 1
-
-#define NULL_ARG 0
-#define MATRIX_WRONG_DIM 1
-#define ZERO_DIM_MATRIX 2
-#define NOT_VECTOR 3
 
 typedef struct matrix_t {
 	double** matrix;
@@ -25,76 +19,76 @@ typedef struct matrix_t {
  *	This function initializes a matrix_t on the heap with 
  *	the specified dimensions. To free the matrix_t use
  *	free_matrix().
- *
- */
-int init_matrix(matrix_t* m, unsigned int rows, unsigned int columns);
+*
+*/
+error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns);
 
 
 /* matrix_vector_product
- *
- *	This function takes a matrix, and a vector (single column matrix) and
- *	will return a matrix that is the result of the matrix-vector product.
- *	
- *	The formula is:
- *
- *	 -                 -		 -    -
- *	| a11  a12 ...  a1n |		|  x1  |
- *	| ...               |	x 	|  ..  |
- *	| am1  am2 ... amn  |		|  xn  |
- *	 -                 -		 -    -
- *
- *    -                           -
- *   | a11x1 + a12x2 + ... + a1nxn |
- * = | ...                         |
- *   | am1x1 + am2x2 + ... + amnxn |
- *    -                           -
- *
- *    Note: the matrix m and vector vec are not deallocated in this function
- */
-int matrix_vector_dot(matrix_t* m, matrix_t* vec, matrix_t** result);
+*
+*	This function takes a matrix, and a vector (single column matrix) and
+*	will return a matrix that is the result of the matrix-vector product.
+*	
+*	The formula is:
+*
+*	 -                 -		 -    -
+*	| a11  a12 ...  a1n |		|  x1  |
+*	| ...               |	x 	|  ..  |
+*	| am1  am2 ... amn  |		|  xn  |
+*	 -                 -		 -    -
+*
+*    -                           -
+*   | a11x1 + a12x2 + ... + a1nxn |
+* = | ...                         |
+*   | am1x1 + am2x2 + ... + amnxn |
+*    -                           -
+*
+*    Note: the matrix m and vector vec are not deallocated in this function
+*/
+error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result);
 
 
 /* vector_scalar_addition
- *
- * 	This function adds a constant to each element of a vector.
- *
- * 	Returns:
- *	0 => Success
- *	_ => Failure
- *
- */
-int vector_scalar_addition (matrix_t* m, double scalar);
+*
+* 	This function adds a constant to each element of a vector.
+*
+* 	Returns:
+*	0 => Success
+*	_ => Failure
+*
+*/
+error_t vector_scalar_addition (matrix_t* m, double scalar);
 
 
 /* function_on_matrix
- *
- *	This function applys a function onto each value of the matrix. 
- *
- *	If f(x) is the function to be applied, the formula is:
- *
- * 	 -              -		 -                        -
- * 	| a11 a12 .. a1n |		| f(a11) f(a12) ... f(a1n) |
- * 	| ...            |	=	| ...                      |
- * 	| am1 am2 .. amn |		| f(am1) f(am2) ... f(amn) |
- * 	 -              -		 -                        -
- *
- * 	 Returns:
- * 	 0 => Success 
- * 	 _ => Failure
- */
-int function_on_matrix (matrix_t* m, double(*f)(double));
+*
+*	This function applys a function onto each value of the matrix. 
+*
+*	If f(x) is the function to be applied, the formula is:
+*
+* 	 -              -		 -                        -
+* 	| a11 a12 .. a1n |		| f(a11) f(a12) ... f(a1n) |
+* 	| ...            |	=	| ...                      |
+* 	| am1 am2 .. amn |		| f(am1) f(am2) ... f(amn) |
+* 	 -              -		 -                        -
+*
+* 	 Returns:
+* 	 0 => Success 
+* 	 _ => Failure
+*/
+error_t function_on_matrix (matrix_t* m, double(*f)(double));
 
 
 /* function_on_vector
- *
- * 	Functionally the same as function_on_matrix, however this
- * 	only applys the function to a column-wise matrix_t.
- *
- * 	Returns:
- * 	0 => Success
- * 	_ => Failure
- */
-int function_on_vector (matrix_t* vec, double (*f)(double));
+*
+* 	Functionally the same as function_on_matrix, however this
+* 	only applys the function to a column-wise matrix_t.
+*
+* 	Returns:
+* 	0 => Success
+* 	_ => Failure
+*/
+error_t function_on_vector (matrix_t* vec, double (*f)(double));
 
 
 /* matrix_subtraction
@@ -108,7 +102,7 @@ int function_on_vector (matrix_t* vec, double (*f)(double));
  *	_ => Failure
  *
  */
-int matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result);
+error_t matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result);
 
 
 /*	transpose
@@ -119,7 +113,7 @@ int matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result);
  *		0 => Success, m now holds the transposed matrix
  *		_ => Failure, m is unchanged
  */
-int transpose (matrix_t** m);
+error_t transpose (matrix_t** m);
 
 
 /*	transpose_r
@@ -144,7 +138,7 @@ matrix_t* transpose_r (matrix_t* const m);
  *	
  *	Returns the result, the original two vectors are untouched.
  */
-int multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result);
+error_t multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result);
 
 
 /*	random_matrix
@@ -177,7 +171,7 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
  * Note this function returns NULL if it is not supplied with 2 
  * 1 dimensional vectors.
  */
-int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
+error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
 
 
 /*	free_matrix
@@ -189,7 +183,7 @@ int kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
  *	0 => Success
  *	_ => Failure
  */
-int free_matrix(matrix_t* matrix);
+error_t free_matrix(matrix_t* matrix);
 
 #endif
 

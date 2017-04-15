@@ -2,6 +2,7 @@
 #include "matrix.h"
 #include "net.h"
 #include "builder.h"
+#include "err.h"
 
 void print_m (matrix_t* m) {
 	for (int i = 0; i < m->rows; i++) {
@@ -36,8 +37,12 @@ int main() {
 	}
 	
 	data = data_set_from_csv(fh);
-	init_net(nn, 3, topology, sigmoid, sigmoid_prime, 0.3);
-	train(nn, data, 3000);
+	init_net(nn, 3, topology, 0.1);
+	error_t e = train(nn, data, 30000);
+
+	if (e != E_SUCCESS) {
+		printf("Train returned error: %d\n", (int)e);
+}
 
 	printf("\n\nRESULTS:\n");
 	for (int i = 0; i < 4; i++) {

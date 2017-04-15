@@ -36,8 +36,8 @@ int main() {
 	}
 
 	data = data_set_from_csv(fh);
-	init_net(nn, 4, topology, sigmoid, sigmoid_prime, 0.3);
-	train(nn, data, 5000);
+	init_net(nn, 4, topology, 0.1);
+	train(nn, data, 1000);
 
 	printf("\n\nRESULTS:\n");
 	for (int i = 0; i < 5; i++) {
