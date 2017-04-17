@@ -8,7 +8,10 @@ This program is a very basic implementation of a feedforward neural network in C
     cmake ../
     make
     
-# Usage  
+# Examples  
+This program comes with 2 examples, sin_test and xor_test. Their usage is outlined below.  
+
+## Usage  
     ./build/bin/examples/xor_test
     ./build/bin/examples/sin_test
     
@@ -20,7 +23,12 @@ This uses a basic 2 input, 8 hidden, 1 output node structure. It can accuratly p
 ## sin_test
 The is used to predict the sin() function, by feeding in normalized results from the sin() function (tests/sin-gen.c builds the data). It uses a single input node, 2 hidden layers of 5 nodes, and a single output layer. The data has to be normalized as the sigmoid function only produces values on the range (0,1) while the sin function produces on the range (-1, 1). By applying the transformation 0.5 * (sin(x) + 1), we can now train the neural network on this function, and undo the transformation after the value is predicted (ie (2 * result) - 1). This is very successful at predicting the values of sin().  
 
-
+# Tests  
+This project is built with the [munit](https://github.com/nemequ/munit) test suite. The tests are built automatically when cmake is ran. They build the tests into the directory `build/test/`. Currently ther are the test suites:  
+ - `matrix_test`  
+ 
+Run with:  `./build/test/[test_suite_name]`
+ 
 # API  
 Using this net is fairly simple, as it has a small interface. There is a function provided in src/builder.c to load data from a csv file in the form: i1, i2, ... , in; o1, o2, ... , on -- where the i's are inputs and the o's are outputs. The main functions provided in the net are:  
 
