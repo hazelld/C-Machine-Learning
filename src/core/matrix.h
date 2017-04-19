@@ -174,6 +174,15 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
 error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
 
 
+/* copy_matrix
+ *	
+ *	Used to copy a matrix into another. One must be an allocated matrix that 
+ *	has been initialized. The second must be allocated already.
+ *
+ */
+error_t copy_matrix (matrix_t* src, matrix_t* dest);
+
+
 /*	free_matrix
  *
  *	This function frees all resources associated with a matrix, including 
@@ -184,6 +193,7 @@ error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
  *	_ => Failure
  */
 error_t free_matrix(matrix_t* matrix);
+
 
 #endif
 

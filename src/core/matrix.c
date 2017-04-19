@@ -215,6 +215,20 @@ error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
 }
 
 
+error_t copy_matrix (matrix_t* src, matrix_t* dest) {
+	if (src == NULL || dest == NULL)
+		return E_NULL_ARG;
+
+	init_matrix(dest, src->rows, src->columns);
+
+	for (int i = 0; i < src->rows; i++) {
+		for (int j = 0; j < src->columns; j++) {
+			dest->matrix[i][j] = src->matrix[i][j];
+		}
+	}
+	return E_SUCCESS;
+}
+
 error_t free_matrix (matrix_t* m) {
 	if (m == NULL) 
 		return E_NULL_ARG;
