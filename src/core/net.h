@@ -15,6 +15,7 @@ typedef enum layer_type {
 	output,
 } layer_type;
 
+
 /*	struct layer
  *
  *	The layer defines the nodes at the current layer, and the weights 
@@ -25,7 +26,13 @@ typedef enum layer_type {
  * 	to make it more accessible. That way when we only need the one layer
  * 	to do all the needed operations on.
  *
+ * 	The implementation details of this struct are fairly irrelevant. If you 
+ * 	are going to build a network layer-by-layer, see the build_layer() function
+ * 	for the arguments need.
+ *
  */
+struct layer;
+
 typedef struct layer {
 	layer_type ltype;
 	int input_nodes;
@@ -47,13 +54,10 @@ typedef struct layer {
  *	This defines the whole net. It has an array of layers, and the count
  *	of layers.
  *
- *	The topology array is to keep track of the nodes per layer. If you want
- *	a 2-5-1 net, this array would be:
- *	{ 2, 5, 1 }
- *
- *	It is important the size of the topology_arr is equal to layer_count
- *
+ * 	This is the main data structure that is used throughout the library. This 
+ * 	should be created with the 
  */
+struct net;
 typedef struct net {
 	layer** layers;
 	int layer_count;

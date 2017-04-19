@@ -1,9 +1,9 @@
-# C-Neural-Network 
+# Gill-Neural-Network
 This program is a very basic implementation of a feedforward neural network in C. It is more or less a proof of concept, as the plan is to port the NN to a functional language in the future. It uses a half-baked matrix library that was quickly thrown together as the basis for the operations performed. It uses a sigmoid activation function for the neuron's activation, and gradient descent backpropagation to train the network.  
   
 # Install
-    git clone git@github.com:whazell/C-Neural-Network.git  
-    cd C-Neural-Network  
+    git clone git@github.com:whazell/Gill-Neural-Network.git  
+    cd Gill-Neural-Network  
     mkdir build && cd build
     cmake ../
     make
@@ -30,10 +30,5 @@ This project is built with the [munit](https://github.com/nemequ/munit) test sui
 Run with:  `./build/test/[test_suite_name]`
  
 # API  
-Using this net is fairly simple, as it has a small interface. There is a function provided in src/builder.c to load data from a csv file in the form: i1, i2, ... , in; o1, o2, ... , on -- where the i's are inputs and the o's are outputs. The main functions provided in the net are:  
 
-init_net() -> Initializes the net with the given parameters.  
-train() -> Train the net on the data.  
-predict() -> Predict a specific value in the net.  
-
-For example usage see either tests/xor_test.c or tests/sin_test.c
+All public interface functions are preceeded by 'gn' to ensure no namespace conflicts. Currently, the API consists of very basic functions and is not stable at all.
