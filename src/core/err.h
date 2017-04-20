@@ -40,7 +40,8 @@ enum _cnn_error {
 	E_WRONG_INPUT_SIZE,
 	E_WRONG_OUTPUT_SIZE,
 
-
+	/* Activation function issues */
+	E_NO_CALLBACK_GIVEN,
 };
 
 typedef enum _cnn_error error_t;

@@ -5,10 +5,12 @@
 #include <math.h>
 #include "matrix.h"
 #include "err.h"
+#include "activation.h"
 
-typedef double (*act_f)(double);
-typedef double (*act_prime_f)(double);
-
+/* enum layer_type
+ *
+ * 	This enum defines the different type of possible layers the net can have. 
+ */
 typedef enum layer_type {
 	input,
 	hidden,
@@ -26,13 +28,7 @@ typedef enum layer_type {
  * 	to make it more accessible. That way when we only need the one layer
  * 	to do all the needed operations on.
  *
- * 	The implementation details of this struct are fairly irrelevant. If you 
- * 	are going to build a network layer-by-layer, see the build_layer() function
- * 	for the arguments need.
- *
  */
-struct layer;
-
 typedef struct layer {
 	layer_type ltype;
 	int input_nodes;
@@ -44,8 +40,7 @@ typedef struct layer {
 	matrix_t* output;
 	matrix_t* layer_error;
 	matrix_t* weight_delta;
-	act_f af;
-	act_prime_f ap;
+	activation_f actf;
 } layer;
 
 
@@ -57,7 +52,6 @@ typedef struct layer {
  * 	This is the main data structure that is used throughout the library. This 
  * 	should be created with the 
  */
-struct net;
 typedef struct net {
 	layer** layers;
 	int layer_count;
@@ -90,31 +84,25 @@ typedef struct data_set {
 	int count;
 } data_set;
 
-/*	Public Functions	*/
+
+
+/*	Public Functions */
+
 /* init_net
  *
- * 	This function is used to initialize an allocated struct net with the 
- * 	appropriate values given. 
+ *	This function is used to initialize the neural network datastructure, and
+ *	allocate all the memory it needs. If the given pointer points to NULL, the 
+ *	memory for the net will be allocated.
  *
- * 	Arguments:
- * 		n => Pointer to an already allocated struct net
- * 		lc => The amount of layers your net will have
- * 		topology_arr => Array with the amount of nodes per layer
- * 		act => Pointer to an activation function
- *		actp => Pointer to the activation function's derivative
- *		lr => Learning rate you would like the net to use
+ * Arguments:
+ *	net** => Pointer to the net. If the pointed to net is not already allocated,
+ *	the net will be allocated. 
  *
- *	Returns:
- *		0 => Net was successfully initialized
- *		1 => Error initializing net
+ * Returns the pointer to the net that was initialized. If there was any problem, 
+ * this function returns NULL.
  *
- *	Memory Allocated:
- *		net->topology
- *		net->layers
- *		net->layers[i]
- *	
  */
-error_t init_net (net* n,int lc, int* topology_arr, double lr);
+net* init_net (net** n);
 
 
 /* init_layer
@@ -214,6 +202,74 @@ error_t free_net(net* n);
  *		NONE
  */
 error_t free_layer(layer* l);
+
+
+/* These functions are within net-builder.c but will be exposed through this header. */
+
+/* build_layer
+ *
+ * 	This function is to build a single layer of the neural network. The struct layer 
+ * 	to build must be allocated before calling this function.
+ *
+ * Arguments:
+ * 	layer* -> Pointer to layer 
+ * 	layer_type -> Type of layer (input, hidden, output). Note that the network may
+ * 		only have a single input and output layer.
+ *
+ *	bias -> Defines if a bias is needed for this layer or not. Note that by default,
+ *			the input layer _will not_ have a bias. This can be over-riden, although
+ *			I am not sure why you would want to.
+ *
+ *	nodes -> The amount of nodes this layer should have.
+ *		
+ *	af -> Activation function to use
+ *	ap -> Derivative of activation function
+ *
+ * Returns:
+ *	E_SUCCESS -> Successfully created layer
+ */
+error_t build_layer (layer* l, layer_type lt, int bias, int nodes, activation_f actf);
+
+
+/* add_layer
+ *
+ *	This function adds a pre-defined layer into the neural network. The order that the 
+ *	layers are added in does not matter, as the order is sorted out once the net_build() 
+ *	function is called. It will check to make sure that an extra input/output layer
+ *	is not added.
+ *
+ * Arguments: 
+ *	net* -> The pointer to the neural network that the layer is added too
+ *	layer* -> The layer to add to the net
+ *
+ * Returns:
+ * 	E_SUCCESS -> Added the layer successfully
+ *
+ * 	E_TOO_MANY_INPUT_LAYERS -> There is already an input layer in the net.
+ * 	E_TOO_MANY_OUTPUT_LAYERS-> There is already an output layer in the net.
+ *
+ * Note: When an error occurs, nothing is added to the neural network, and no memory
+ * is deallocated.
+ */
+error_t add_layer (net* nn, layer* l);
+
+
+/* connect_net
+ *
+ * 	This function is used once all the needed layers have been added. This will connect
+ * 	each layer together within the neural net. 
+ *
+ * Arguments:
+ * 	net* -> The pointer to the neural network that has all layers added
+ *	
+ * Returns:
+ * 	E_SUCCESS -> The net has been built and is ready to use 
+ *
+ * Note: If this function returns anything but the E_SUCCESS, it is not ready to use, and 
+ * other functions should not be called with it.
+ *
+ */
+error_t connect_net (net* nn);
 
 #endif
 

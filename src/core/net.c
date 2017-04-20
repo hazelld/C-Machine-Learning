@@ -10,43 +10,20 @@ static error_t net_error(net* n, matrix_t* expected);
 static error_t update_weights(net* n);
 static error_t update_bias(net* n);
 
-/* Local activation functions, for when a user can't provide own */
-static double clog_sigmoid (double);
-static double clog_sigmoid_prime (double);
-
 
 /* PUBLIC FUNCTIONS */
-error_t init_net (net* nn, int lc, int* topology_arr, double lr){
-	if (nn == NULL) return E_NULL_ARG;
-	nn->layer_count = lc;
-	learning_rate = lr;
-	
-	nn->topology = malloc(sizeof(int) * lc);
-	nn->layers = malloc(sizeof(layer) * lc);
-	
-	for(int i = 0; i < lc; i++) {
-		
-		nn->topology[i] = topology_arr[i];
-		
-		/* Allocate space for layer */
-		nn->layers[i] = malloc(sizeof(layer));
 
-		/* Determine Layer type */
-		layer_type lt;
+/* init_net() */
+net* init_net (net** nn) {
+	if (nn == NULL) return NULL;
 
-		if (i == 0) { lt = input; }
-		else if (i == lc - 1) { lt = output; }
-		else { lt = hidden; }
-		
-		/* The input layer has no inputs, it simply has outputs 
-		 * (which are technically the inputs to the NN) */
-		if (lt == input) { 
-			init_layer(nn->layers[i], input, 0, topology_arr[i]);
-			continue;
-		}
-		init_layer(nn->layers[i], lt, topology_arr[i-1], topology_arr[i]);
-	}
-	return E_SUCCESS;
+	if (*nn == NULL)
+		*nn = malloc(sizeof(net));
+	
+	(*nn)->layers = malloc(sizeof(layer*));
+	(*nn)->topology = malloc(sizeof(int));
+
+	return (*nn);
 }
 
 
@@ -64,10 +41,6 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	l->layer_error = NULL;
 	l->weight_delta = NULL;
 	
-	/* TODO: Add flexiblity to this*/
-	l->af = clog_sigmoid;
-	l->ap = clog_sigmoid_prime;
-
 	/* Output layer has no weights or bias */
 	if (lt == input) {
 		l->weights = NULL;
@@ -199,7 +172,7 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		if (clayer->using_bias)
 			vector_scalar_addition(clayer->output, clayer->bias);
 		
-		function_on_vector(clayer->output, clayer->af);
+		function_on_vector(clayer->output, clayer->actf.af);
 		
 		if (clayer->ltype != output) 
 			n->layers[i+1]->input = clayer->output;
@@ -278,7 +251,7 @@ static error_t net_error (net* n, matrix_t* expected) {
 		if (err != E_SUCCESS) return err;
 		
 		/* g'(z) */	
-		function_on_vector(clayer->output, clayer->ap);
+		function_on_vector(clayer->output, clayer->actf.ap);
 		
 		/* S * g'(z) */
 		clayer->layer_error = malloc(sizeof(matrix_t));
@@ -373,28 +346,3 @@ static error_t update_bias (net* n) {
 	return E_SUCCESS;
 }
 
-/* clog_sigmoid 
- *
- * 	This function provides a default activation function if no other functions 
- * 	are specified. This returns the result of the continous log-sigmoid function
- * 	that is defined as:
- *
- * 	f(x) = 1 / (1 + e^(-t))
- *
- */
-static double clog_sigmoid (double x) {
-	return 1 / (1 + exp(-x));
-}	
-
-/* clog_sigmoid_prime
- *
- * 	This function is the derivative of the clog_sigmoid() function, that 
- * 	is defined as:
- *
- * 	df(x)
- * 	_____ = f(x) * ( 1 - f(x))
- * 	dt
- */
-static double clog_sigmoid_prime (double fx) {
-	return fx * ( 1 - fx);
-}

@@ -1,40 +1,5 @@
 #include "builder.h"
 
-error_t build_layer (layer* l, layer_type lt, int bias, int nodes, act_f af, act_prime_f ap) {
-	
-	if (l == NULL)
-		return E_NULL_ARG;
-
-	/* Only set the variables we need */
-	l->ltype = lt;
-	l->output_nodes = lt;
-	l->using_bias = bias;
-	l->af = af;
-	l->ap = ap;
-
-	return E_SUCCESS;
-}
-
-
-error_t add_layer (net* nn, layer* l) {
-	if (nn == NULL || l == NULL)
-		return E_NULL_ARG;
-
-	/* Check to make sure we aren't adding extra input/output layer */
-	layer_type added_type = l->ltype;
-	for (int i = 0; i < nn->layer_count; i++) {
-		if (nn->layers[i]->ltype == added_type && added_type == input)
-			return E_TOO_MANY_INPUT_LAYERS;
-		
-		if (nn->layers[i]->ltype == added_type && added_type == output)
-			return E_TOO_MANY_OUTPUT_LAYERS;
-	}
-
-	/* Add room for 1 more layer, and put given argument in */
-	nn->layers = realloc(nn->layers, sizeof(layer*) * ++nn->layer_count);
-	nn->layers[nn->layer_count - 1] = l;
-	return E_SUCCESS;
-} 
 
 
 data_set* data_set_from_csv(FILE* fh) {
