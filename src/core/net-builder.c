@@ -9,19 +9,22 @@ static error_t find_and_move_layer (net* n, layer_type type, int index);
 static void swap_layers (net* n, int index1, int index2);
 
 /* build_layer() */
-error_t build_layer (layer* l, layer_type lt, int bias, int nodes, activation_f actf) {
+layer* build_layer (layer** l, layer_type lt, int bias, int nodes, activation_f actf) {
 	if (l == NULL)
-		return E_NULL_ARG;
+		return NULL;
 	
+	if (*l == NULL)
+		*l = malloc(sizeof(layer));
+
 	/* If no activation function package is given, default to sigmoid */
-	l->actf = actf;
+	(*l)->actf = actf;
 
 	/* Only set the variables we need */
-	l->ltype = lt;
-	l->output_nodes = lt;
-	l->using_bias = bias;
+	(*l)->ltype = lt;
+	(*l)->output_nodes = nodes;
+	(*l)->using_bias = bias;
 	
-	return E_SUCCESS;
+	return *l;
 }
 
 /* add_layer */

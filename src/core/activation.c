@@ -20,30 +20,30 @@ static void set_activation_f (activation_f* actf, act_func_t type, act_func af, 
 }
 
 /* get_activation_f() */
-error_t get_activation_f (activation_f** actf, act_func_t type, act_func af, act_func ap) {
-	if (actf == NULL) return E_NULL_ARG;
+error_t get_activation_f(activation_f* actf, act_func_t type, act_func af, act_func ap ) {
 	
-	if (*actf == NULL)
-		*actf = malloc(sizeof(activation_f));
+	if (actf == NULL) return E_NULL_ARG;
 
 	switch (type) {
 		case SIGMOID:
-			set_activation_f(*actf, type, sigmoid_f, sigmoid_fp);
+			set_activation_f(actf, type, sigmoid_f, sigmoid_fp);
 			break;
 
 		case TANH:
-			set_activation_f(*actf, type, tanh, tanh_fp);
+			set_activation_f(actf, type, tanh, tanh_fp);
 			break;
 
 		case CUSTOM:
-			if (af == NULL || ap == NULL)
+			if (af == NULL || ap == NULL) 
 				return E_NO_CALLBACK_GIVEN;
-			set_activation_f(*actf, type, af, ap);
+
+			set_activation_f(actf, type, af, ap);
 			break;
 	}
-
+	
 	return E_SUCCESS;
 }
+
 
 
 

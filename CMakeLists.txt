@@ -10,7 +10,7 @@ set(CORE_INCLUDE_LOCATION ${PROJECT_SOURCE_DIR}/src/core)
 set(TEST_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/test)
 set(API_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/api)
 set(EXAMPLES_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/examples)
-set(MUNIT_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/test/munit.c)
+set(MUNIT_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/test/munit/)
 
 # Set the output locations
 set(LIBRARY_COMPILE_LOCATION ${CMAKE_BINARY_DIR}/lib) 
@@ -26,4 +26,4 @@ set(PYTHON_LIBRARY_COMPILE_LOCATION ${CMAKE_BINARY_DIR}/lib)
 add_subdirectory(src)
 
 # Compile the examples 
-add_subdirectory(examples)
+# add_subdirectory(examples)

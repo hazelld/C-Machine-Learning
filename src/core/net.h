@@ -175,6 +175,8 @@ error_t free_net(net* n);
  *	
  *	Memory Allocated:
  *		NONE
+ *
+ *	TODO: move to net-internal.h?
  */
 error_t free_layer(layer* l);
 
@@ -182,6 +184,8 @@ error_t free_layer(layer* l);
 /* These functions are within net-builder.c but will be exposed through this header. */
 
 /* build_layer
+ *
+ *  TODO: FIX THIS HEADER 
  *
  * 	This function is to build a single layer of the neural network. The struct layer 
  * 	to build must be allocated before calling this function.
@@ -203,7 +207,7 @@ error_t free_layer(layer* l);
  * Returns:
  *	E_SUCCESS -> Successfully created layer
  */
-error_t build_layer (layer* l, layer_type lt, int bias, int nodes, activation_f actf);
+layer* build_layer (layer** l, layer_type lt, int bias, int nodes, activation_f actf);
 
 
 /* add_layer
@@ -251,18 +255,28 @@ error_t connect_net (net* nn);
 
 /* get_activation_f
  *
- * 	This function is used to create an activation function data structure. This function
- * 	will allocate the activation_f* if it is not allocated before the function is called.
- *
+ * 	This function is used to create an activation function data structure.
+ *	
  * Arguments:
- *	actf -> Location of the pointer to activation_f type 
+ *	activation_f* -> Location to put everything into.
  *	type -> Type of activation function
  *	af -> Pointer to activation function, only needed when type is CUSTOM
  *	ap -> Pointer to the activation function's derivative, only needed when type is CUSTOM
  *
- *	Note: If type is not CUSTOM, then af and ap are ignored. 
+ * Note i: If type is not CUSTOM, then af and ap are ignored. 
+ * Note ii: Generally the structure passed in should be on the stack not the heap. Since 
+ * 	the layer structure holds the structure and not the pointer, it works best as:
+ *
+ * 	activation_f actf;
+ * 	get_activation_f(&actf, .....);
+ * 	build_layer(...., actf);
+ *
+ * Returns:
+ * 	E_SUCCESS => Built the structure OK, safe to use
+ * 	E_NULL_ARG => Null argument given
+ * 	E_NO_CALLBACK_GIVEN => Selected CUSTOM type, but no activation function pointers given.
  */
-error_t get_activation_f (activation_f** actf, act_func_t type, act_func af, act_func ap);
+error_t get_activation_f (activation_f* actf, act_func_t type, act_func af, act_func ap );
 
 
 #endif
