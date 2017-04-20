@@ -6,6 +6,7 @@
 #include <string.h>
 #include "matrix.h"
 #include "net.h"
+#include "net-internal.h"
 #include "err.h"
 
 #define MAXLINELEN 256

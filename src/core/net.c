@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include "net.h"
+#include "net-internal.h"
 
 /* File wide learning rate, used by _learning_rate() */
 static double learning_rate;
@@ -27,7 +29,7 @@ net* init_net (net** nn) {
 }
 
 
-/**/
+/* init_layer() [net-internal.h] */
 error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	if (l == NULL) return E_NULL_ARG;
 	

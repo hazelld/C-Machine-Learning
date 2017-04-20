@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "net.h"
+#include "net-internal.h"
 #include "err.h"
 
 

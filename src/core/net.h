@@ -1,11 +1,9 @@
 #ifndef _NET_H_
 #define _NET_H_
 
-#include <stdlib.h>
-#include <math.h>
+/* TODO: See if matrix.h can be removed from here by refactoring predict() */
 #include "matrix.h"
 #include "err.h"
-#include "activation.h"
 
 /* enum layer_type
  *
@@ -29,19 +27,7 @@ typedef enum layer_type {
  * 	to do all the needed operations on.
  *
  */
-typedef struct layer {
-	layer_type ltype;
-	int input_nodes;
-	int output_nodes;
-	int using_bias;
-	double bias;
-	matrix_t* input;
-	matrix_t* weights;
-	matrix_t* output;
-	matrix_t* layer_error;
-	matrix_t* weight_delta;
-	activation_f actf;
-} layer;
+typedef struct layer layer;
 
 
 /*	struct net
@@ -52,23 +38,7 @@ typedef struct layer {
  * 	This is the main data structure that is used throughout the library. This 
  * 	should be created with the 
  */
-typedef struct net {
-	layer** layers;
-	int layer_count;
-	int* topology;
-} net;
-
-
-/* struct data_pair
- *
- *	This structure contains two matrices, one for the input to the 
- *	net, and the expected output for the input. This allows for the 
- *	data to be passed around easier, and for parsing the data. 
- */
-typedef struct data_pair {
-	matrix_t* input;
-	matrix_t* expected_output;
-} data_pair;
+typedef struct net net;
 
 
 /* struct data_set
@@ -79,11 +49,38 @@ typedef struct data_pair {
  *	and the count.
  *
  */
-typedef struct data_set {
-	data_pair** data;
-	int count;
-} data_set;
+typedef struct data_set data_set;
 
+
+/* struct activation_f
+ *	
+ *	This structure is used to store the activation function, and it's derivative 
+ *	function. This should be built with the 
+ *
+ */
+typedef struct activation_f activation_f;
+
+
+/* activation_functions
+ *
+ * 	These are the type of activation functions. As more are added, this will 
+ * 	change to reflect that. 
+ *
+ * 	If the CUSTOM is selected, then the user will provide callbacks to their own 
+ * 	activation function, and derivative of that function.
+ *
+ */
+typedef enum activation_functions {
+	SIGMOID,
+	TANH,
+	CUSTOM,
+} act_func_t;
+
+
+/*	This defines the signature needed for any custom activation functions or their
+ *	derivatives. 
+ */
+typedef double (*act_func)(double);
 
 
 /*	Public Functions */
@@ -103,28 +100,6 @@ typedef struct data_set {
  *
  */
 net* init_net (net** n);
-
-
-/* init_layer
- *
- * 	This function is used to initialize an allocated struct layer with the
- * 	given values.
- *
- * 	Arguments:
- * 		l => Pointer to allocated struct layer
- * 		lt => The layer type as defined by enum layer_type
- * 		in_node => The amount of nodes in the previous layer
- * 		out_node => The amount of nodes in the current layer
- *
- *	Returns:
- *		0 => Layer successfully initialized 
- *		1 => Error initializing layer
- *
- *	Memory Allocated:
- *		l->weights (Through random_matrix())
- *
- */
-error_t init_layer (layer* l, layer_type lt, int in_node, int out_node);
 
 
 /* train
@@ -270,6 +245,25 @@ error_t add_layer (net* nn, layer* l);
  *
  */
 error_t connect_net (net* nn);
+
+
+/* These functions are defined inside activation.c */
+
+/* get_activation_f
+ *
+ * 	This function is used to create an activation function data structure. This function
+ * 	will allocate the activation_f* if it is not allocated before the function is called.
+ *
+ * Arguments:
+ *	actf -> Location of the pointer to activation_f type 
+ *	type -> Type of activation function
+ *	af -> Pointer to activation function, only needed when type is CUSTOM
+ *	ap -> Pointer to the activation function's derivative, only needed when type is CUSTOM
+ *
+ *	Note: If type is not CUSTOM, then af and ap are ignored. 
+ */
+error_t get_activation_f (activation_f** actf, act_func_t type, act_func af, act_func ap);
+
 
 #endif
 

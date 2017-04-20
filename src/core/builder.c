@@ -1,7 +1,5 @@
 #include "builder.h"
 
-
-
 data_set* data_set_from_csv(FILE* fh) {
 	int lines, inputs_per_line, outputs_per_line;
 	char *token, *inputs, *outputs;
@@ -82,24 +80,6 @@ data_set* data_set_from_csv(FILE* fh) {
 	free(line_buffer);	
 	return data;
 }
-
-/*
-int load_net (net* n, FILE* fh) {
-	return parse_net(n, fh);	
-}
-
-static int parse_net (net* n, FILE* fh) {
-
-}
-
-static int parse_layer (layer** l, FILE* fh) {
-
-}
-
-static int parse_matrix (matrix_t** m, FILE* fh) {
-
-}
-*/
 
 error_t save_net (net* n, FILE* fh) {
 	if (n == NULL || fh == NULL) return E_NULL_ARG;
