@@ -99,7 +99,7 @@ typedef double (*act_func)(double);
  * this function returns NULL.
  *
  */
-net* init_net (net** n);
+net* init_net ();
 
 
 /* train
@@ -187,11 +187,9 @@ error_t free_layer(layer* l);
  *
  *  TODO: FIX THIS HEADER 
  *
- * 	This function is to build a single layer of the neural network. The struct layer 
- * 	to build must be allocated before calling this function.
+ * 	This function is to build a single layer of the neural network.  
  *
  * Arguments:
- * 	layer* -> Pointer to layer 
  * 	layer_type -> Type of layer (input, hidden, output). Note that the network may
  * 		only have a single input and output layer.
  *
@@ -204,10 +202,8 @@ error_t free_layer(layer* l);
  *	af -> Activation function to use
  *	ap -> Derivative of activation function
  *
- * Returns:
- *	E_SUCCESS -> Successfully created layer
  */
-layer* build_layer (layer** l, layer_type lt, int bias, int nodes, activation_f actf);
+layer* build_layer (layer_type lt, int bias, int nodes, activation_f actf);
 
 
 /* add_layer

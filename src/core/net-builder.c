@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "net.h"
 #include "net-internal.h"
 #include "err.h"
@@ -9,25 +10,27 @@ static error_t find_and_move_layer (net* n, layer_type type, int index);
 static void swap_layers (net* n, int index1, int index2);
 
 /* build_layer() */
-layer* build_layer (layer** l, layer_type lt, int bias, int nodes, activation_f actf) {
+layer* build_layer (layer_type lt, int bias, int nodes, activation_f actf) {
+	layer* l = malloc(sizeof(layer));
+	
 	if (l == NULL)
 		return NULL;
-	
-	if (*l == NULL)
-		*l = malloc(sizeof(layer));
+
+	memset(l, 0, sizeof(layer));
 
 	/* If no activation function package is given, default to sigmoid */
-	(*l)->actf = actf;
-
-	/* Only set the variables we need */
-	(*l)->ltype = lt;
-	(*l)->output_nodes = nodes;
-	(*l)->using_bias = bias;
+	l->actf = actf;
 	
-	return *l;
+	/* Only set the variables we need 
+	 * TODO: do I want to stop people using dumb node numbers? */
+	l->ltype = lt;
+	l->output_nodes = nodes;
+	l->using_bias = bias;
+
+	return l;
 }
 
-/* add_layer */
+/* add_layer() */
 error_t add_layer (net* nn, layer* l) {
 	if (nn == NULL || l == NULL)
 		return E_NULL_ARG;
@@ -35,6 +38,9 @@ error_t add_layer (net* nn, layer* l) {
 	/* Check to make sure we aren't adding extra input/output layer */
 	layer_type added_type = l->ltype;
 	for (int i = 0; i < nn->layer_count; i++) {
+		if (nn->layers[i] == l)
+			return E_LAYER_ALREADY_IN_NET;
+		
 		if (nn->layers[i]->ltype == added_type && added_type == input)
 			return E_TOO_MANY_INPUT_LAYERS;
 		

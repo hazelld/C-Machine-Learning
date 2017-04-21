@@ -39,7 +39,7 @@ int load_net (net* n, FILE* fh);
 /*
  *
  */
-int save_net (net* n, FILE* fh);
+error_t save_net (net* n, FILE* fh);
 
 
 #endif

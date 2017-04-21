@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "net.h"
 #include "net-internal.h"
 
@@ -16,16 +17,14 @@ static error_t update_bias(net* n);
 /* PUBLIC FUNCTIONS */
 
 /* init_net() */
-net* init_net (net** nn) {
-	if (nn == NULL) return NULL;
+net* init_net () {
+	net* n = malloc(sizeof(net));
 
-	if (*nn == NULL)
-		*nn = malloc(sizeof(net));
-	
-	(*nn)->layers = malloc(sizeof(layer*));
-	(*nn)->topology = malloc(sizeof(int));
+	if (n == NULL)
+		return NULL;
 
-	return (*nn);
+	memset(n, 0, sizeof(net));
+	return n;
 }
 
 
