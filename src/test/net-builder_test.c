@@ -5,7 +5,6 @@
 #include "net.h"
 #include "net-internal.h"
 
-static layer* make_test_layer();
 
 /* test_build_layer()
  *
@@ -16,8 +15,6 @@ static layer* make_test_layer();
  */
 static MunitResult
 test_build_layer (const MunitParameter params[], void* data) {
-	(void) params;
-	(void) data;
 	
 	layer_type lt = input;
 	int bias = 0;
@@ -47,8 +44,6 @@ test_build_layer (const MunitParameter params[], void* data) {
  */
 static MunitResult
 test_add_layer_extra_layers(const MunitParameter params[], void* data) {
-	(void) params;
-	(void) data;
 	
 	error_t err, input_err, output_err;
 	activation_f actf;
@@ -98,8 +93,45 @@ test_add_layer_duplicate_layers(const MunitParameter params[], void* data) {
 	err = add_layer(n, l);
 	munit_assert(err == E_SUCCESS);
 	err = add_layer(n, l);
-	fprintf(stderr, "%d\n", (int)err);
 	munit_assert(err == E_LAYER_ALREADY_IN_NET);
+	free_net(n);
+}
+
+/* test_add_layer()
+ *
+ *	This function tests the basic functionality of the add_layer() function.
+ *	Once we add the layer, there are a few things to verify:
+ *	-> The add_layer() function worked
+ *	-> The net's layer_count variable is 1 larger than before
+ *	-> The layer was properly added to the net's layer array
+ *
+ */
+static MunitResult
+test_add_layer(const MunitParameter params[], void* data) {
+
+	error_t err;
+	activation_f actf;
+	get_activation_f(&actf, SIGMOID, NULL, NULL);
+	int lcount;
+
+	net* n = init_net();
+	lcount = n->layer_count;
+	munit_assert(lcount == 0);
+
+	layer* input_layer = build_layer(input, 0, 10, actf);
+	layer* hidden_layer = build_layer(hidden, 0, 10, actf);
+	layer* output_layer = build_layer(hidden, 0, 10, actf);
+	
+	layer* layer_arr[3] = {input_layer, hidden_layer, output_layer};
+
+	for (int i = 0; i < 3; i++) {
+		err = add_layer(n, layer_arr[i]);
+		munit_assert(err == E_SUCCESS);
+		munit_assert(n->layer_count == (lcount + 1));
+		munit_assert(n->layers[i] == layer_arr[i]);
+		lcount = n->layer_count;
+	}
+
 	free_net(n);
 }
 
@@ -111,6 +143,7 @@ static MunitTest test_suite_tests[] = {
 		MUNIT_TEST_OPTION_NONE, NULL},
 	{(char*) "add_layer/duplicate_layers", test_add_layer_duplicate_layers, NULL, NULL,
 		MUNIT_TEST_OPTION_NONE, NULL},
+	{(char*) "add_layer", test_add_layer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 	{NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
 };
 
