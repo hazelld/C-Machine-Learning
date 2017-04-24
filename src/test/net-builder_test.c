@@ -5,6 +5,9 @@
 #include "net.h"
 #include "net-internal.h"
 
+/* Build a basic test network */
+static net* _build_net(int hidden_layers, layer_type missing_lt);
+
 
 /* test_build_layer()
  *
@@ -27,15 +30,17 @@ test_build_layer (const MunitParameter params[], void* data) {
 	layer* l = build_layer(lt, bias, nodes, actf);
 
 	/* Check the values worked */
-	munit_assert(l->ltype == lt);
-	munit_assert(l->using_bias == bias);
-	munit_assert(l->output_nodes == nodes);
-	munit_assert(l->actf.type == act_type);
+	munit_assert_int((int)l->ltype, ==, (int)lt);
+	munit_assert_int((int)l->using_bias, ==, (int)bias);
+	munit_assert_int((int)l->output_nodes, ==, (int)nodes);
+	munit_assert_int((int)l->actf.type, ==, (int)act_type);
 
 	/* Clean up */
 	error_t err = free_layer(l);
 	munit_assert(err == E_SUCCESS);
+	return MUNIT_OK;
 }
+
 
 /* test_add_layer_extra_layers()
  *
@@ -73,6 +78,7 @@ test_add_layer_extra_layers(const MunitParameter params[], void* data) {
 		err = free_net(n);
 		munit_assert(err == E_SUCCESS);
 	}
+	return MUNIT_OK;
 }
 
 
@@ -95,7 +101,10 @@ test_add_layer_duplicate_layers(const MunitParameter params[], void* data) {
 	err = add_layer(n, l);
 	munit_assert(err == E_LAYER_ALREADY_IN_NET);
 	free_net(n);
+
+	return MUNIT_OK;
 }
+
 
 /* test_add_layer()
  *
@@ -133,17 +142,84 @@ test_add_layer(const MunitParameter params[], void* data) {
 	}
 
 	free_net(n);
+	return MUNIT_OK;
 }
+
+
+/* test_connect_net()
+ *
+ * 	Tests the basic functionality of the connect_net. It will randomly
+ * 	add 1 input, 1 output, and $hidden_layer amount of hidden layers. This should
+ * 	eventually find any issue, and will cover all cases. 
+ *
+ */
+static MunitResult
+test_connect_net(const MunitParameter params[], void* data) {
+	error_t err;
+	int hidden_layers = 5;
+
+	net* n = _build_net(hidden_layers, hidden);
+	
+	err = connect_net(n);
+	munit_assert_int((int)err, ==, (int)E_SUCCESS);
+
+	/* Assert a few things */
+	munit_assert_int((int)n->layers[0]->ltype, ==, (int)input);
+	munit_assert_int((int)n->layers[n->layer_count-1]->ltype, ==, (int)output);
+
+	for (int i = 1; i < n->layer_count - 1; i++) 
+		munit_assert_int((int)n->layers[i]->ltype, ==, (int)hidden);
+
+	munit_assert_int((int)n->layer_count, ==, (int)(hidden_layers + 2));
+	free_net(n);
+
+	return MUNIT_OK;
+}
+
+
+/* test_connect_net_no_input_layer()
+ *
+ * 	Test that connect_net() handles when no input layer is given 
+ */
+static MunitResult 
+test_connect_net_no_input_layer (const MunitParameter params[], void* data) {
+	error_t err;
+	net* n = _build_net(5, input);
+	err = connect_net(n);
+	munit_assert_int((int)err, ==, (int)E_NO_INPUT_LAYER);
+	free_net(n);
+	return MUNIT_OK;
+}
+
+
+/* test_connect_net_no_output_layer()
+ *
+ *	Test that connect_net() handles when no output layer is given
+ */
+static MunitResult 
+test_connect_net_no_output_layer (const MunitParameter params[], void* data) {
+	error_t err;
+	net* n = _build_net(5, output);
+	err = connect_net(n);
+	munit_assert_int((int)err, ==, (int)E_NO_OUTPUT_LAYER);
+	free_net(n);
+	return MUNIT_OK;
+}
+
 
 /* Set up the test suite */
 static MunitTest test_suite_tests[] = {
-	{(char*) "build_layer", test_build_layer, NULL, NULL,
-		MUNIT_TEST_OPTION_NONE, NULL},
+	{(char*) "build_layer", test_build_layer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 	{(char*) "add_layer/extra_layers", test_add_layer_extra_layers, NULL, NULL,
 		MUNIT_TEST_OPTION_NONE, NULL},
 	{(char*) "add_layer/duplicate_layers", test_add_layer_duplicate_layers, NULL, NULL,
 		MUNIT_TEST_OPTION_NONE, NULL},
 	{(char*) "add_layer", test_add_layer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+	{(char*) "connect_net", test_connect_net, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{(char*) "connect_net/no_input_layer", test_connect_net_no_input_layer, NULL, NULL,
+		MUNIT_TEST_OPTION_NONE, NULL},
+	{(char*) "connect_net/no_output_layer", test_connect_net_no_output_layer, NULL, NULL,
+		MUNIT_TEST_OPTION_NONE, NULL},
 	{NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
 };
 
@@ -161,3 +237,68 @@ int main (int argc, char* argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
 	return munit_suite_main(&test_suite, (void*) "munit", argc, argv);
 }
 
+
+/* _shuffle_layers() 
+ *
+ * Shuffle an array of layers to randomly add to a net.
+ */
+static void _shuffle_layers (layer** l, int size) {
+
+	for (int i = 0; i < size - 1; i++) {
+		int j = i + rand() / (RAND_MAX / (size - i) + 1);
+		fprintf(stderr, "random number is: %d (MAX %d)\n", j, size);
+		layer* buff = l[j];
+		l[j] = l[i];
+		l[i] = buff;
+	}
+}
+
+/* _build_net() 
+ *
+ * 	Builds a basic net with the given amount of hidden layers. Also can 
+ * 	build one with only hidden layers to try and break connect_net() 
+ *
+ */
+static net* _build_net (int hidden_layers, layer_type missing_lt) {
+	
+	net* n = init_net();
+	activation_f actf;
+	get_activation_f(&actf, SIGMOID, NULL, NULL);
+	
+	/* Set up the layers */ 
+	int added_layers = 0;
+	layer** layers = NULL;
+
+	/* All possible layers */
+	if (missing_lt == hidden) {
+		added_layers = 2;
+		layers = malloc(sizeof(layer*) * 2);
+		layers[0] = build_layer(input, 0, 10, actf);
+		layers[1] = build_layer(output, 0, 10, actf);
+	} else {
+		added_layers = 1;
+		layers = malloc(sizeof(layer*) * added_layers);
+		
+		if (missing_lt == input) 
+			layers[0] = build_layer(output, 0, 10, actf);
+		else 
+			layers[0] = build_layer(input, 0, 10, actf);
+	}
+
+	for (int i = added_layers; i < hidden_layers + added_layers; i++) {
+		layers = realloc(layers, sizeof(layer*) * (i + added_layers + 1) );
+		layers[i] = build_layer(hidden, 0, 10, actf);
+	}
+	
+	_shuffle_layers(layers, added_layers + hidden_layers);
+	
+	error_t err;
+	for (int i = 0; i < hidden_layers + added_layers; i++) {
+
+		err = add_layer(n, layers[i]);
+		munit_assert_int((int)err, ==, (int)E_SUCCESS);
+	}	
+
+	free(layers);
+	return n;
+}

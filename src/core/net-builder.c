@@ -72,13 +72,15 @@ error_t connect_net (net* n) {
 	
 
 	/* Loop backwards through the net, fill out each layer with needed info */
-	for (int i = n->layer_count - 1; i > 0; i++) {
+	for (int i = n->layer_count - 1; i > 0; i--) {
+		fprintf(stderr, "%d\n", i);
 		layer* clayer = n->layers[i];
 		layer* prev_layer = n->layers[i-1];
 		init_layer(clayer, clayer->ltype, prev_layer->output_nodes, clayer->input_nodes);
 	}
 
 	n->connected = NET_CONNECTED;
+	fprintf(stderr, "Returning from connect_net\n");
 	return E_SUCCESS;
 }
 
