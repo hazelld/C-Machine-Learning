@@ -77,6 +77,9 @@ error_t connect_net (net* n) {
 		layer* prev_layer = n->layers[i-1];
 		init_layer(clayer, clayer->ltype, prev_layer->output_nodes, clayer->input_nodes);
 	}
+
+	n->connected = NET_CONNECTED;
+	return E_SUCCESS;
 }
 
 

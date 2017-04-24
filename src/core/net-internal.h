@@ -43,8 +43,11 @@ typedef struct net {
 	layer** layers;
 	int layer_count;
 	int* topology;
+	int connected; // See defines below
 } net;
 
+#define NET_CONNECTED 1
+#define NET_NOT_CONNECTED -1
 
 /* struct data_pair
  *

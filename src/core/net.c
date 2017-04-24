@@ -22,7 +22,8 @@ net* init_net () {
 
 	if (n == NULL)
 		return NULL;
-
+	
+	n->connected = NET_NOT_CONNECTED;
 	memset(n, 0, sizeof(net));
 	return n;
 }
@@ -57,7 +58,10 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 }
 
 
-/* TODO: Add verbose mode */
+/* TODO:
+ * -> Add verbose mode
+ * -> Return error on unconnected net 
+ */
 error_t train (net* n, data_set* data, int epochs) {
 	for (int j = 0; j < epochs; j++) {
 		//printf("Training epoch %d\n", j);

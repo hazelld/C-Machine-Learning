@@ -36,6 +36,7 @@ enum _cnn_error {
 	E_INVALID_NODE_AMOUNT,
 	E_INVALID_LAYER_TYPE,
 	E_LAYER_ALREADY_IN_NET,
+	E_NET_NOT_CONNECTED, 
 
 	/* Error codes for issues between data and neural net */
 	E_WRONG_INPUT_SIZE,
