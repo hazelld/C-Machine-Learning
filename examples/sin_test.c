@@ -38,7 +38,7 @@ int main() {
 	activation_f actf;
 	get_activation_f(&actf, TANH, NULL, NULL);
 	data = data_set_from_csv(fh);
-	net* nn = init_net();
+	net* nn = init_net(0.01);
 	
 	/* Build the layers */
 	layer* layers[4] = { 

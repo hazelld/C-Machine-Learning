@@ -43,6 +43,7 @@ typedef struct net {
 	layer** layers;
 	int layer_count;
 	int* topology;
+	double learning_rate;
 	int connected; // See defines below
 } net;
 

@@ -88,18 +88,16 @@ typedef double (*act_func)(double);
 /* init_net
  *
  *	This function is used to initialize the neural network datastructure, and
- *	allocate all the memory it needs. If the given pointer points to NULL, the 
- *	memory for the net will be allocated.
+ *	allocate all the memory it needs. 
  *
  * Arguments:
- *	net** => Pointer to the net. If the pointed to net is not already allocated,
- *	the net will be allocated. 
+ *	learning_rate => Net wide learning rate 
  *
  * Returns the pointer to the net that was initialized. If there was any problem, 
  * this function returns NULL.
  *
  */
-net* init_net ();
+net* init_net (double learning_rate);
 
 
 /* train

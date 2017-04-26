@@ -3,8 +3,6 @@
 #include "net.h"
 #include "net-internal.h"
 
-/* File wide learning rate, used by _learning_rate() */
-static double learning_rate = 0.1;
 
 /* Local functions */
 static error_t feed_forward(net* n, matrix_t* input);
@@ -17,14 +15,15 @@ static error_t update_bias(net* n);
 /* PUBLIC FUNCTIONS */
 
 /* init_net() */
-net* init_net () {
+net* init_net (double learning_rate) {
 	net* n = malloc(sizeof(net));
 
 	if (n == NULL)
 		return NULL;
 	
-	n->connected = NET_NOT_CONNECTED;
 	memset(n, 0, sizeof(net));
+	n->connected = NET_NOT_CONNECTED;
+	n->learning_rate = learning_rate;
 	return n;
 }
 
@@ -279,20 +278,6 @@ static error_t net_error (net* n, matrix_t* expected) {
 }
 
 
-/*	_learning_rate
- *
- *	This function is used to apply the learning rate to any value 
- *	given. This allows for it to be applied to a whole matrix through
- *	the use of the function_on_matrix() function that takes a function
- *	as an argument.
- *
- *	Note: learning_rate is a global variable set by init_net()
- */
-double _learning_rate (double val) {
-	return learning_rate * val;
-}
-
-
 /* update_weights
  *
  * 	This function is used to update the weights by the values of their 
@@ -306,9 +291,12 @@ static error_t update_weights (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
 		matrix_t* f_weights = malloc(sizeof(matrix_t));
+	
+		error_t err;
+		err = matrix_scalar_mult(clayer->weight_delta, n->learning_rate);
+		if (err != E_SUCCESS) return err;
 
-		function_on_matrix(clayer->weight_delta, _learning_rate);
-		error_t err = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
+		err = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
 		if (err != E_SUCCESS) return err;
 
 		/* Free old memory */
