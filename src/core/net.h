@@ -185,8 +185,6 @@ error_t free_layer(layer* l);
 
 /* build_layer
  *
- *  TODO: FIX THIS HEADER 
- *
  * 	This function is to build a single layer of the neural network.  
  *
  * Arguments:
@@ -202,6 +200,7 @@ error_t free_layer(layer* l);
  *	af -> Activation function to use
  *	ap -> Derivative of activation function
  *
+ * 	TODO: Make define for bias?
  */
 layer* build_layer (layer_type lt, int bias, int nodes, activation_f actf);
 
@@ -273,6 +272,11 @@ error_t connect_net (net* nn);
  * 	E_NO_CALLBACK_GIVEN => Selected CUSTOM type, but no activation function pointers given.
  */
 error_t get_activation_f (activation_f* actf, act_func_t type, act_func af, act_func ap );
+
+
+
+/* These functions are defined in data-builder.c */
+
 
 
 #endif

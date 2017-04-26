@@ -49,7 +49,8 @@ error_t add_layer (net* nn, layer* l) {
 	}
 
 	/* Add room for 1 more layer, and put given argument in */
-	nn->layers = realloc(nn->layers, sizeof(layer*) * ++nn->layer_count);
+	nn->layer_count++;
+	nn->layers = realloc(nn->layers, sizeof(layer*) * nn->layer_count);
 	nn->layers[nn->layer_count - 1] = l;
 	return E_SUCCESS;
 }
@@ -70,17 +71,23 @@ error_t connect_net (net* n) {
 	
 	/* TODO: figure out how to handle hidden layers */
 	
-
 	/* Loop backwards through the net, fill out each layer with needed info */
 	for (int i = n->layer_count - 1; i > 0; i--) {
-		fprintf(stderr, "%d\n", i);
 		layer* clayer = n->layers[i];
 		layer* prev_layer = n->layers[i-1];
-		init_layer(clayer, clayer->ltype, prev_layer->output_nodes, clayer->input_nodes);
+		init_layer(clayer, clayer->ltype, prev_layer->output_nodes, clayer->output_nodes);
 	}
 
+	/* Init the input layer */
+	int inputs = n->layers[0]->output_nodes;
+	init_layer(n->layers[0], input, inputs, inputs);
+
+	/* Set up the topology array */
+	n->topology = malloc(sizeof(int) * n->layer_count);
+	for (int i = 0; i < n->layer_count; i++) 
+		n->topology[i] = n->layers[i]->output_nodes;
+	
 	n->connected = NET_CONNECTED;
-	fprintf(stderr, "Returning from connect_net\n");
 	return E_SUCCESS;
 }
 

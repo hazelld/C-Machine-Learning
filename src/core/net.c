@@ -4,7 +4,7 @@
 #include "net-internal.h"
 
 /* File wide learning rate, used by _learning_rate() */
-static double learning_rate;
+static double learning_rate = 0.1;
 
 /* Local functions */
 static error_t feed_forward(net* n, matrix_t* input);
@@ -64,11 +64,10 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
  */
 error_t train (net* n, data_set* data, int epochs) {
 	for (int j = 0; j < epochs; j++) {
-		//printf("Training epoch %d\n", j);
 		for (int i = 0; i < data->count; i++) {
 			error_t e;
-
 			e = feed_forward(n, data->data[i]->input);
+			
 			if (e != E_SUCCESS) {
 				printf("feed_forward failed with: %d\n", (int)e);
 			}
@@ -159,7 +158,7 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		clayer = n->layers[i];
 		
 		/* Free up old memory */
-		if (clayer->output) { 
+		if (clayer->output) {
 			free_matrix(clayer->output); 
 			clayer->output = NULL;
 		}
@@ -170,9 +169,10 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		}
 
 		clayer->output = malloc(sizeof(matrix_t));
+
 		error_t err = matrix_vector_mult(clayer->weights, clayer->input, &clayer->output); 
 		if (err != E_SUCCESS) return err;
-		
+
 		/* Check if we have bias to add */
 		if (clayer->using_bias)
 			vector_scalar_addition(clayer->output, clayer->bias);

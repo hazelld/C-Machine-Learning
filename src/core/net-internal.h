@@ -65,8 +65,17 @@ typedef struct data_pair {
 
 /* Implementation of data_set */
 typedef struct data_set {
+
+	/* Holds all data */ 
 	data_pair** data;
 	int count;
+
+	/* Holds the validation sets and training sets, note these are just
+	 * pointer arrays that point to elements inside data_set->data */
+	data_pair** training_set;
+	data_pair** validation_set;
+	int training_count;
+
 } data_set;
 
 

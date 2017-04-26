@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 #include "matrix.h"
 #include "net.h"
@@ -26,7 +27,6 @@ double sigmoid_prime (double val) {
 
 int main() {
 	int topology[4] = { 1, 5, 5, 1 };
-	net* nn = malloc(sizeof(net));
 	data_set* data;
 	FILE* fh = fopen("examples/data/sin.csv", "r");
 
@@ -35,8 +35,29 @@ int main() {
 		exit(EXIT_FAILURE);
 	}
 
+	activation_f actf;
+	get_activation_f(&actf, TANH, NULL, NULL);
 	data = data_set_from_csv(fh);
-	init_net(nn, 4, topology, 0.1);
+	net* nn = init_net();
+	
+	/* Build the layers */
+	layer* layers[4] = { 
+		build_layer(input, 0, 1, actf),
+		build_layer(output, 1, 1, actf),
+		build_layer(hidden, 1, 5, actf),
+		build_layer(hidden, 1, 5, actf)
+	};
+	
+	/* Add layers then connect the net */ 
+	error_t err;
+	for (int i = 0; i < 4; i++) {
+		err = add_layer(nn, layers[i]);
+		assert(err == E_SUCCESS);
+	}
+	
+	err = connect_net(nn);
+	assert(err == E_SUCCESS);
+	
 	train(nn, data, 1000);
 
 	printf("\n\nRESULTS:\n");
@@ -57,12 +78,13 @@ int main() {
 		 * 0.5 * sinx + 0.5 
 		 */
 		printf("GOT: %lf\n", (2 * res->matrix[0][0]) - 1);
+	
+		free_matrix(in);
 	}
 		
 	fclose(fh);
 	
 	FILE* f = fopen("sin.net", "w");
-	save_net(nn, f);
 	fclose(f);
 
 	free_data_set(data);

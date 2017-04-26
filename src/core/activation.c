@@ -52,8 +52,7 @@ static double sigmoid_f (double x) {
 }
 
 static double sigmoid_fp (double x) {
-	double fx = sigmoid_f(x);
-	return fx * (1 - fx);
+	return x * (1 - x);
 }
 
 /* dx tanh(x) = 1 - tanh^2(x) */
