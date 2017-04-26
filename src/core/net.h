@@ -77,6 +77,20 @@ typedef enum activation_functions {
 } act_func_t;
 
 
+/* cost_functions
+ *	
+ *	These are the type of cost functions that are defined. The CUSTOM one means the 
+ *	user will provide callbacks to the cost function, and the function for the gradiant
+ *	of cost function wrt output of neural network.
+ *
+ *	The default cost function is the quadratic cost function and that one will be used 
+ *	unless another is specifically specified with set_cost_function()
+ */
+typedef enum cost_functions {
+	QUADRATIC,
+} cost_func_t;
+
+
 /*	This defines the signature needed for any custom activation functions or their
  *	derivatives. 
  */

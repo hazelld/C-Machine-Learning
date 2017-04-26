@@ -24,6 +24,7 @@ net* init_net (double learning_rate) {
 	memset(n, 0, sizeof(net));
 	n->connected = NET_NOT_CONNECTED;
 	n->learning_rate = learning_rate;
+	n->costf = QUADRATIC;
 	return n;
 }
 
@@ -62,10 +63,17 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
  * -> Return error on unconnected net 
  */
 error_t train (net* n, data_set* data, int epochs) {
+	double total_err = 0.0;
+	int count = 0;
+	
 	for (int j = 0; j < epochs; j++) {
+		fprintf(stderr, "Training epoch: %d\t", j);
 		for (int i = 0; i < data->count; i++) {
 			error_t e;
 			e = feed_forward(n, data->data[i]->input);
+			
+			total_err += calculate_cost_func(n, data->data[i]->expected_output);
+			count++;
 			
 			if (e != E_SUCCESS) {
 				printf("feed_forward failed with: %d\n", (int)e);
@@ -76,6 +84,10 @@ error_t train (net* n, data_set* data, int epochs) {
 				printf("back_prop failed with: %d\n", (int)e);
 			}
 		}
+
+		fprintf(stderr, "Total error: %lf\tAverage error: %lf\n", total_err, total_err / (double)count);
+		count = 0;
+		total_err = 0.0;
 	}
 	return E_SUCCESS;
 }

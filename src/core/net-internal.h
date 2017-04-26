@@ -45,6 +45,7 @@ typedef struct net {
 	int* topology;
 	double learning_rate;
 	int connected; // See defines below
+	cost_func_t costf; // Type of cost function 
 } net;
 
 #define NET_CONNECTED 1
@@ -102,5 +103,7 @@ typedef struct data_set {
 error_t init_layer (layer* l, layer_type lt, int in_node, int out_node);
 
 
+/**/
+double calculate_cost_func(net* n, matrix_t* expected);
 
 #endif

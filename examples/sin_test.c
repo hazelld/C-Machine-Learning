@@ -36,9 +36,9 @@ int main() {
 	}
 
 	activation_f actf;
-	get_activation_f(&actf, TANH, NULL, NULL);
+	get_activation_f(&actf, SIGMOID, NULL, NULL);
 	data = data_set_from_csv(fh);
-	net* nn = init_net(0.01);
+	net* nn = init_net(0.1);
 	
 	/* Build the layers */
 	layer* layers[4] = { 
@@ -84,9 +84,6 @@ int main() {
 		
 	fclose(fh);
 	
-	FILE* f = fopen("sin.net", "w");
-	fclose(f);
-
 	free_data_set(data);
 	free_net(nn);
 	

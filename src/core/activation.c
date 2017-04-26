@@ -20,7 +20,7 @@ static void set_activation_f (activation_f* actf, act_func_t type, act_func af, 
 }
 
 /* get_activation_f() */
-error_t get_activation_f(activation_f* actf, act_func_t type, act_func af, act_func ap ) {
+error_t get_activation_f (activation_f* actf, act_func_t type, act_func af, act_func ap ) {
 	
 	if (actf == NULL) return E_NULL_ARG;
 
@@ -43,8 +43,6 @@ error_t get_activation_f(activation_f* actf, act_func_t type, act_func af, act_f
 	
 	return E_SUCCESS;
 }
-
-
 
 
 static double sigmoid_f (double x) {
