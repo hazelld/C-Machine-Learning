@@ -82,7 +82,7 @@ error_t vector_scalar_addition (matrix_t* m, double scalar) {
 }
 
 
-error_t function_on_vector (matrix_t* vec, double (*f)(double)) {
+error_t map_vector (matrix_t* vec, double (*f)(double)) {
 	if (f == NULL)
 		return E_NULL_ARG;
 	
@@ -93,7 +93,7 @@ error_t function_on_vector (matrix_t* vec, double (*f)(double)) {
 }
 
 
-error_t function_on_matrix (matrix_t* m, double(*f)(double)) {
+error_t map_matrix (matrix_t* m, double(*f)(double)) {
 	if (m == NULL || f == NULL) 
 		return E_NULL_ARG;
 

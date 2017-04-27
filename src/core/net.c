@@ -184,7 +184,7 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		if (clayer->using_bias)
 			vector_scalar_addition(clayer->output, clayer->bias);
 		
-		function_on_vector(clayer->output, clayer->actf.af);
+		map_vector(clayer->output, clayer->actf.af);
 		
 		if (clayer->ltype != output) 
 			n->layers[i+1]->input = clayer->output;
@@ -264,7 +264,7 @@ static error_t net_error (net* n, matrix_t* expected) {
 		if (err != E_SUCCESS) return err;
 		
 		/* g'(z) */	
-		function_on_vector(clayer->output, clayer->actf.ap);
+		map_vector(clayer->output, clayer->actf.ap);
 		
 		/* S * g'(z) */
 		clayer->layer_error = malloc(sizeof(matrix_t));

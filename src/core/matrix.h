@@ -84,10 +84,10 @@ error_t vector_scalar_addition (matrix_t* m, double scalar);
 * 	 0 => Success 
 * 	 _ => Failure
 */
-error_t function_on_matrix (matrix_t* m, double(*f)(double));
+error_t map_matrix (matrix_t* m, double(*f)(double));
 
 
-/* function_on_vector
+/* map_vector
 *
 * 	Functionally the same as function_on_matrix, however this
 * 	only applys the function to a column-wise matrix_t.
@@ -96,7 +96,7 @@ error_t function_on_matrix (matrix_t* m, double(*f)(double));
 * 	0 => Success
 * 	_ => Failure
 */
-error_t function_on_vector (matrix_t* vec, double (*f)(double));
+error_t map_vector (matrix_t* vec, double (*f)(double));
 
 
 /* matrix_subtraction
