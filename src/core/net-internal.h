@@ -104,10 +104,32 @@ typedef struct data_set {
 error_t init_layer (layer* l, layer_type lt, int in_node, int out_node);
 
 
-/**/
+/* calculate_cost_func (cost.c)
+ *
+ *	This function is used to calculate the result of the cost function after 
+ *	a feed forward pass. It is used to evaluate how good the network is performing.
+ *	Currently the only cost functions available are those provided by the library, 
+ *	and unlike the activation functions, these may not get custom cost functions 
+ *	with callbacks. 
+ *
+ * Arguments:
+ * 	net => Current neural network that was just fed forward
+ * 	expected => Expected result of the net
+ */
 double calculate_cost_func(net* n, matrix_t* expected);
 
-/**/
+
+/* calculate_cost_gradient (cost.c)
+ *
+ *	This function is used to calculate the gradient of the cost function after 
+ *	a feed forward pass. This is the error vector of the output layer.
+ *
+ * Arguments:
+ * 	net => Current neural network that was just fed forward
+ * 	expected => Expected output of neural network
+ * 	result => Pointer to the matrix_t pointer that the error vector is put in
+ */
 error_t calculate_cost_gradient(net* n, matrix_t* expected, matrix_t** result);
+
 
 #endif
