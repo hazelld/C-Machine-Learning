@@ -149,10 +149,6 @@ error_t free_layer (layer* l) {
  *	Arguments:
  *	net => Neural network
  *	input => Input matrix to feed through the net
- *	
- *	Returns:
- *	SUCCESS => Successfully fed through network
- *	FAILURE => Error 
  *
  */
 static error_t feed_forward (net* n, matrix_t* input) {
@@ -261,7 +257,8 @@ static error_t net_error (net* n, matrix_t* expected) {
 			tweights = transpose_r(nlayer->weights);
 			err = matrix_vector_mult(tweights, nlayer->layer_error, &buff_err);
 		} else {
-			err = matrix_subtraction(clayer->output, expected, &buff_err);	
+			//err = matrix_subtraction(clayer->output, expected, &buff_err);	
+			err = calculate_cost_gradient(n, expected, &buff_err);
 		}
 
 		if (err != E_SUCCESS) return err;

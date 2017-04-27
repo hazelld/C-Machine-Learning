@@ -58,7 +58,7 @@ int main() {
 	err = connect_net(nn);
 	assert(err == E_SUCCESS);
 	
-	train(nn, data, 1000);
+	train(nn, data, 15);
 
 	printf("\n\nRESULTS:\n");
 	for (int i = 0; i < 5; i++) {

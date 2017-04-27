@@ -72,10 +72,11 @@ typedef struct data_set {
 	data_pair** data;
 	int count;
 
-	/* Holds the validation sets and training sets, note these are just
+	/* Holds the validation, test, and training sets, note these are just
 	 * pointer arrays that point to elements inside data_set->data */
 	data_pair** training_set;
 	data_pair** validation_set;
+	data_pair** test_set;
 	int training_count;
 
 } data_set;
@@ -105,5 +106,8 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node);
 
 /**/
 double calculate_cost_func(net* n, matrix_t* expected);
+
+/**/
+error_t calculate_cost_gradient(net* n, matrix_t* expected, matrix_t** result);
 
 #endif
