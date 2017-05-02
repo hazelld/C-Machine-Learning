@@ -1,9 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "munit.h"
-#include "err.h"
-#include "matrix.h"
-
+#include "cml.h"
+#include "net-internal.h"
 
 
 /* test_vector_scalar_addition

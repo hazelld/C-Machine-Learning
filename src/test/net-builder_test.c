@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "munit.h"
-#include "err.h"
-#include "net.h"
+#include "cml.h"
 #include "net-internal.h"
 
 /* Build a basic test network */
@@ -34,7 +33,7 @@ test_build_layer (const MunitParameter params[], void* data) {
 	munit_assert_int((int)l->using_bias, ==, (int)bias);
 	munit_assert_int((int)l->output_nodes, ==, (int)nodes);
 	munit_assert_int((int)l->actf.type, ==, (int)act_type);
-
+	
 	/* Clean up */
 	error_t err = free_layer(l);
 	munit_assert(err == E_SUCCESS);

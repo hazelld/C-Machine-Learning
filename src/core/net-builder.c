@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "net.h"
+#include "cml.h"
 #include "net-internal.h"
-#include "err.h"
 
 
 /* Local functions */

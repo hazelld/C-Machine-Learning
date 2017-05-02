@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "err.h"
-
+#include "cml.h"
 
 typedef struct matrix_t {
 	double** matrix;

@@ -1,9 +1,7 @@
 #ifndef _NET_H_
 #define _NET_H_
 
-/* TODO: See if matrix.h can be removed from here by refactoring predict() */
-#include "matrix.h"
-#include "err.h"
+#include <stdio.h>
 
 /* enum layer_type
  *
@@ -39,6 +37,18 @@ typedef struct layer layer;
  * 	should be created with the 
  */
 typedef struct net net;
+
+
+/* struct cml_data
+ *
+ * 	cml_data is a basic vector of data. It is what is fed into the network, and 
+ * 	also what is output the other end. Internally it is converted to matrix_t, but
+ * 	for the purpose of hiding implementation (no one should know about matrix_t), 
+ * 	the API provides this data type. Along with the data type, there are functions 
+ * 	provided to manipulate this type (add, remove, etc...).
+ *
+ */
+typedef struct cml_data cml_data;
 
 
 /* struct data_set
@@ -96,6 +106,42 @@ typedef enum cost_functions {
  */
 typedef double (*act_func)(double);
 
+/* error_t
+ *
+ * 	These are the error codes defined by this library. There is also the accompaning
+ * 	function that will print the error string to the given stream. See the docs folder
+ * 	for explanation of each.
+ *
+ */
+typedef enum _cnn_error {
+	E_SUCCESS = 0,
+	E_FAILURE,
+	E_NULL_ARG,
+	E_MATRIX_WRONG_DIM,
+	E_ZERO_DIM_MATRIX,
+	E_NOT_VECTOR,
+	E_NO_INPUT_LAYER,
+	E_NO_OUTPUT_LAYER,
+	E_TOO_MANY_INPUT_LAYERS,
+	E_TOO_MANY_OUTPUT_LAYERS,
+	E_INVALID_NODE_AMOUNT,
+	E_LAYER_ALREADY_IN_NET,
+	E_NET_NOT_CONNECTED,
+	E_WRONG_INPUT_SIZE,
+	E_WRONG_OUTPUT_SIZE,
+	E_NO_CALLBACK_GIVEN,
+} error_t;
+
+
+/* print_cml_error
+ *
+ * 	This function is used to print the error string to the given file stream. It 
+ * 	also may have an optional message associated before the libraries error string.
+ * 	This argument may be NULL if there shouldn't be a specific prepended message.
+ *
+ */
+void print_cml_error (FILE* fh, char* message, error_t err);
+
 
 /*	Public Functions */
 
@@ -152,7 +198,7 @@ error_t train (net* n, data_set* data, int epochs);
  * 	Memory Allocated:
  * 		NONE
  */
-matrix_t* predict (net* n, matrix_t* input);
+cml_data* predict (net* n, cml_data* input);
 
 
 /* free_net

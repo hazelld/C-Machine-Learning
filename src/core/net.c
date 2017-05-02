@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "net.h"
+#include "cml.h"
 #include "net-internal.h"
 
 
@@ -94,8 +94,8 @@ error_t train (net* n, data_set* data, int epochs) {
 
 
 /* TODO: Fix function to better handle errors */
-matrix_t* predict (net* n, matrix_t* input) {
-	int last_layer = n->layer_count - 1;
+cml_data* predict (net* n, cml_data* input) {
+	/*int last_layer = n->layer_count - 1;
 	error_t e = feed_forward(n, input);
 
 	if (e != E_SUCCESS) {
@@ -103,7 +103,8 @@ matrix_t* predict (net* n, matrix_t* input) {
 		printf("Error %d in predict()\n", (int)e);
 	}
 
-	return n->layers[last_layer]->output;
+	return n->layers[last_layer]->output;*/
+	return NULL;
 }
 
 /**/

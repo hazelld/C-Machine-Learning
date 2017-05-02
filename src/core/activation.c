@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include "net.h"
+#include "cml.h"
 #include "net-internal.h"
 
 /* Activation functions and their derivative */

@@ -1,7 +1,7 @@
 #ifndef _NET_INTERNAL_H_
 #define _NET_INTERNAL_H_
 
-#include "net.h"
+#include "cml.h"
 #include "matrix.h"
 
 /*	This header file is to expose the internal data structures used by the library to

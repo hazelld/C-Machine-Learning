@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include "matrix.h"
-#include "net.h"
+#include "cml.h"
 #include "builder.h"
 
 void print_m (matrix_t* m) {

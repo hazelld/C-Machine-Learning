@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "matrix.h"
-#include "net.h"
+#include "cml.h"
 #include "net-internal.h"
 #include "err.h"
 
