@@ -51,6 +51,15 @@ typedef struct net {
 #define NET_CONNECTED 1
 #define NET_NOT_CONNECTED -1
 
+
+/* Implementation of cml_data struct */
+typedef struct cml_data {
+	double* items;
+	unsigned int count;
+	unsigned int pos;
+} cml_data;
+
+
 /* struct data_pair
  *
  *	This structure contains two matrices, one for the input to the 
@@ -60,8 +69,8 @@ typedef struct net {
  *	Note this is not exposed at all in the public interface. 
  */
 typedef struct data_pair {
-	matrix_t* input;
-	matrix_t* expected_output;
+	cml_data* input;
+	cml_data* expected_output;
 } data_pair;
 
 
