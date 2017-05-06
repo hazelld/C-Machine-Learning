@@ -46,13 +46,13 @@ error_t parse_csv_row (FILE* fh, char*** dst) {
 	token = strtok(line, CSV_DELIM);
 	while (token != NULL) {
 		*dst = realloc(*dst, sizeof(char*) * ++count);
-		*dst[count-1] = malloc(sizeof(char) * CSVMAXLINELEN);
-		strcpy(*dst[count-1], token); 	
+		(*dst)[count-1] = malloc(sizeof(char) * CSVMAXLINELEN);
+		strcpy((*dst)[count-1], token); 	
 		token = strtok(line, CSV_DELIM);
 	}
 
 	/* Since we aren't passing back the size, set the last entry to NULL.
 	 * Note we started count at 1, so there will always be enough room to do this */
-	*dst[count-1] = NULL;
+	(*dst)[count-1] = NULL;
 	return E_SUCCESS;
 }
