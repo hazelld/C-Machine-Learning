@@ -335,8 +335,13 @@ error_t get_activation_f (activation_f* actf, act_func_t type, act_func af, act_
 
 
 /* These functions are defined in data-builder.c */
-
-
+cml_data* init_cml_data();
+data_set* init_data_set();
+error_t copy_cml_data(cml_data* src, cml_data** dst);
+error_t add_to_cml_data(cml_data* data, double value);
+error_t cml_data_iter(cml_data* data, double* value);
+free_cml_data(cml_data* data);
+free_data_set(data_set* ds);
 
 #endif
 

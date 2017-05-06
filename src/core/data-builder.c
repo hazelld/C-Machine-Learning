@@ -2,6 +2,11 @@
 #include "cml.h"
 #include "net-internal.h"
 #include "matrix.h"
+#include "csv-utils.h"
+
+/* Static funcs */
+static error_t extract_feature_names_csv (data_set* ds, FILE* fh);
+static error_t add_feature_name (data_set* ds, char* name);
 
 /* init_cml_data() */
 cml_data* init_cml_data () {
@@ -101,9 +106,7 @@ error_t free_cml_data (cml_data*  data) {
 }
 
 
-/* init_data_pair()
- * TODO: Do I want a deep copy here? 
- */
+/* init_data_pair() */
 data_pair* init_data_pair (cml_data* input, cml_data* output) {
 	if (input == NULL || output == NULL)
 		return E_NULL_ARG;
@@ -125,13 +128,15 @@ exit:
 	return NULL;
 }
 
+/* free_data_pair() */
+error_t free_data_pair (data_pair* pair) {
+	if (pair == NULL) return E_NULL_ARG;
 
-/* init_data_set() */
-data_set* init_data_set () {
-	data_set* ds = calloc(1, sizeof(data_set));
-	return ds;
+	free_data_pair(pair->input);
+	free_data_pair(pair->output);
+	free(pair);
+	return E_SUCCESS;
 }
-
 
 /* add_data_pair() */
 error_t add_data_pair (data_set* set, data_pair* pair) {
@@ -147,3 +152,28 @@ error_t add_data_pair (data_set* set, data_pair* pair) {
 	return E_SUCCESS;
 }
 
+
+/* init_data_set() */
+data_set* init_data_set () {
+	data_set* ds = calloc(1, sizeof(data_set));
+	return ds;
+}
+
+/* free_data_set() */
+error_t free_data_set(data_set* ds) {
+	if (ds == NULL) return E_NULL_ARG;
+
+	for (int i = 0; i < ds->count; i++) {
+		error_t err = free_data_pair(ds->data[i]);
+		if (err != E_SUCCESS) return err;
+	}
+	free(ds);
+}
+
+
+/* data_set_from_csv() */
+error_t data_set_from_csv (data_set* ds, FILE* fh) {
+
+}
+
+static error_t add_feature_name (data_set* ds, char* name);

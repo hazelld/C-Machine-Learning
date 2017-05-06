@@ -15,6 +15,13 @@
  *	function can use, but init_layer() shouldn't be publically accessible.
  */
 
+
+enum InputType {
+	T_INT,
+	T_DOUBLE,
+	T_STR,
+};
+
 /* Implementation of activation_f */
 typedef struct activation_f {
 	act_func_t type;
@@ -77,7 +84,12 @@ typedef struct data_pair {
 /* Implementation of data_set */
 typedef struct data_set {
 
-	/* Holds all data */ 
+	/* Holds all feature names */
+	char** feature_names;
+	enum InputType feature_types;
+	int feature_count;
+	
+	/* Data */
 	data_pair** data;
 	int count;
 
@@ -140,5 +152,25 @@ double calculate_cost_func(net* n, matrix_t* expected);
  */
 error_t calculate_cost_gradient(net* n, matrix_t* expected, matrix_t** result);
 
+
+/* data-builder.c
+ *
+ * Most of these functions are defined here as the user will generally build the data
+ * set from the main building functions:
+ * - data_set_from_csv()
+ * - data_set_from_mysql()
+ * - data_set_from_postgres()
+ *
+ * Should more control be needed, or a custom data building algorithm needed, they can 
+ * simply include this file as well. 
+ *
+ */
+
+/* TODO: docs */
+error_t cml_data_to_matrix(cml_data* data, matrix_t** m);
+error_t matrx_to_cml_data(matrix_t* m, cml_data** data);
+data_pair* init_data_pair(cml_data* input, cml_data* output);
+error_t add_data_pair (data_set* set, data_pair* pair);
+error_t free_data_pair(data_pair* pair);
 
 #endif
