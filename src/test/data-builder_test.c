@@ -96,6 +96,71 @@ test_data_set_from_csv () {
 }
 
 
+static MunitResult
+test_get_feature_names () {
+	static char* test_data = "data.csv";
+	FILE* fh = fopen(test_data, "r");
+	
+	int line_err;
+	data_set* ds = init_data_set();
+	error_t err = data_set_from_csv(ds, fh, &line_err);
+	munit_assert_int(err, ==, E_SUCCESS);
+
+	char** feature = NULL;
+	int count = 0;
+	err = get_feature_names(ds, &feature, &count);
+	
+	munit_assert_int(count, ==, 3);
+	
+	for (int i = 0; i < count; i++) {
+		munit_assert_string_equal(ds->feature_names[i], feature[i]);
+		free(feature[i]);
+	}
+	free(feature);
+	free_data_set(ds);
+	fclose(fh);
+	return MUNIT_OK;
+}
+
+
+static MunitResult
+test_split_data () {
+	static char* test_data = "data.csv";
+	FILE* fh = fopen(test_data, "r");
+	
+	int line_err;
+	data_set* ds = init_data_set();
+	error_t err = data_set_from_csv(ds, fh, &line_err);
+
+	char** feature = NULL;
+	int count = 0;
+
+	err = split_data(ds, 70);
+	munit_assert_int(err, ==, E_NO_INPUT_FEATURES_SPECIFIED);
+
+	err = get_feature_names(ds, &feature, &count);
+	munit_assert_int(err, ==, E_SUCCESS);
+
+	char* inputs[2] = { feature[0], feature[2] };
+	err = set_input_features (ds, inputs, 2);
+	munit_assert_int(err, ==, E_SUCCESS);
+	munit_assert_int(ds->features_specified, ==, FEATURES_SPECIFIED);
+
+	fprintf(stderr, "Splitting data...\n");
+	err = split_data(ds, 70);
+	munit_assert_int(err, ==, E_SUCCESS);
+
+	fprintf(stderr, "Freeing dataset\n");
+	free_data_set(ds);
+
+	fprintf(stderr, "Freeing feature name array\n");
+	for (int i = 0; i < 3; i++)
+		free(feature[i]);
+	free(feature);
+	fclose(fh);
+	return MUNIT_OK;
+}
+
 /* Set up the test suite */
 static MunitTest test_suite_tests[] = {
 	{(char*) "init/free data no items", test_init_free_cml_data_no_items, NULL,
@@ -106,6 +171,10 @@ static MunitTest test_suite_tests[] = {
 		MUNIT_TEST_OPTION_NONE, NULL},
 	{(char*) "test_data_set_from_csv", test_data_set_from_csv, NULL, NULL,
 		MUNIT_TEST_OPTION_NONE, NULL},
+	{(char*) "test_get_feature_names", test_get_feature_names, NULL, NULL,
+		MUNIT_TEST_OPTION_NONE, NULL},
+	{(char*) "test_split_data", test_split_data, NULL, NULL, MUNIT_TEST_OPTION_NONE, 
+		NULL},
 	{NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
 };
 

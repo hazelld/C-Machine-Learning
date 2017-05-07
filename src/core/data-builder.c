@@ -5,6 +5,7 @@
 #include "csv-utils.h"
 
 /* Static funcs */
+static error_t convert_raw_into_pairs (data_set* ds);
 static error_t add_feature_name (data_set* ds, char* name);
 static error_t str_to_cml_data(data_set* ds, cml_data* data, char** str, int count);
 static error_t set_feature_types(data_set* ds, char** features, int size);
@@ -131,7 +132,9 @@ error_t add_data_pair (data_set* set, data_pair* pair) {
 	return E_SUCCESS;
 }
 
-/* add_cml_data() */
+/* add_cml_data() 
+ * TODO: Add type here ? 
+ * */
 error_t add_cml_data (data_set* ds, cml_data* data) {
 	if (ds == NULL || data == NULL) return E_NULL_ARG;
 
@@ -143,6 +146,7 @@ error_t add_cml_data (data_set* ds, cml_data* data) {
 /* init_data_set() */
 data_set* init_data_set () {
 	data_set* ds = calloc(1, sizeof(data_set));
+	ds->features_specified = NO_FEATURES_SPECIFIED;
 	return ds;
 }
 
@@ -151,24 +155,139 @@ error_t free_data_set(data_set* ds) {
 	if (ds == NULL) return E_NULL_ARG;
 	error_t err;
 
-	for (int i = 0; i < ds->feature_count; i++) 
-		free(ds->feature_names[i]);
+	/* Avoid deref a NULL pointer */
+	if (ds->feature_names) {
+		for (int i = 0; i < ds->feature_count; i++) 
+			free(ds->feature_names[i]);
+	}
+
 	free(ds->feature_names);
 	free(ds->feature_types);
 
-	for (int i = 0; i < ds->raw_count; i++) {
-		free_cml_data(ds->raw_data[i]);
-		if (err != E_SUCCESS) return err;
+	if (ds->raw_data) {
+		for (int i = 0; i < ds->raw_count; i++) {
+			free_cml_data(ds->raw_data[i]);
+			if (err != E_SUCCESS) return err;
+		}
+		free(ds->raw_data);
 	}
-	free(ds->raw_data);
 
-	for (int i = 0; i < ds->count; i++) {
-		err = free_data_pair(ds->data[i]);
-		if (err != E_SUCCESS) return err;
+	if (ds->data) {
+		for (int i = 0; i < ds->count; i++) {
+			err = free_data_pair(ds->data[i]);
+			if (err != E_SUCCESS) return err;
+		}
+		free(ds->data);
+	}
+
+	if (ds->input_features) {
+		for (int i = 0; i < ds->input_feature_count; i++) 
+			free(ds->input_features[i]);
+		free(ds->input_features);
 	}
 	free(ds);
 }
 
+/* split_data() 
+ *
+ * Steps:
+ * -> Convert raw_data() into data_pairs based on the input features
+ * -> Split this into test, train, validation sets based on the user
+ *    defined split amount.
+ */
+error_t split_data (data_set* ds, int training_split) {
+	if (ds == NULL) return E_NULL_ARG;
+	if (ds->features_specified == NO_FEATURES_SPECIFIED)
+		return E_NO_INPUT_FEATURES_SPECIFIED;
+
+	error_t err = convert_raw_into_pairs(ds);
+	return E_SUCCESS;
+}
+
+static error_t convert_raw_into_pairs (data_set* ds) {
+	if (ds == NULL) return E_NULL_ARG;
+	if (ds->input_feature_count > ds->feature_count) 
+		return E_FAILURE;
+	
+	fprintf(stderr, "Getting the needed columns...\n");
+	/* Find out which columns of data needs to be converted into 
+	 * the input data; the complement of this is the output data */
+	int in, out;
+	int output_features = ds->feature_count - ds->input_feature_count;
+	int* input_cols = malloc(sizeof(int) * ds->input_feature_count);
+	int* output_cols = malloc(sizeof(int) * output_features);
+	
+	in = out = 0;
+	for (int j = 0; j < ds->input_feature_count; j++) {
+		for (int i = 0; i < ds->feature_count; i++) {
+			if (strcmp(ds->feature_names[i], ds->input_features[j]) == 0)
+				input_cols[in++] = i;
+			else
+				output_cols[out++] = i;
+		}
+	}
+	
+	/* Go through each raw data item, split it into a pair data struct, then 
+	 * free the old one. 
+	 */
+	for (int i = 0; i < ds->raw_count; i++) {
+		cml_data* input = init_cml_data();
+		cml_data* output = init_cml_data();
+		
+		for (int j = 0; j < ds->input_feature_count; j++) {
+			int index = input_cols[j];
+			add_to_cml_data(input, (void*)ds->raw_data[i]->items[j]);
+		}
+
+		for (int z = 0; z < output_features; z++) {
+			int index = output_cols[z];
+			add_to_cml_data(output, (void*)ds->raw_data[i]->items[z]);
+		}
+
+		data_pair* new_data_pair = init_data_pair(input, output);
+		add_data_pair(ds, new_data_pair);	
+		free(ds->raw_data[i]);
+	}
+	
+	free(ds->raw_data);
+	ds->raw_data = NULL;
+
+	free(input_cols);
+	free(output_cols);
+	return E_SUCCESS;
+}
+
+/* set_input_features() */
+error_t set_input_features (data_set* ds, char** features, int count) {
+	if (ds == NULL || features == NULL) return E_NULL_ARG;
+	if (count < 0 || count > ds->feature_count)
+		return E_INVALID_FEATURE_COUNT;
+	
+	ds->input_features = malloc(sizeof(char*) * count);
+	for (int i = 0; i < count; i++) {
+		ds->input_features[i] = malloc(sizeof(char) * (strlen(features[i]) + 1));	
+		strcpy(ds->input_features[i], features[i]);
+	}	
+
+	ds->input_feature_count = count;
+	ds->features_specified = FEATURES_SPECIFIED;
+	return E_SUCCESS;
+}
+
+/* get_feature_names() */
+error_t get_feature_names (data_set* ds, char*** features, int* size) {
+	if (ds == NULL || features == NULL || size == NULL) 
+		return E_NULL_ARG;
+
+	*features = realloc(*features, sizeof(char*) * ds->feature_count);
+
+	for (int i = 0; i < ds->feature_count; i++) {
+		(*features)[i] = malloc(sizeof(char) * (strlen(ds->feature_names[i] + 1)));
+		strcpy((*features)[i], ds->feature_names[i]);
+	}
+	*size = ds->feature_count;
+	return E_SUCCESS;
+}
 
 /* data_set_from_csv() */
 error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
@@ -224,7 +343,7 @@ error:
 
 
 /* str_to_cml_data */
-static error_t str_to_cml_data(data_set* ds, cml_data* data, char** str, int count) {
+static error_t str_to_cml_data (data_set* ds, cml_data* data, char** str, int count) {
 	error_t err;
 
 	if (ds->feature_count != count)
@@ -274,6 +393,5 @@ static error_t set_feature_types (data_set* ds, char** features, int size) {
 		enum InputType type = get_type(features[i]);
 		ds->feature_types[i] = type;
 	}
-
 	return E_SUCCESS;
 }

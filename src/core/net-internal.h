@@ -101,9 +101,16 @@ typedef struct data_set {
 	int training_count, test_count, validation_count;
 
 	/* Hold the raw data that is input */
+	char** input_features;
+	int input_feature_count;
+	int features_specified;
 	cml_data** raw_data;
 	int raw_count;
 } data_set;
+
+/* Used to determine if input features have been specified */  
+#define FEATURES_SPECIFIED 1
+#define NO_FEATURES_SPECIFIED 0
 
 
 /* init_layer (net.c)
