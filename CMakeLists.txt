@@ -26,4 +26,4 @@ set(PYTHON_LIBRARY_COMPILE_LOCATION ${CMAKE_BINARY_DIR}/lib)
 add_subdirectory(src)
 
 # Compile the examples 
-add_subdirectory(examples)
+# add_subdirectory(examples)

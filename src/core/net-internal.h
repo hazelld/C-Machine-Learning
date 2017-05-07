@@ -17,7 +17,6 @@
 
 
 enum InputType {
-	T_INT,
 	T_DOUBLE,
 	T_STR,
 };
@@ -61,7 +60,8 @@ typedef struct net {
 
 /* Implementation of cml_data struct */
 typedef struct cml_data {
-	double* items;
+	void** items;
+	enum InputType* types;
 	unsigned int count;
 	unsigned int pos;
 } cml_data;
@@ -86,7 +86,7 @@ typedef struct data_set {
 
 	/* Holds all feature names */
 	char** feature_names;
-	enum InputType feature_types;
+	enum InputType* feature_types;
 	int feature_count;
 	
 	/* Data */
@@ -98,8 +98,11 @@ typedef struct data_set {
 	data_pair** training_set;
 	data_pair** validation_set;
 	data_pair** test_set;
-	int training_count;
+	int training_count, test_count, validation_count;
 
+	/* Hold the raw data that is input */
+	cml_data** raw_data;
+	int raw_count;
 } data_set;
 
 
@@ -167,8 +170,8 @@ error_t calculate_cost_gradient(net* n, matrix_t* expected, matrix_t** result);
  */
 
 /* TODO: docs */
-error_t cml_data_to_matrix(cml_data* data, matrix_t** m);
-error_t matrx_to_cml_data(matrix_t* m, cml_data** data);
+//error_t cml_data_to_matrix(cml_data* data, matrix_t** m);
+//error_t matrx_to_cml_data(matrix_t* m, cml_data** data);
 data_pair* init_data_pair(cml_data* input, cml_data* output);
 error_t add_data_pair (data_set* set, data_pair* pair);
 error_t free_data_pair(data_pair* pair);

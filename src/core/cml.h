@@ -134,6 +134,8 @@ typedef enum _cnn_error {
 	E_CSV_INVALID_ROW,
 	E_CSV_PARSE_ERR,
 	E_CSV_INVALID_COLUMN_VALUE,
+	E_CSV_INVALID_LINE_LENGTH,
+	E_CSV_FAILED_TO_CONVERT,
 	E_NO_MORE_ITEMS,
 } error_t;
 
@@ -342,10 +344,10 @@ error_t get_activation_f (activation_f* actf, act_func_t type, act_func af, act_
 cml_data* init_cml_data();
 data_set* init_data_set();
 error_t copy_cml_data(cml_data* src, cml_data** dst);
-error_t add_to_cml_data(cml_data* data, double value);
-error_t cml_data_iter(cml_data* data, double* value);
-free_cml_data(cml_data* data);
-free_data_set(data_set* ds);
+error_t add_to_cml_data(cml_data* data, void* value);
+error_t free_cml_data(cml_data* data);
+error_t free_data_set(data_set* ds);
+error_t data_set_from_csv(data_set* ds, FILE* fh, int* lineno);  
 
 #endif
 

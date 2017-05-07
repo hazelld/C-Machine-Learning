@@ -1,8 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
-set(TEST_COMPILE_FLAGS "-std=c99 -O3")
+set(TEST_COMPILE_FLAGS "-std=c99 -O3 -g")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TEST_COMPILE_LOCATION})
-set(TEST_EXECUTABLES matrix_test net-builder_test)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_COMPILE_LOCATION}/test)
 
 # Add the include folder
@@ -17,6 +16,7 @@ add_library(munit SHARED ${MUNIT_SOURCE_LOCATION}/munit.c)
 set(TEST_EXECUTABLES 
 	matrix_test
 	net-builder_test
+	data-builder_test
 	)
 
 

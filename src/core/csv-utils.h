@@ -23,9 +23,9 @@
 
 enum InputType get_feature_type (char* feature);
 error_t check_input_type (enum InputType type, char* feature);
-error_t extract_feature_names_csv (data_set* ds, FILE* fh);
-error_t parse_csv_row (FILE* fh, char*** dst);
-	
+error_t parse_csv_row (FILE* fh, char*** dst, int* items);
+enum InputType get_type (char* feature);
+error_t validate_csv_row (data_set* ds, char** row, int row_size);
 
 
 #endif

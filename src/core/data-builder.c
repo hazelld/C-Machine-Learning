@@ -5,8 +5,10 @@
 #include "csv-utils.h"
 
 /* Static funcs */
-static error_t extract_feature_names_csv (data_set* ds, FILE* fh);
 static error_t add_feature_name (data_set* ds, char* name);
+static error_t str_to_cml_data(data_set* ds, cml_data* data, char** str, int count);
+static error_t set_feature_types(data_set* ds, char** features, int size);
+
 
 /* init_cml_data() */
 cml_data* init_cml_data () {
@@ -16,11 +18,11 @@ cml_data* init_cml_data () {
 
 
 /* add_to_cml_data() */
-error_t add_to_cml_data (cml_data* data, double value) {
-	if (data == NULL) return E_NULL_ARG;
+error_t add_to_cml_data (cml_data* data, void* value) {
+	if (data == NULL || value == NULL) return E_NULL_ARG;
 
-	unsigned int oldnum = ++data->count;
-	data->items = realloc(data->items, sizeof(double) * data->count);
+	unsigned int oldnum = data->count++;
+	data->items = realloc(data->items, sizeof(void*) * data->count);
 	data->items[oldnum] = value;
 	return E_SUCCESS;
 }
@@ -45,25 +47,9 @@ error_t copy_cml_data (cml_data* src, cml_data** dst) {
 }
 
 
-/* cml_data_iter() */
-error_t cml_data_iter (cml_data* data, double* value) {
-	if (data == NULL || value == NULL)
-		return E_NULL_ARG;
-
-	/* Reset the position and return that there are no more items */
-	if (data->pos + 1 >= data->count) {
-		data->pos = 0;
-		return E_NO_MORE_ITEMS;
-	}
-
-	*value = data->items[data->pos];
-	data->pos++;
-	return E_SUCCESS;
-}
-
 
 /* cml_data_to_matrix() */
-error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
+/* error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
 	if (data == NULL || m == NULL)
 		return E_NULL_ARG;
 
@@ -77,11 +63,11 @@ error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
 		(*m)->matrix[i][0] = data->items[i];
 
 	return E_SUCCESS;
-}
+} */
 
 
 /* matrix_to_cml_data() */
-error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
+/* error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
 	if (m == NULL || data == NULL)
 		return E_NULL_ARG;
 
@@ -95,12 +81,15 @@ error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
 		(*data)->items[i] = m->matrix[i][0];
 
 	return E_SUCCESS;
-}
+} */
 
 /* free_cml_data() */
 error_t free_cml_data (cml_data*  data) {
-	if (data)
-		free(data->items);
+	if (data == NULL) return E_NULL_ARG;
+
+	for (int i = 0; i < data->count; i++)
+		free(data->items[i]);
+	free(data->items);
 	free(data);
 	return E_SUCCESS;
 }
@@ -109,31 +98,21 @@ error_t free_cml_data (cml_data*  data) {
 /* init_data_pair() */
 data_pair* init_data_pair (cml_data* input, cml_data* output) {
 	if (input == NULL || output == NULL)
-		return E_NULL_ARG;
+		return NULL;
 
 	error_t err;
-	data_pair = calloc(1, sizeof(data_pair));
-
-	err = copy_cml_data(input, &data_pair->input);
-	if (err != E_SUCCESS) goto exit;
-
-	err = copy_cml_data(output, &data_pair->output);
-	if (err != E_SUCCESS) goto exit;
-
-	return data_pair;
-
-	/* On failure free all memory allocated */
-exit:
-	free(data_pair);
-	return NULL;
+	data_pair* pair = calloc(1, sizeof(data_pair));
+	pair->input = input;
+	pair->expected_output = output;
+	return pair;
 }
 
 /* free_data_pair() */
 error_t free_data_pair (data_pair* pair) {
 	if (pair == NULL) return E_NULL_ARG;
 
-	free_data_pair(pair->input);
-	free_data_pair(pair->output);
+	free_cml_data(pair->input);
+	free_cml_data(pair->expected_output);
 	free(pair);
 	return E_SUCCESS;
 }
@@ -152,6 +131,14 @@ error_t add_data_pair (data_set* set, data_pair* pair) {
 	return E_SUCCESS;
 }
 
+/* add_cml_data() */
+error_t add_cml_data (data_set* ds, cml_data* data) {
+	if (ds == NULL || data == NULL) return E_NULL_ARG;
+
+	ds->raw_data = realloc(ds->raw_data, sizeof(cml_data*) * ++ds->raw_count);
+	ds->raw_data[ds->raw_count - 1] = data;
+	return E_SUCCESS;
+}
 
 /* init_data_set() */
 data_set* init_data_set () {
@@ -162,9 +149,21 @@ data_set* init_data_set () {
 /* free_data_set() */
 error_t free_data_set(data_set* ds) {
 	if (ds == NULL) return E_NULL_ARG;
+	error_t err;
+
+	for (int i = 0; i < ds->feature_count; i++) 
+		free(ds->feature_names[i]);
+	free(ds->feature_names);
+	free(ds->feature_types);
+
+	for (int i = 0; i < ds->raw_count; i++) {
+		free_cml_data(ds->raw_data[i]);
+		if (err != E_SUCCESS) return err;
+	}
+	free(ds->raw_data);
 
 	for (int i = 0; i < ds->count; i++) {
-		error_t err = free_data_pair(ds->data[i]);
+		err = free_data_pair(ds->data[i]);
 		if (err != E_SUCCESS) return err;
 	}
 	free(ds);
@@ -172,8 +171,109 @@ error_t free_data_set(data_set* ds) {
 
 
 /* data_set_from_csv() */
-error_t data_set_from_csv (data_set* ds, FILE* fh) {
+error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
+	error_t err;
+	int line = 1;
+	int count;
 
+	/* First row of CSV file must be names */
+	char** features = NULL;
+	err = parse_csv_row(fh, &features, &count);
+	if (err != E_SUCCESS) goto error;
+	
+	for (int i = 0; i < count; i++) {
+		err = add_feature_name(ds, features[i]);
+		if (err != E_SUCCESS) goto error;
+		free(features[i]);
+	}
+	free(features);
+
+	/* Now loop over entire file until the end */
+	char** strline = NULL;
+	while ((err = parse_csv_row(fh, &strline, &count)) == E_SUCCESS) {
+		line++;
+
+		if (line == 2) 
+			err = set_feature_types(ds, strline, count);
+		else 
+			err = validate_csv_row(ds, strline, count);
+		
+		if (err != E_SUCCESS) goto error;
+
+		cml_data* new_data = init_cml_data();
+		err = str_to_cml_data(ds, new_data, strline, count);
+		if (err != E_SUCCESS) goto error;
+		
+		err = add_cml_data (ds, new_data);
+		if (err != E_SUCCESS) goto error;
+
+		/* Since we used strcpy, we can free resources up */
+		for (int i = 0; i < count; i++)
+			free(strline[i]);
+		free(strline);
+		strline = NULL;
+	}
+
+error:
+	*lineno = line;
+	/* If the error code was EOF, want to return E_SUCCESS */
+	if (err == E_NO_MORE_ITEMS)
+		return E_SUCCESS;
+	return err;
 }
 
-static error_t add_feature_name (data_set* ds, char* name);
+
+/* str_to_cml_data */
+static error_t str_to_cml_data(data_set* ds, cml_data* data, char** str, int count) {
+	error_t err;
+
+	if (ds->feature_count != count)
+		return E_CSV_INVALID_LINE_LENGTH;
+	
+	for (int i = 0; i < ds->feature_count; i++) {
+		switch (ds->feature_types[i]) {
+			
+			case T_DOUBLE: ;
+				double* new_dub = malloc(sizeof(double));
+				*new_dub = strtod(str[i], (char**)NULL);
+				err = add_to_cml_data(data, (void*)new_dub);
+				break;
+
+			case T_STR: ;
+				char* new_str = malloc(sizeof(char) * (strlen(str[i]) + 1));
+				strcpy(new_str, str[i]);
+				err = add_to_cml_data(data, (void*)new_str);
+				break;
+		}
+	}
+	return E_SUCCESS;
+}
+
+/* add_feature_name */
+static error_t add_feature_name (data_set* ds, char* name) {
+	if (ds == NULL || name == NULL) return E_NULL_ARG;
+
+	ds->feature_names = realloc(ds->feature_names, sizeof(char*) * ++ds->feature_count);
+	ds->feature_names[ds->feature_count - 1] = malloc(sizeof(char) * CSVMAXLINELEN);
+	strcpy(ds->feature_names[ds->feature_count - 1], name);
+	return E_SUCCESS;
+}
+
+/* set_feature_types */
+static error_t set_feature_types (data_set* ds, char** features, int size) {
+	int i = 0;
+	
+	ds->feature_types = malloc(sizeof(enum InputType) * ds->feature_count);
+	
+	for (int i = 0; i < size; i++) {
+
+		/* Ensure we don't go out of ds->feature_type's bounds */
+		if (i > ds->feature_count)
+			return E_CSV_INVALID_LINE_LENGTH;
+
+		enum InputType type = get_type(features[i]);
+		ds->feature_types[i] = type;
+	}
+
+	return E_SUCCESS;
+}
