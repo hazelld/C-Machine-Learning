@@ -147,7 +147,7 @@ test_split_data () {
 	munit_assert_int(ds->features_specified, ==, FEATURES_SPECIFIED);
 
 	fprintf(stderr, "Splitting data...\n");
-	err = split_data(ds, 70);
+	err = split_data(ds, 0.7);
 	munit_assert_int(err, ==, E_SUCCESS);
 
 	fprintf(stderr, "Freeing dataset\n");

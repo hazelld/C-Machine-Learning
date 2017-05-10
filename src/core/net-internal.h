@@ -92,13 +92,13 @@ typedef struct data_set {
 	/* Data */
 	data_pair** data;
 	int count;
-
-	/* Holds the validation, test, and training sets, note these are just
-	 * pointer arrays that point to elements inside data_set->data */
+	
+	/* Holds the two kinds of data sets; training and test. There is 
+	 * currently no validation set 
+	 */
 	data_pair** training_set;
-	data_pair** validation_set;
 	data_pair** test_set;
-	int training_count, test_count, validation_count;
+	int training_count, test_count;
 
 	/* Hold the raw data that is input */
 	char** input_features;

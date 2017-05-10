@@ -81,9 +81,9 @@ typedef struct activation_f activation_f;
 *
 */
 typedef enum activation_functions {
-SIGMOID,
-TANH,
-CUSTOM,
+	SIGMOID,
+	TANH,
+	CUSTOM,
 } act_func_t;
 
 
@@ -97,7 +97,7 @@ CUSTOM,
 *	unless another is specifically specified with set_cost_function()
 */
 typedef enum cost_functions {
-QUADRATIC,
+	QUADRATIC,
 } cost_func_t;
 
 
@@ -114,32 +114,32 @@ typedef double (*act_func)(double);
 *
 */
 typedef enum _cnn_error {
-E_SUCCESS = 0,
-E_FAILURE,
-E_NULL_ARG,
-E_ALLOC_FAILURE,
-E_MATRIX_WRONG_DIM,
-E_ZERO_DIM_MATRIX,
-E_NOT_VECTOR,
-E_NO_INPUT_LAYER,
-E_NO_OUTPUT_LAYER,
-E_TOO_MANY_INPUT_LAYERS,
-E_TOO_MANY_OUTPUT_LAYERS,
-E_INVALID_NODE_AMOUNT,
-E_LAYER_ALREADY_IN_NET,
-E_NET_NOT_CONNECTED,
-E_WRONG_INPUT_SIZE,
-E_WRONG_OUTPUT_SIZE,
-E_NO_CALLBACK_GIVEN,
-E_CSV_INVALID_ROW,
-E_CSV_PARSE_ERR,
-E_CSV_INVALID_COLUMN_VALUE,
-E_CSV_INVALID_LINE_LENGTH,
-E_CSV_FAILED_TO_CONVERT,
-E_NO_MORE_ITEMS,
-E_INVALID_FEATURE_COUNT,
-E_NO_INPUT_FEATURES_SPECIFIED,
-
+	E_SUCCESS = 0,
+	E_FAILURE,
+	E_NULL_ARG,
+	E_ALLOC_FAILURE,
+	E_MATRIX_WRONG_DIM,
+	E_ZERO_DIM_MATRIX,
+	E_NOT_VECTOR,
+	E_NO_INPUT_LAYER,
+	E_NO_OUTPUT_LAYER,
+	E_TOO_MANY_INPUT_LAYERS,
+	E_TOO_MANY_OUTPUT_LAYERS,
+	E_INVALID_NODE_AMOUNT,
+	E_LAYER_ALREADY_IN_NET,
+	E_NET_NOT_CONNECTED,
+	E_WRONG_INPUT_SIZE,
+	E_WRONG_OUTPUT_SIZE,
+	E_NO_CALLBACK_GIVEN,
+	E_CSV_INVALID_ROW,
+	E_CSV_PARSE_ERR,
+	E_CSV_INVALID_COLUMN_VALUE,
+	E_CSV_INVALID_LINE_LENGTH,
+	E_CSV_FAILED_TO_CONVERT,
+	E_NO_MORE_ITEMS,
+	E_INVALID_FEATURE_COUNT,
+	E_NO_INPUT_FEATURES_SPECIFIED,
+	E_INVALID_TRAINING_SPLIT,
 } error_t;
 
 
@@ -352,7 +352,7 @@ error_t free_cml_data(cml_data* data);
 error_t free_data_set(data_set* ds);
 error_t data_set_from_csv(data_set* ds, FILE* fh, int* lineno);  
 error_t get_feature_names (data_set* ds, char*** features, int* size);
-error_t split_data (data_set* ds, int training_split);
+error_t split_data (data_set* ds, double training_split);
 error_t set_input_features (data_set* ds, char** features, int count);
 
 #endif

@@ -9,7 +9,7 @@ static error_t convert_raw_into_pairs (data_set* ds);
 static error_t add_feature_name (data_set* ds, char* name);
 static error_t str_to_cml_data(data_set* ds, cml_data* data, char** str, int count);
 static error_t set_feature_types(data_set* ds, char** features, int size);
-
+static error_t shuffle_data (data_set* ds, double split);
 
 /* init_cml_data() */
 cml_data* init_cml_data () {
@@ -185,6 +185,9 @@ error_t free_data_set(data_set* ds) {
 			free(ds->input_features[i]);
 		free(ds->input_features);
 	}
+
+	free(ds->training_set);
+	free(ds->test_set);
 	free(ds);
 }
 
@@ -195,12 +198,54 @@ error_t free_data_set(data_set* ds) {
  * -> Split this into test, train, validation sets based on the user
  *    defined split amount.
  */
-error_t split_data (data_set* ds, int training_split) {
+error_t split_data (data_set* ds, double training_split) {
 	if (ds == NULL) return E_NULL_ARG;
 	if (ds->features_specified == NO_FEATURES_SPECIFIED)
 		return E_NO_INPUT_FEATURES_SPECIFIED;
+	if (training_split <= 0 || training_split > 1) 
+		return E_INVALID_TRAINING_SPLIT;
 
 	error_t err = convert_raw_into_pairs(ds);
+	if (err != E_SUCCESS) return err;
+
+	err = shuffle_data(ds, training_split);
+	return err;
+}
+
+/* shuffle_data() */
+static error_t shuffle_data (data_set* ds, double split) {
+
+	/* This is horribly inefficient and probably not completely random, 
+	 * will have to circle back on this */
+	int training_spaces = split * ds->count;
+	int test_spaces = ds->count - training_spaces;
+
+	ds->training_set = malloc(sizeof(data_pair*) * training_spaces);
+	ds->test_set = malloc(sizeof(data_pair*) * test_spaces);
+	
+	for (int i = 0; i < ds->count; i++) {
+		
+		if (training_spaces <= 0) {
+			ds->test_set[ds->test_count++] = ds->data[i];
+			continue;
+		}
+
+		if (test_spaces <= 0) {
+			ds->training_set[ds->training_count++] = ds->data[i];
+			continue;
+		}
+		
+		double randnum = (double)rand() / (double)RAND_MAX;
+
+		if (randnum < split) {
+			ds->training_set[ds->training_count++] = ds->data[i];
+			training_spaces--;
+		} else {
+			ds->test_set[ds->test_count++] = ds->data[i];
+			test_spaces--;
+		}
+	}
+
 	return E_SUCCESS;
 }
 
