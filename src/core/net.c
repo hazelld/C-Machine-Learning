@@ -70,16 +70,27 @@ error_t train (net* n, data_set* data, int epochs) {
 		fprintf(stderr, "Training epoch: %d\t", j);
 		for (int i = 0; i < data->count; i++) {
 			error_t e;
-			e = feed_forward(n, data->data[i]->input);
+			matrix_t* input = NULL;
+			matrix_t* expected_output = NULL;
+
+			e = cml_data_to_matrix(data->data[i]->input, &input);
+			if (e != E_SUCCESS)
+				printf("Convert to matrix_t failed\n");
 			
-			total_err += calculate_cost_func(n, data->data[i]->expected_output);
+			e = cml_data_to_matrix(data->data[i]->expected_output, &expected_output);
+			if (e != E_SUCCESS)
+				printf("Convert to matrix_t failed\n");
+
+			e = feed_forward(n, input);
+
+			total_err += calculate_cost_func(n, expected_output);
 			count++;
 			
 			if (e != E_SUCCESS) {
 				printf("feed_forward failed with: %d\n", (int)e);
 			}
 
-			e = backprop(n, data->data[i]->expected_output);
+			e = backprop(n, expected_output);
 			if (e != E_SUCCESS) {
 				printf("back_prop failed with: %d\n", (int)e);
 			}
@@ -95,16 +106,20 @@ error_t train (net* n, data_set* data, int epochs) {
 
 /* TODO: Fix function to better handle errors */
 cml_data* predict (net* n, cml_data* input) {
-	/*int last_layer = n->layer_count - 1;
-	error_t e = feed_forward(n, input);
+	int last_layer = n->layer_count - 1;
+
+	matrix_t* input_matrix = NULL;
+	cml_data_to_matrix(input, &input_matrix);	
+	error_t e = feed_forward(n, input_matrix);
 
 	if (e != E_SUCCESS) {
 		// HANDLE ERR
 		printf("Error %d in predict()\n", (int)e);
 	}
-
-	return n->layers[last_layer]->output;*/
-	return NULL;
+	
+	cml_data* data = NULL;
+	matrix_to_cml_data(n->layers[last_layer]->output, &data);
+	return data;
 }
 
 /**/

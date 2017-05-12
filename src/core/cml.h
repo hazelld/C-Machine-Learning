@@ -62,13 +62,10 @@ typedef struct cml_data cml_data;
 typedef struct data_set data_set;
 
 
-/* struct activation_f
-*	
-*	This structure is used to store the activation function, and it's derivative 
-*	function. This should be built with the 
-*
+/*	This defines the signature needed for any custom activation functions or their
+*	derivatives. 
 */
-typedef struct activation_f activation_f;
+typedef double (*act_func)(double);
 
 
 /* activation_functions
@@ -87,6 +84,19 @@ typedef enum activation_functions {
 } act_func_t;
 
 
+/* struct activation_f
+*	
+*	This structure is used to store the activation function, and it's derivative 
+*	function. This should be built with the 
+*
+*/
+typedef struct activation_f {
+	act_func_t type;
+	act_func af;
+	act_func ap;
+} activation_f;
+
+
 /* cost_functions
 *	
 *	These are the type of cost functions that are defined. The CUSTOM one means the 
@@ -100,11 +110,6 @@ typedef enum cost_functions {
 	QUADRATIC,
 } cost_func_t;
 
-
-/*	This defines the signature needed for any custom activation functions or their
-*	derivatives. 
-*/
-typedef double (*act_func)(double);
 
 /* error_t
 *
@@ -354,6 +359,8 @@ error_t data_set_from_csv(data_set* ds, FILE* fh, int* lineno);
 error_t get_feature_names (data_set* ds, char*** features, int* size);
 error_t split_data (data_set* ds, double training_split);
 error_t set_input_features (data_set* ds, char** features, int count);
+double get_value_at(cml_data* data, int index);
+
 
 #endif
 

@@ -21,13 +21,6 @@ enum InputType {
 	T_STR,
 };
 
-/* Implementation of activation_f */
-typedef struct activation_f {
-	act_func_t type;
-	act_func af;
-	act_func ap;
-} activation_f;
-
 /* Implementation of layer structure */
 typedef struct layer {
 	layer_type ltype;
@@ -177,8 +170,8 @@ error_t calculate_cost_gradient(net* n, matrix_t* expected, matrix_t** result);
  */
 
 /* TODO: docs */
-//error_t cml_data_to_matrix(cml_data* data, matrix_t** m);
-//error_t matrx_to_cml_data(matrix_t* m, cml_data** data);
+error_t cml_data_to_matrix(cml_data* data, matrix_t** m);
+error_t matrix_to_cml_data(matrix_t* m, cml_data** data);
 data_pair* init_data_pair(cml_data* input, cml_data* output);
 error_t add_data_pair (data_set* set, data_pair* pair);
 error_t free_data_pair(data_pair* pair);

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (cnn)
 
 # Variables needed for library compilation
-set(LIBRARY_COMPILE_FLAGS "-std=c99 -O3")
+set(LIBRARY_COMPILE_FLAGS "-std=c99 -g")
 
 # Location of the different directories 
 set(CORE_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/core)
@@ -26,4 +26,4 @@ set(PYTHON_LIBRARY_COMPILE_LOCATION ${CMAKE_BINARY_DIR}/lib)
 add_subdirectory(src)
 
 # Compile the examples 
-# add_subdirectory(examples)
+add_subdirectory(examples)

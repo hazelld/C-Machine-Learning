@@ -18,6 +18,11 @@ cml_data* init_cml_data () {
 }
 
 
+/* get_value_at() */
+double get_value_at (cml_data* data, int index) {
+	return *((double*) data->items[index]);
+}
+
 /* add_to_cml_data() */
 error_t add_to_cml_data (cml_data* data, void* value) {
 	if (data == NULL || value == NULL) return E_NULL_ARG;
@@ -50,7 +55,7 @@ error_t copy_cml_data (cml_data* src, cml_data** dst) {
 
 
 /* cml_data_to_matrix() */
-/* error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
+error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
 	if (data == NULL || m == NULL)
 		return E_NULL_ARG;
 
@@ -60,15 +65,16 @@ error_t copy_cml_data (cml_data* src, cml_data** dst) {
 	error_t err = init_matrix(*m, data->count, 1);
 	if (err != E_SUCCESS) return err;
 
-	for (int i = 0; i < data->count; i++) 
-		(*m)->matrix[i][0] = data->items[i];
-
+	for (int i = 0; i < data->count; i++) {
+		double* val = (double*) data->items[i];
+		(*m)->matrix[i][0] = *val;
+	}
 	return E_SUCCESS;
-} */
+} 
 
 
 /* matrix_to_cml_data() */
-/* error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
+error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
 	if (m == NULL || data == NULL)
 		return E_NULL_ARG;
 
@@ -78,11 +84,13 @@ error_t copy_cml_data (cml_data* src, cml_data** dst) {
 	if (*data == NULL)
 		return E_FAILURE;
 
-	for (int i = 0; i < m->rows; i++) 
-		(*data)->items[i] = m->matrix[i][0];
-
+	for (int i = 0; i < m->rows; i++) {
+		double* val = malloc(sizeof(double));
+		*val = m->matrix[i][0];
+		(*data)->items[i] = val;
+	}
 	return E_SUCCESS;
-} */
+}
 
 /* free_cml_data() */
 error_t free_cml_data (cml_data*  data) {

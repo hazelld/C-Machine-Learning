@@ -2,7 +2,6 @@
 #include <math.h>
 #include "matrix.h"
 #include "cml.h"
-#include "builder.h"
 
 void print_m (matrix_t* m) {
 	for (int i = 0; i < m->rows; i++) {
@@ -37,7 +36,20 @@ int main() {
 
 	activation_f actf;
 	get_activation_f(&actf, SIGMOID, NULL, NULL);
-	data = data_set_from_csv(fh);
+	
+	int lines = 0;
+	data = init_data_set();
+
+	error_t err = data_set_from_csv(data, fh, &lines);
+	printf("%d\n", err);
+	assert(err == E_SUCCESS);
+	printf("Read %d lines\n", lines);
+
+	char* features[1] = { "x" };
+
+	err = set_input_features(data, features, 1);
+	assert(err == E_SUCCESS);
+
 	net* nn = init_net(0.1);
 	
 	/* Build the layers */
@@ -49,7 +61,6 @@ int main() {
 	};
 	
 	/* Add layers then connect the net */ 
-	error_t err;
 	for (int i = 0; i < 4; i++) {
 		err = add_layer(nn, layers[i]);
 		assert(err == E_SUCCESS);
@@ -67,19 +78,22 @@ int main() {
 		double nrand = -2 + ((double)rand() / div);
 		
 		printf("sin(%lf) = %lf \t\t", nrand, sin(nrand));
-	
-		matrix_t* in = malloc(sizeof(matrix_t));
-		init_matrix(in, 1, 1);
-		in->matrix[0][0] = nrand;
-		matrix_t* res = predict(nn, in);
+		
+		cml_data* in = init_cml_data();
+		double* val = malloc(sizeof(double));
+		*val = nrand;
+		add_to_cml_data(in, val);
+
+		cml_data* res = predict(nn, in);
 
 		/* Transform the value back to regular range,
 		 * member the transformation was:
 		 * 0.5 * sinx + 0.5 
 		 */
-		printf("GOT: %lf\n", (2 * res->matrix[0][0]) - 1);
+		printf("GOT: %lf\n", (2 * get_value_at(res, 0) - 1));
 	
-		free_matrix(in);
+		free_cml_data(in);
+		free_cml_data(res);
 	}
 		
 	fclose(fh);
