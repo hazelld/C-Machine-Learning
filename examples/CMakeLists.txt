@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8)
 # TODO: Make this compile all examples once all are fixed 
 
 # Set the compiler flags for gcc
-set(TEST_COMPILE_FLAGS "-std=c99 -O3 -g")
+set(TEST_COMPILE_FLAGS "-std=c99 -g")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXAMPLES_COMPILE_LOCATION})
 
 # Add the include folder

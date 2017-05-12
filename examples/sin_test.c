@@ -41,14 +41,12 @@ int main() {
 	data = init_data_set();
 
 	error_t err = data_set_from_csv(data, fh, &lines);
-	printf("%d\n", err);
-	assert(err == E_SUCCESS);
+	char* features[1] = { "x" };
+	err = set_input_features(data, features, 1);
+	err = split_data (data, 1.0);
+
 	printf("Read %d lines\n", lines);
 
-	char* features[1] = { "x" };
-
-	err = set_input_features(data, features, 1);
-	assert(err == E_SUCCESS);
 
 	net* nn = init_net(0.1);
 	

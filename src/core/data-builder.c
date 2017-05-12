@@ -87,7 +87,7 @@ error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
 	for (int i = 0; i < m->rows; i++) {
 		double* val = malloc(sizeof(double));
 		*val = m->matrix[i][0];
-		(*data)->items[i] = val;
+		add_to_cml_data(*data, val);
 	}
 	return E_SUCCESS;
 }
@@ -289,12 +289,12 @@ static error_t convert_raw_into_pairs (data_set* ds) {
 		
 		for (int j = 0; j < ds->input_feature_count; j++) {
 			int index = input_cols[j];
-			add_to_cml_data(input, (void*)ds->raw_data[i]->items[j]);
+			add_to_cml_data(input, (void*)ds->raw_data[i]->items[index]);
 		}
 
 		for (int z = 0; z < output_features; z++) {
 			int index = output_cols[z];
-			add_to_cml_data(output, (void*)ds->raw_data[i]->items[z]);
+			add_to_cml_data(output, (void*)ds->raw_data[i]->items[index]);
 		}
 
 		data_pair* new_data_pair = init_data_pair(input, output);
