@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "munit.h"
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 
 /* Build a basic test network */
 static net* _build_net(int hidden_layers, layer_type missing_lt);

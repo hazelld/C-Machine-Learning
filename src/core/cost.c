@@ -1,6 +1,6 @@
 #include <math.h>
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 #include "matrix.h"
 
 /* The cost functions are all defined below, eventually there may be support for 

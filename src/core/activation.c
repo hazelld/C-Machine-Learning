@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 
 /* Activation functions and their derivative */
 static double sigmoid_f (double x);

@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 
 
 /* Allow for user to override if they so choose */

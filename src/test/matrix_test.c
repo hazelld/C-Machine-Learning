@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "munit.h"
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 
 
 /* test_vector_scalar_addition

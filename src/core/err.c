@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 
 /* Since C garuntees that enums start at specified digit (this case 0), and 
  * count upwards, we can just have each element in struct array correspond with 

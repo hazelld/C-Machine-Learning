@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "cml.h"
-#include "net-internal.h"
+#include "cml-internal.h"
 #include "matrix.h"
 #include "csv-utils.h"
 
