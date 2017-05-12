@@ -62,7 +62,7 @@ test_add_cml_data_str () {
 
 static MunitResult
 test_data_set_from_csv () {
-	static char* test_data = "data.csv";
+	static char* test_data = "src/test/data.csv";
 	int line_count = 5;
 	FILE* fh = fopen(test_data, "r");
 
@@ -98,7 +98,7 @@ test_data_set_from_csv () {
 
 static MunitResult
 test_get_feature_names () {
-	static char* test_data = "data.csv";
+	static char* test_data = "src/test/data.csv";
 	FILE* fh = fopen(test_data, "r");
 	
 	int line_err;
@@ -125,7 +125,7 @@ test_get_feature_names () {
 
 static MunitResult
 test_split_data () {
-	static char* test_data = "data.csv";
+	static char* test_data = "src/test/data.csv";
 	FILE* fh = fopen(test_data, "r");
 	
 	int line_err;
