@@ -10,7 +10,7 @@ static error_t backprop (net* n, matrix_t* expected);
 static error_t net_error(net* n, matrix_t* expected);
 static error_t update_weights(net* n);
 static error_t update_bias(net* n);
-
+static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* avg_err);
 
 /* PUBLIC FUNCTIONS */
 
@@ -25,6 +25,9 @@ net* init_net (double learning_rate) {
 	n->connected = NET_NOT_CONNECTED;
 	n->learning_rate = learning_rate;
 	n->costf = QUADRATIC;
+
+	n->topology = NULL;
+	n->layers = NULL;
 	return n;
 }
 
@@ -58,48 +61,50 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 }
 
 
-/* TODO:
+/* T$$dddODO:
  * -> Add verbose mode
  * -> Return error on unconnected net 
  */
 error_t train (net* n, data_set* data, int epochs) {
 	double total_err = 0.0;
-	int count = 0;
+	double avg_err = 0.0;
 	
+	if (n == NULL || data == NULL) 
+		return E_NULL_ARG;
+
+	if (n->connected != NET_CONNECTED)
+		return E_NET_NOT_CONNECTED;
+
 	for (int j = 0; j < epochs; j++) {
-		fprintf(stderr, "Training epoch: %d\t", j);
+		fprintf(stderr, "Training epoch: %d\n", j);
 		for (int i = 0; i < data->count; i++) {
 			error_t e;
 			matrix_t* input = NULL;
 			matrix_t* expected_output = NULL;
 
 			e = cml_data_to_matrix(data->data[i]->input, &input);
-			if (e != E_SUCCESS)
-				printf("Convert to matrix_t failed\n");
-			
+			if (e != E_SUCCESS) return e;
+
 			e = cml_data_to_matrix(data->data[i]->expected_output, &expected_output);
-			if (e != E_SUCCESS)
-				printf("Convert to matrix_t failed\n");
+			if (e != E_SUCCESS) return e;
 
 			e = feed_forward(n, input);
-
-			total_err += calculate_cost_func(n, expected_output);
-			count++;
-			
-			if (e != E_SUCCESS) {
-				printf("feed_forward failed with: %d\n", (int)e);
-			}
+			if (e != E_SUCCESS) return e;
 
 			e = backprop(n, expected_output);
-			if (e != E_SUCCESS) {
-				printf("back_prop failed with: %d\n", (int)e);
-			}
+			if (e != E_SUCCESS) return e;
 		}
 
-		fprintf(stderr, "Total error: %lf\tAverage error: %lf\n", total_err, total_err / (double)count);
-		count = 0;
-		total_err = 0.0;
+		/* Test against the test data if the user wants to */
+		if (data->test_count > 0) {
+			error_t err = calc_test_error(n, data, &total_err, &avg_err);
+			if (err != E_SUCCESS) return err;
+
+			fprintf(stderr, "Total error: %lf\tAverage error: %lf\n", total_err, avg_err);
+			total_err = 0.0;
+		}
 	}
+
 	return E_SUCCESS;
 }
 
@@ -241,6 +246,7 @@ static error_t backprop (net* n, matrix_t* expected) {
 	return E_SUCCESS;
 }
 
+
 /* net_error
  *	
  *	This function calculates the weight delta matrix based
@@ -364,3 +370,37 @@ static error_t update_bias (net* n) {
 	return E_SUCCESS;
 }
 
+
+/*
+ *
+ *
+ */
+static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* avg_err) 
+{
+	if (n == NULL || ds == NULL || total_err == NULL || avg_err == NULL)
+		return E_NULL_ARG;
+
+	*total_err = 0;
+
+	for (int i = 0; i < ds->test_count; i++) {
+		matrix_t* input = NULL;
+		matrix_t* expected_output = NULL;
+		
+		error_t e = cml_data_to_matrix(ds->data[i]->input, &input);
+		if (e != E_SUCCESS) return e;
+
+		e = cml_data_to_matrix(ds->data[i]->expected_output, &expected_output);
+		if (e != E_SUCCESS) return e;
+
+		e = feed_forward(n, input);
+		if (e != E_SUCCESS) return e;
+		
+		*total_err += calculate_cost_func(n, expected_output);
+	}
+
+	if (ds->test_count < 1)
+		return E_FAILURE;
+
+	*avg_err = *total_err / (double)ds->test_count;
+	return E_SUCCESS;
+}

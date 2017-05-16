@@ -43,7 +43,7 @@ int main() {
 	error_t err = data_set_from_csv(data, fh, &lines);
 	char* features[1] = { "x" };
 	err = set_input_features(data, features, 1);
-	err = split_data (data, 1.0);
+	err = split_data (data, 0.7);
 
 	printf("Read %d lines\n", lines);
 
@@ -67,7 +67,8 @@ int main() {
 	err = connect_net(nn);
 	assert(err == E_SUCCESS);
 	
-	train(nn, data, 15);
+	err = train(nn, data, 15);
+	assert(err == E_SUCCESS);
 
 	printf("\n\nRESULTS:\n");
 	for (int i = 0; i < 5; i++) {

@@ -14,6 +14,8 @@ static error_t shuffle_data (data_set* ds, double split);
 /* init_cml_data() */
 cml_data* init_cml_data () {
 	cml_data* new_data = calloc(1, sizeof(cml_data));
+	new_data->items = NULL;
+	new_data->types = NULL;
 	return new_data;
 }
 
@@ -155,6 +157,13 @@ error_t add_cml_data (data_set* ds, cml_data* data) {
 data_set* init_data_set () {
 	data_set* ds = calloc(1, sizeof(data_set));
 	ds->features_specified = NO_FEATURES_SPECIFIED;
+	ds->feature_names = NULL;
+	ds->feature_types = NULL;
+	ds->data = NULL;
+	ds->training_set = NULL;
+	ds->test_set = NULL;
+	ds->input_features = NULL;
+	ds->raw_data = NULL;
 	return ds;
 }
 
