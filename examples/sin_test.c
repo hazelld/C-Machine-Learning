@@ -67,7 +67,7 @@ int main() {
 	err = connect_net(nn);
 	assert(err == E_SUCCESS);
 	
-	err = train(nn, data, 15);
+	err = train(nn, data, 10);
 	assert(err == E_SUCCESS);
 
 	printf("\n\nRESULTS:\n");
@@ -90,7 +90,7 @@ int main() {
 		 * 0.5 * sinx + 0.5 
 		 */
 		printf("GOT: %lf\n", (2 * get_value_at(res, 0) - 1));
-	
+		
 		free_cml_data(in);
 		free_cml_data(res);
 	}

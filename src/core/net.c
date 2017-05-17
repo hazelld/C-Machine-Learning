@@ -61,7 +61,7 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 }
 
 
-/* T$$dddODO:
+/* TODO:
  * -> Add verbose mode
  * -> Return error on unconnected net 
  */
@@ -76,7 +76,7 @@ error_t train (net* n, data_set* data, int epochs) {
 		return E_NET_NOT_CONNECTED;
 
 	for (int j = 0; j < epochs; j++) {
-		fprintf(stderr, "Training epoch: %d\n", j);
+		fprintf(stderr, "Training epoch: %d\t", j);
 		for (int i = 0; i < data->count; i++) {
 			error_t e;
 			matrix_t* input = NULL;
@@ -93,6 +93,9 @@ error_t train (net* n, data_set* data, int epochs) {
 
 			e = backprop(n, expected_output);
 			if (e != E_SUCCESS) return e;
+			
+			free_matrix(input);
+			free_matrix(expected_output);
 		}
 
 		/* Test against the test data if the user wants to */
@@ -102,6 +105,8 @@ error_t train (net* n, data_set* data, int epochs) {
 
 			fprintf(stderr, "Total error: %lf\tAverage error: %lf\n", total_err, avg_err);
 			total_err = 0.0;
+		} else {
+			fprintf(stderr, "\n");
 		}
 	}
 
@@ -124,6 +129,7 @@ cml_data* predict (net* n, cml_data* input) {
 	
 	cml_data* data = NULL;
 	matrix_to_cml_data(n->layers[last_layer]->output, &data);
+	free_matrix(input_matrix);
 	return data;
 }
 
@@ -396,6 +402,8 @@ static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* 
 		if (e != E_SUCCESS) return e;
 		
 		*total_err += calculate_cost_func(n, expected_output);
+		free_matrix(input);
+		free_matrix(expected_output);
 	}
 
 	if (ds->test_count < 1)

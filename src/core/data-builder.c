@@ -211,7 +211,7 @@ error_t free_data_set(data_set* ds) {
 /* split_data() 
  *
  * Steps:
- * -> Convert raw_data() into data_pairs based on the input features
+ n -> Convert raw_data() into data_pairs based on the input features
  * -> Split this into test, train, validation sets based on the user
  *    defined split amount.
  */
@@ -290,7 +290,7 @@ static error_t convert_raw_into_pairs (data_set* ds) {
 	}
 	
 	/* Go through each raw data item, split it into a pair data struct, then 
-	 * free the old one. 
+	 * free the old one.
 	 */
 	for (int i = 0; i < ds->raw_count; i++) {
 		cml_data* input = init_cml_data();
@@ -308,6 +308,18 @@ static error_t convert_raw_into_pairs (data_set* ds) {
 
 		data_pair* new_data_pair = init_data_pair(input, output);
 		add_data_pair(ds, new_data_pair);	
+
+		/* This is super hacky and I am not proud of it, but basically because 
+		 * add_to_cml_data() does a shallow copy of the void*, since it can't deref
+		 * it to the proper type, the items ds->raw_data[i]->items[] stay on the 
+		 * heap, with the new cml_data pointing to them, we can't use free_cml_data
+		 * here to free the old struct. For now manually free the InputTypes array
+		 * and the pointer to the items array
+		 *
+		 * TODO: When converted from void* to union, come back and change this code 
+		 */
+		free(ds->raw_data[i]->types);
+		free(ds->raw_data[i]->items);
 		free(ds->raw_data[i]);
 	}
 	
@@ -396,7 +408,7 @@ error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
 	}
 
 error:
-	*lineno = line;
+	*lineno = line - 1;
 	/* If the error code was EOF, want to return E_SUCCESS */
 	if (err == E_NO_MORE_ITEMS)
 		return E_SUCCESS;
