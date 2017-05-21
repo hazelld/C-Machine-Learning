@@ -1,7 +1,8 @@
-#include "net.h"
+#include <stdlib.h>
+#include <string.h>
+#include "cml.h"
+#include "cml-internal.h"
 
-/* File wide learning rate, used by _learning_rate() */
-static double learning_rate;
 
 /* Local functions */
 static error_t feed_forward(net* n, matrix_t* input);
@@ -9,48 +10,29 @@ static error_t backprop (net* n, matrix_t* expected);
 static error_t net_error(net* n, matrix_t* expected);
 static error_t update_weights(net* n);
 static error_t update_bias(net* n);
-
-/* Local activation functions, for when a user can't provide own */
-static double clog_sigmoid (double);
-static double clog_sigmoid_prime (double);
-
+static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* avg_err);
 
 /* PUBLIC FUNCTIONS */
-error_t init_net (net* nn, int lc, int* topology_arr, double lr){
-	if (nn == NULL) return E_NULL_ARG;
-	nn->layer_count = lc;
-	learning_rate = lr;
-	
-	nn->topology = malloc(sizeof(int) * lc);
-	nn->layers = malloc(sizeof(layer) * lc);
-	
-	for(int i = 0; i < lc; i++) {
-		
-		nn->topology[i] = topology_arr[i];
-		
-		/* Allocate space for layer */
-		nn->layers[i] = malloc(sizeof(layer));
 
-		/* Determine Layer type */
-		layer_type lt;
+/* init_net() */
+net* init_net (double learning_rate) {
+	net* n = malloc(sizeof(net));
 
-		if (i == 0) { lt = input; }
-		else if (i == lc - 1) { lt = output; }
-		else { lt = hidden; }
-		
-		/* The input layer has no inputs, it simply has outputs 
-		 * (which are technically the inputs to the NN) */
-		if (lt == input) { 
-			init_layer(nn->layers[i], input, 0, topology_arr[i]);
-			continue;
-		}
-		init_layer(nn->layers[i], lt, topology_arr[i-1], topology_arr[i]);
-	}
-	return E_SUCCESS;
+	if (n == NULL)
+		return NULL;
+	
+	memset(n, 0, sizeof(net));
+	n->connected = NET_NOT_CONNECTED;
+	n->learning_rate = learning_rate;
+	n->costf = QUADRATIC;
+
+	n->topology = NULL;
+	n->layers = NULL;
+	return n;
 }
 
 
-/**/
+/* init_layer() [net-internal.h] */
 error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	if (l == NULL) return E_NULL_ARG;
 	
@@ -64,10 +46,6 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	l->layer_error = NULL;
 	l->weight_delta = NULL;
 	
-	/* TODO: Add flexiblity to this*/
-	l->af = clog_sigmoid;
-	l->ap = clog_sigmoid_prime;
-
 	/* Output layer has no weights or bias */
 	if (lt == input) {
 		l->weights = NULL;
@@ -83,39 +61,76 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 }
 
 
-/* TODO: Add verbose mode */
+/* TODO:
+ * -> Add verbose mode
+ * -> Return error on unconnected net 
+ */
 error_t train (net* n, data_set* data, int epochs) {
+	double total_err = 0.0;
+	double avg_err = 0.0;
+	
+	if (n == NULL || data == NULL) 
+		return E_NULL_ARG;
+
+	if (n->connected != NET_CONNECTED)
+		return E_NET_NOT_CONNECTED;
+
 	for (int j = 0; j < epochs; j++) {
-		//printf("Training epoch %d\n", j);
+		fprintf(stderr, "Training epoch: %d\t", j);
 		for (int i = 0; i < data->count; i++) {
 			error_t e;
+			matrix_t* input = NULL;
+			matrix_t* expected_output = NULL;
 
-			e = feed_forward(n, data->data[i]->input);
-			if (e != E_SUCCESS) {
-				printf("feed_forward failed with: %d\n", (int)e);
-			}
+			e = cml_data_to_matrix(data->data[i]->input, &input);
+			if (e != E_SUCCESS) return e;
 
-			e = backprop(n, data->data[i]->expected_output);
-			if (e != E_SUCCESS) {
-				printf("back_prop failed with: %d\n", (int)e);
-			}
+			e = cml_data_to_matrix(data->data[i]->expected_output, &expected_output);
+			if (e != E_SUCCESS) return e;
+
+			e = feed_forward(n, input);
+			if (e != E_SUCCESS) return e;
+
+			e = backprop(n, expected_output);
+			if (e != E_SUCCESS) return e;
+			
+			free_matrix(input);
+			free_matrix(expected_output);
+		}
+
+		/* Test against the test data if the user wants to */
+		if (data->test_count > 0) {
+			error_t err = calc_test_error(n, data, &total_err, &avg_err);
+			if (err != E_SUCCESS) return err;
+
+			fprintf(stderr, "Total error: %lf\tAverage error: %lf\n", total_err, avg_err);
+			total_err = 0.0;
+		} else {
+			fprintf(stderr, "\n");
 		}
 	}
+
 	return E_SUCCESS;
 }
 
 
 /* TODO: Fix function to better handle errors */
-matrix_t* predict (net* n, matrix_t* input) {
+cml_data* predict (net* n, cml_data* input) {
 	int last_layer = n->layer_count - 1;
-	error_t e = feed_forward(n, input);
+
+	matrix_t* input_matrix = NULL;
+	cml_data_to_matrix(input, &input_matrix);	
+	error_t e = feed_forward(n, input_matrix);
 
 	if (e != E_SUCCESS) {
 		// HANDLE ERR
 		printf("Error %d in predict()\n", (int)e);
 	}
-
-	return n->layers[last_layer]->output;
+	
+	cml_data* data = NULL;
+	matrix_to_cml_data(n->layers[last_layer]->output, &data);
+	free_matrix(input_matrix);
+	return data;
 }
 
 /**/
@@ -161,10 +176,6 @@ error_t free_layer (layer* l) {
  *	Arguments:
  *	net => Neural network
  *	input => Input matrix to feed through the net
- *	
- *	Returns:
- *	SUCCESS => Successfully fed through network
- *	FAILURE => Error 
  *
  */
 static error_t feed_forward (net* n, matrix_t* input) {
@@ -181,7 +192,7 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		clayer = n->layers[i];
 		
 		/* Free up old memory */
-		if (clayer->output) { 
+		if (clayer->output) {
 			free_matrix(clayer->output); 
 			clayer->output = NULL;
 		}
@@ -192,14 +203,15 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		}
 
 		clayer->output = malloc(sizeof(matrix_t));
+
 		error_t err = matrix_vector_mult(clayer->weights, clayer->input, &clayer->output); 
 		if (err != E_SUCCESS) return err;
-		
+
 		/* Check if we have bias to add */
 		if (clayer->using_bias)
 			vector_scalar_addition(clayer->output, clayer->bias);
 		
-		function_on_vector(clayer->output, clayer->af);
+		map_vector(clayer->output, clayer->actf.af);
 		
 		if (clayer->ltype != output) 
 			n->layers[i+1]->input = clayer->output;
@@ -240,6 +252,7 @@ static error_t backprop (net* n, matrix_t* expected) {
 	return E_SUCCESS;
 }
 
+
 /* net_error
  *	
  *	This function calculates the weight delta matrix based
@@ -272,13 +285,14 @@ static error_t net_error (net* n, matrix_t* expected) {
 			tweights = transpose_r(nlayer->weights);
 			err = matrix_vector_mult(tweights, nlayer->layer_error, &buff_err);
 		} else {
-			err = matrix_subtraction(clayer->output, expected, &buff_err);	
+			//err = matrix_subtraction(clayer->output, expected, &buff_err);	
+			err = calculate_cost_gradient(n, expected, &buff_err);
 		}
 
 		if (err != E_SUCCESS) return err;
 		
 		/* g'(z) */	
-		function_on_vector(clayer->output, clayer->ap);
+		map_vector(clayer->output, clayer->actf.ap);
 		
 		/* S * g'(z) */
 		clayer->layer_error = malloc(sizeof(matrix_t));
@@ -301,20 +315,6 @@ static error_t net_error (net* n, matrix_t* expected) {
 }
 
 
-/*	_learning_rate
- *
- *	This function is used to apply the learning rate to any value 
- *	given. This allows for it to be applied to a whole matrix through
- *	the use of the function_on_matrix() function that takes a function
- *	as an argument.
- *
- *	Note: learning_rate is a global variable set by init_net()
- */
-double _learning_rate (double val) {
-	return learning_rate * val;
-}
-
-
 /* update_weights
  *
  * 	This function is used to update the weights by the values of their 
@@ -328,9 +328,12 @@ static error_t update_weights (net* n) {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
 		matrix_t* f_weights = malloc(sizeof(matrix_t));
+	
+		error_t err;
+		err = matrix_scalar_mult(clayer->weight_delta, n->learning_rate);
+		if (err != E_SUCCESS) return err;
 
-		function_on_matrix(clayer->weight_delta, _learning_rate);
-		error_t err = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
+		err = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
 		if (err != E_SUCCESS) return err;
 
 		/* Free old memory */
@@ -373,28 +376,39 @@ static error_t update_bias (net* n) {
 	return E_SUCCESS;
 }
 
-/* clog_sigmoid 
- *
- * 	This function provides a default activation function if no other functions 
- * 	are specified. This returns the result of the continous log-sigmoid function
- * 	that is defined as:
- *
- * 	f(x) = 1 / (1 + e^(-t))
- *
- */
-static double clog_sigmoid (double x) {
-	return 1 / (1 + exp(-x));
-}	
 
-/* clog_sigmoid_prime
+/*
  *
- * 	This function is the derivative of the clog_sigmoid() function, that 
- * 	is defined as:
  *
- * 	df(x)
- * 	_____ = f(x) * ( 1 - f(x))
- * 	dt
  */
-static double clog_sigmoid_prime (double fx) {
-	return fx * ( 1 - fx);
+static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* avg_err) 
+{
+	if (n == NULL || ds == NULL || total_err == NULL || avg_err == NULL)
+		return E_NULL_ARG;
+
+	*total_err = 0;
+
+	for (int i = 0; i < ds->test_count; i++) {
+		matrix_t* input = NULL;
+		matrix_t* expected_output = NULL;
+		
+		error_t e = cml_data_to_matrix(ds->data[i]->input, &input);
+		if (e != E_SUCCESS) return e;
+
+		e = cml_data_to_matrix(ds->data[i]->expected_output, &expected_output);
+		if (e != E_SUCCESS) return e;
+
+		e = feed_forward(n, input);
+		if (e != E_SUCCESS) return e;
+		
+		*total_err += calculate_cost_func(n, expected_output);
+		free_matrix(input);
+		free_matrix(expected_output);
+	}
+
+	if (ds->test_count < 1)
+		return E_FAILURE;
+
+	*avg_err = *total_err / (double)ds->test_count;
+	return E_SUCCESS;
 }

@@ -54,6 +54,17 @@ error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result) {
 }
 
 
+error_t matrix_scalar_mult (matrix_t* m, double scalar) {
+	if (m == NULL) return E_NULL_ARG;
+
+	for (int i = 0; i < m->rows; i++) {
+		for (int j = 0; j < m->columns; j++) {
+			m->matrix[i][j] *= scalar;
+		}
+	}	
+	return E_SUCCESS;
+}
+
 error_t vector_scalar_addition (matrix_t* m, double scalar) {	
 	if (m == NULL)
 		return E_NULL_ARG;
@@ -71,7 +82,7 @@ error_t vector_scalar_addition (matrix_t* m, double scalar) {
 }
 
 
-error_t function_on_vector (matrix_t* vec, double (*f)(double)) {
+error_t map_vector (matrix_t* vec, double (*f)(double)) {
 	if (f == NULL)
 		return E_NULL_ARG;
 	
@@ -82,7 +93,7 @@ error_t function_on_vector (matrix_t* vec, double (*f)(double)) {
 }
 
 
-error_t function_on_matrix (matrix_t* m, double(*f)(double)) {
+error_t map_matrix (matrix_t* m, double(*f)(double)) {
 	if (m == NULL || f == NULL) 
 		return E_NULL_ARG;
 
@@ -241,3 +252,12 @@ error_t free_matrix (matrix_t* m) {
 	return E_SUCCESS;
 }
 
+
+void print_matrix (FILE* fh, matrix_t* m) {
+	for (int i = 0; i < m->rows; i++) {
+		for (int j = 0; j < m->columns; j++) {
+			fprintf(fh, "%lf ", m->matrix[i][j]);
+		}
+		fprintf(fh, "\n");
+	}
+}

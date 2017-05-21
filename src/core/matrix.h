@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "err.h"
-
+#include "cml.h"
 
 typedef struct matrix_t {
 	double** matrix;
@@ -48,6 +47,14 @@ error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns);
 error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result);
 
 
+/* matrix_scalar_mult
+ *	
+ *	This function multiplies a matrix by a given scalar in place. 
+ *
+ */
+error_t matrix_scalar_mult(matrix_t* m, double scalar);
+
+
 /* vector_scalar_addition
 *
 * 	This function adds a constant to each element of a vector.
@@ -76,10 +83,10 @@ error_t vector_scalar_addition (matrix_t* m, double scalar);
 * 	 0 => Success 
 * 	 _ => Failure
 */
-error_t function_on_matrix (matrix_t* m, double(*f)(double));
+error_t map_matrix (matrix_t* m, double(*f)(double));
 
 
-/* function_on_vector
+/* map_vector
 *
 * 	Functionally the same as function_on_matrix, however this
 * 	only applys the function to a column-wise matrix_t.
@@ -88,7 +95,7 @@ error_t function_on_matrix (matrix_t* m, double(*f)(double));
 * 	0 => Success
 * 	_ => Failure
 */
-error_t function_on_vector (matrix_t* vec, double (*f)(double));
+error_t map_vector (matrix_t* vec, double (*f)(double));
 
 
 /* matrix_subtraction
@@ -193,6 +200,13 @@ error_t copy_matrix (matrix_t* src, matrix_t* dest);
  *	_ => Failure
  */
 error_t free_matrix(matrix_t* matrix);
+
+
+/* print_matrix
+ *
+ * 	Print the matrix out for debugging purposes.
+ */
+void print_matrix (FILE* fh, matrix_t* m);
 
 
 #endif

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (cnn)
 
 # Variables needed for library compilation
-set(LIBRARY_COMPILE_FLAGS "-std=c99 -O3")
+set(LIBRARY_COMPILE_FLAGS "-std=c99 -g")
 
 # Location of the different directories 
 set(CORE_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/core)
@@ -10,7 +10,7 @@ set(CORE_INCLUDE_LOCATION ${PROJECT_SOURCE_DIR}/src/core)
 set(TEST_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/test)
 set(API_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/api)
 set(EXAMPLES_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/examples)
-set(MUNIT_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/test/munit.c)
+set(MUNIT_SOURCE_LOCATION ${PROJECT_SOURCE_DIR}/src/test/munit/)
 
 # Set the output locations
 set(LIBRARY_COMPILE_LOCATION ${CMAKE_BINARY_DIR}/lib) 

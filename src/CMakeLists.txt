@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 add_subdirectory(core)
 
 # Compile the Python API
-add_subdirectory(api)
+# add_subdirectory(api)
 
 # Compile the tests
 add_subdirectory(test)
