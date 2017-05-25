@@ -7,10 +7,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_COMPILE_LOCATION}/test)
 # Add the include folder
 include_directories(${CORE_INCLUDE_LOCATION})
 include_directories(${TEST_SOURCE_LOCATION})
-include_directories(${MUNIT_SOURCE_LOCATION})
-
-# Create munit library 
-add_library(munit SHARED ${MUNIT_SOURCE_LOCATION}/munit.c)
+include_directories(${UNIT_TEST_HEADERS})
 
 # Set all the current tests
 set(TEST_EXECUTABLES 
@@ -26,6 +23,6 @@ foreach(testname ${TEST_EXECUTABLES})
 	# Add executable and link libraries
 	add_executable(${testname} ${testname}.c)
 	set_target_properties(${testname} PROPERTIES COMPILE_FLAGS ${TEST_COMPILE_FLAGS})
-	target_link_libraries(${testname} ${CMAKE_PROJECT_NAME} munit m)
+	target_link_libraries(${testname} ${CMAKE_PROJECT_NAME} ${UNIT_TEST_LIB}  m)
 
 endforeach(testname ${TEST_EXECUTABLES})
