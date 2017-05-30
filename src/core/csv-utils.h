@@ -7,7 +7,7 @@
 #include <string.h>
 #include "cml.h"
 #include "cml-internal.h"
-
+#include "data-builder.h"
 
 /* Allow for user to override if they so choose */
 #ifndef CSV_DELIM

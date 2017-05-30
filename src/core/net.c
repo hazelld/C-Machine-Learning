@@ -2,7 +2,7 @@
 #include <string.h>
 #include "cml.h"
 #include "cml-internal.h"
-
+#include "data-builder.h"
 
 /* Local functions */
 static error_t feed_forward(net* n, matrix_t* input);

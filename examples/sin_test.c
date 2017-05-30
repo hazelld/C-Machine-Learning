@@ -2,6 +2,7 @@
 #include <math.h>
 #include "matrix.h"
 #include "cml.h"
+#include "data-builder.h"
 
 void print_m (matrix_t* m) {
 	for (int i = 0; i < m->rows; i++) {

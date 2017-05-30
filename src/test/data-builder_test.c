@@ -3,6 +3,7 @@
 #include "munit.h"
 #include "cml.h"
 #include "cml-internal.h"
+#include "data-builder.h"
 
 static MunitResult
 test_init_free_cml_data_no_items () {
