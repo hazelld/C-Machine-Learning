@@ -367,14 +367,15 @@ error_t get_feature_names (data_set* ds, char*** features, int* size) {
 /* data_set_from_csv() */
 error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
 	error_t err;
-	int line = 1;
+	int line = 0;
 	int count;
 
 	/* First row of CSV file must be names */
 	char** features = NULL;
 	err = parse_csv_row(fh, &features, &count);
 	if (err != E_SUCCESS) goto error;
-	
+	line++; // Only increment if parse_csv_row() succeeded 
+
 	for (int i = 0; i < count; i++) {
 		err = add_feature_name(ds, features[i]);
 		if (err != E_SUCCESS) goto error;
@@ -391,7 +392,6 @@ error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
 			err = set_feature_types(ds, strline, count);
 		else 
 			err = validate_csv_row(ds, strline, count);
-		
 		if (err != E_SUCCESS) goto error;
 
 		cml_data* new_data = init_cml_data();
@@ -409,7 +409,7 @@ error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
 	}
 
 error:
-	*lineno = line - 1;
+	*lineno = line;
 	/* If the error code was EOF, want to return E_SUCCESS */
 	if (err == E_NO_MORE_ITEMS)
 		return E_SUCCESS;
