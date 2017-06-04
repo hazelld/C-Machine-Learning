@@ -108,6 +108,7 @@ typedef struct activation_f {
 */
 typedef enum cost_functions {
 	QUADRATIC,
+	CROSS_ENTROPY,
 } cost_func_t;
 
 
@@ -172,7 +173,7 @@ void print_cml_error (FILE* fh, char* message, error_t err);
 * this function returns NULL.
 *
 */
-net* init_net (double learning_rate);
+net* init_net (double learning_rate, double momentum, cost_func_t costf);
 
 
 /* train
@@ -351,8 +352,6 @@ error_t get_activation_f (activation_f* actf, act_func_t type, act_func af, act_
 /* These functions are defined in data-builder.c */
 cml_data* init_cml_data();
 data_set* init_data_set();
-error_t copy_cml_data(cml_data* src, cml_data** dst);
-error_t add_to_cml_data(cml_data* data, void* value);
 error_t free_cml_data(cml_data* data);
 error_t free_data_set(data_set* ds);
 error_t data_set_from_csv(data_set* ds, FILE* fh, int* lineno);  

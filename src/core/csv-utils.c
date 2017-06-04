@@ -1,6 +1,7 @@
 #include "csv-utils.h"
 
-static int is_double (char* feature) {
+static int is_double (char* feature) 
+{
 	if (feature == NULL) return -1;
 	char c;
 
@@ -13,8 +14,8 @@ static int is_double (char* feature) {
 	return TRUE;
 }
 
-enum InputType get_type (char* feature) {
-	
+enum InputType get_type (char* feature) 
+{	
 	if (is_double(feature) == TRUE)
 		return T_DOUBLE;
 	else 
@@ -22,7 +23,8 @@ enum InputType get_type (char* feature) {
 }
 
 
-error_t validate_csv_row (data_set* ds, char** row, int row_size) {
+error_t validate_csv_row (data_set* ds, char** row, int row_size) 
+{
 	if (ds == NULL || row == NULL) return E_NULL_ARG;
 
 	if (row_size != ds->feature_count)
@@ -38,7 +40,8 @@ error_t validate_csv_row (data_set* ds, char** row, int row_size) {
 	return E_SUCCESS;
 }
 
-error_t parse_csv_row (FILE* fh, char*** dst, int* items) {
+error_t parse_csv_row (FILE* fh, char*** dst, int* items) 
+{
 	if (dst == NULL || fh == NULL) return E_NULL_ARG;
 
 	char* token;

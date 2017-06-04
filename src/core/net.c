@@ -1,8 +1,9 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cml.h"
 #include "cml-internal.h"
-
+#include "data-builder.h"
 
 /* Local functions */
 static error_t feed_forward(net* n, matrix_t* input);
@@ -15,7 +16,8 @@ static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* 
 /* PUBLIC FUNCTIONS */
 
 /* init_net() */
-net* init_net (double learning_rate) {
+net* init_net (double learning_rate, double momentum, cost_func_t costf) 
+{
 	net* n = malloc(sizeof(net));
 
 	if (n == NULL)
@@ -24,7 +26,8 @@ net* init_net (double learning_rate) {
 	memset(n, 0, sizeof(net));
 	n->connected = NET_NOT_CONNECTED;
 	n->learning_rate = learning_rate;
-	n->costf = QUADRATIC;
+	n->momentum = momentum;
+	n->costf = costf;
 
 	n->topology = NULL;
 	n->layers = NULL;
@@ -33,7 +36,8 @@ net* init_net (double learning_rate) {
 
 
 /* init_layer() [net-internal.h] */
-error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
+error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) 
+{
 	if (l == NULL) return E_NULL_ARG;
 	
 	l->ltype = lt;
@@ -45,7 +49,8 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
 	l->output = NULL;
 	l->layer_error = NULL;
 	l->weight_delta = NULL;
-	
+	l->last_weight_delta = NULL;
+
 	/* Output layer has no weights or bias */
 	if (lt == input) {
 		l->weights = NULL;
@@ -65,7 +70,8 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
  * -> Add verbose mode
  * -> Return error on unconnected net 
  */
-error_t train (net* n, data_set* data, int epochs) {
+error_t train (net* n, data_set* data, int epochs) 
+{
 	double total_err = 0.0;
 	double avg_err = 0.0;
 	
@@ -115,7 +121,8 @@ error_t train (net* n, data_set* data, int epochs) {
 
 
 /* TODO: Fix function to better handle errors */
-cml_data* predict (net* n, cml_data* input) {
+cml_data* predict (net* n, cml_data* input) 
+{
 	int last_layer = n->layer_count - 1;
 
 	matrix_t* input_matrix = NULL;
@@ -133,8 +140,10 @@ cml_data* predict (net* n, cml_data* input) {
 	return data;
 }
 
-/**/
-error_t free_net (net* n) {
+
+/* free_net() */
+error_t free_net (net* n) 
+{
 	if (n == NULL)
 		return E_NULL_ARG;
 
@@ -155,7 +164,8 @@ error_t free_net (net* n) {
  * will be the responsibility of the creator of the net to dealloc.
  *
  */
-error_t free_layer (layer* l) {
+error_t free_layer (layer* l) 
+{
 	if (l == NULL)
 		return E_NULL_ARG;
 
@@ -178,7 +188,8 @@ error_t free_layer (layer* l) {
  *	input => Input matrix to feed through the net
  *
  */
-static error_t feed_forward (net* n, matrix_t* input) {
+static error_t feed_forward (net* n, matrix_t* input) 
+{
 	layer* clayer;
 	
 	if (n == NULL || input == NULL)
@@ -213,8 +224,9 @@ static error_t feed_forward (net* n, matrix_t* input) {
 		
 		map_vector(clayer->output, clayer->actf.af);
 		
-		if (clayer->ltype != output) 
+		if (clayer->ltype != output) {
 			n->layers[i+1]->input = clayer->output;
+		}
 	}
 
 	return E_SUCCESS;
@@ -234,7 +246,8 @@ static error_t feed_forward (net* n, matrix_t* input) {
  * 	SUCCESS => Successfully backproped the network
  * 	FAILURE => Could not backprop the network
  */
-static error_t backprop (net* n, matrix_t* expected) {
+static error_t backprop (net* n, matrix_t* expected) 
+{
 	error_t e;
 
 	/* Check for NULL args */
@@ -266,7 +279,8 @@ static error_t backprop (net* n, matrix_t* expected) {
  * 	SUCCESS => Calculated error successfully
  * 	FAILURE => Could not calculate error 
  */
-static error_t net_error (net* n, matrix_t* expected) {
+static error_t net_error (net* n, matrix_t* expected) 
+{
 
 	/* Backprop has already checked, but lets check again! */
 	if (n == NULL || expected == NULL)
@@ -285,12 +299,10 @@ static error_t net_error (net* n, matrix_t* expected) {
 			tweights = transpose_r(nlayer->weights);
 			err = matrix_vector_mult(tweights, nlayer->layer_error, &buff_err);
 		} else {
-			//err = matrix_subtraction(clayer->output, expected, &buff_err);	
 			err = calculate_cost_gradient(n, expected, &buff_err);
 		}
 
 		if (err != E_SUCCESS) return err;
-		
 		/* g'(z) */	
 		map_vector(clayer->output, clayer->actf.ap);
 		
@@ -298,7 +310,6 @@ static error_t net_error (net* n, matrix_t* expected) {
 		clayer->layer_error = malloc(sizeof(matrix_t));
 		err = multiply_vector(buff_err, clayer->output, &clayer->layer_error);
 		if (err != E_SUCCESS) return err;
-	
 		matrix_t* transposed_input = transpose_r(clayer->input);
 		
 		/* Get weight delta matrix */
@@ -324,7 +335,8 @@ static error_t net_error (net* n, matrix_t* expected) {
  * 	SUCCESS => Updated weights successfully 
  * 	FAILURE => Could not update weights
  */
-static error_t update_weights (net* n) {
+static error_t update_weights (net* n) 
+{
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
 		matrix_t* f_weights = malloc(sizeof(matrix_t));
@@ -332,15 +344,32 @@ static error_t update_weights (net* n) {
 		error_t err;
 		err = matrix_scalar_mult(clayer->weight_delta, n->learning_rate);
 		if (err != E_SUCCESS) return err;
+		
+		/* Calculate the momentum term, note that I didn't implement the 
+		 * matrix_addition() function, so for now, we will subtract the 
+		 * negative instead
+		 */
+		if (clayer->last_weight_delta != NULL) {
+			err = matrix_scalar_mult(clayer->last_weight_delta, n->momentum * -1);
+			if (err != E_SUCCESS) return err;
+			
+			matrix_t* buff_delta = malloc(sizeof(matrix_t));
+			err = matrix_subtraction(clayer->weight_delta, clayer->last_weight_delta, &buff_delta);
+			if (err != E_SUCCESS) return err;
 
+			err = copy_matrix(buff_delta, clayer->weight_delta);
+			if (err != E_SUCCESS) return err;
+			free_matrix(buff_delta);
+		}
+
+		/**/
 		err = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
 		if (err != E_SUCCESS) return err;
-
-		/* Free old memory */
-		free_matrix(clayer->weights);
-		free_matrix(clayer->weight_delta);
 		
-		/* Set new weights */
+		free_matrix(clayer->last_weight_delta);
+		free_matrix(clayer->weights);
+		
+		clayer->last_weight_delta = clayer->weight_delta;
 		clayer->weights = f_weights;
 	}	
 	return E_SUCCESS;
@@ -356,7 +385,8 @@ static error_t update_weights (net* n) {
  * 	SUCCESS => Updated the biases
  * 	FAILURE => Could not update the weights
  */
-static error_t update_bias (net* n) {
+static error_t update_bias (net* n) 
+{
 	if (n == NULL)
 		return E_NULL_ARG;
 

@@ -16,11 +16,6 @@
  */
 
 
-enum InputType {
-	T_DOUBLE,
-	T_STR,
-};
-
 /* Implementation of layer structure */
 typedef struct layer {
 	layer_type ltype;
@@ -33,6 +28,7 @@ typedef struct layer {
 	matrix_t* weights;
 	matrix_t* layer_error;
 	matrix_t* weight_delta;
+	matrix_t* last_weight_delta;
 	activation_f actf;
 } layer;
 
@@ -43,67 +39,13 @@ typedef struct net {
 	int layer_count;
 	int* topology;
 	double learning_rate;
+	double momentum;
 	int connected; // See defines below
 	cost_func_t costf; // Type of cost function 
 } net;
 
 #define NET_CONNECTED 1
 #define NET_NOT_CONNECTED -1
-
-
-/* Implementation of cml_data struct */
-typedef struct cml_data {
-	void** items;
-	enum InputType* types;
-	unsigned int count;
-	unsigned int pos;
-} cml_data;
-
-
-/* struct data_pair
- *
- *	This structure contains two matrices, one for the input to the 
- *	net, and the expected output for the input. This allows for the 
- *	data to be passed around easier, and for parsing the data. 
- *
- *	Note this is not exposed at all in the public interface. 
- */
-typedef struct data_pair {
-	cml_data* input;
-	cml_data* expected_output;
-} data_pair;
-
-
-/* Implementation of data_set */
-typedef struct data_set {
-
-	/* Holds all feature names */
-	char** feature_names;
-	enum InputType* feature_types;
-	int feature_count;
-	
-	/* Data */
-	data_pair** data;
-	int count;
-	
-	/* Holds the two kinds of data sets; training and test. There is 
-	 * currently no validation set 
-	 */
-	data_pair** training_set;
-	data_pair** test_set;
-	int training_count, test_count;
-
-	/* Hold the raw data that is input */
-	char** input_features;
-	int input_feature_count;
-	int features_specified;
-	cml_data** raw_data;
-	int raw_count;
-} data_set;
-
-/* Used to determine if input features have been specified */  
-#define FEATURES_SPECIFIED 1
-#define NO_FEATURES_SPECIFIED 0
 
 
 /* init_layer (net.c)
@@ -170,10 +112,5 @@ error_t calculate_cost_gradient(net* n, matrix_t* expected, matrix_t** result);
  */
 
 /* TODO: docs */
-error_t cml_data_to_matrix(cml_data* data, matrix_t** m);
-error_t matrix_to_cml_data(matrix_t* m, cml_data** data);
-data_pair* init_data_pair(cml_data* input, cml_data* output);
-error_t add_data_pair (data_set* set, data_pair* pair);
-error_t free_data_pair(data_pair* pair);
 
 #endif

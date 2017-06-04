@@ -15,6 +15,11 @@ set_target_properties(sin_test PROPERTIES COMPILE_FLAGS ${TEST_COMPILE_FLAGS})
 target_link_libraries(sin_test m)
 target_link_libraries(sin_test ${CMAKE_PROJECT_NAME})
 
+# XOR TEST
+add_executable(xor_test xor_test.c)
+set_target_properties(xor_test PROPERTIES COMPILE_FLAGS ${TEST_COMPILE_FLAGS})
+target_link_libraries(xor_test m)
+target_link_libraries(xor_test ${CMAKE_PROJECT_NAME})
 
 # ERROR TEST
 add_executable(err_test err_test.c)

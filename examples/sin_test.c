@@ -2,6 +2,7 @@
 #include <math.h>
 #include "matrix.h"
 #include "cml.h"
+#include "data-builder.h"
 
 void print_m (matrix_t* m) {
 	for (int i = 0; i < m->rows; i++) {
@@ -11,18 +12,6 @@ void print_m (matrix_t* m) {
 		printf("\n");
 	}
 }
-
-/*	Sigmoid function and its derivative
- */
-double sigmoid (double val) {
-	double ret = 1 / (1 + exp(-val));
-	return ret;
-}
-
-double sigmoid_prime (double val) {
-	return val * (1 - val);
-}
-
 
 int main() {
 	int topology[4] = { 1, 5, 5, 1 };
@@ -48,7 +37,7 @@ int main() {
 	printf("Read %d lines\n", lines);
 
 
-	net* nn = init_net(0.1);
+	net* nn = init_net(0.1, 0.9, QUADRATIC);
 	
 	/* Build the layers */
 	layer* layers[4] = { 
@@ -68,6 +57,7 @@ int main() {
 	assert(err == E_SUCCESS);
 	
 	err = train(nn, data, 10);
+	print_cml_error(stdout, "Training Error", err);
 	assert(err == E_SUCCESS);
 
 	printf("\n\nRESULTS:\n");

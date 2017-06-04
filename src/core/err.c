@@ -14,6 +14,8 @@ struct _errorstr {
 } errorstr[] = {
 	{ E_SUCCESS, "No error" },
 	{ E_FAILURE, "Generic Failure" },
+	{ E_NULL_ARG, "Null argument passed to function" },
+	{ E_ALLOC_FAILURE, "Failed to allocate memory" },
 	{ E_MATRIX_WRONG_DIM, "Matrix is wrong size for operation" },
 	{ E_ZERO_DIM_MATRIX, "Matrix has no dimensions. Try init_matrix()" },
 	{ E_NOT_VECTOR, "Expected vector and got matrix" },
@@ -29,7 +31,8 @@ struct _errorstr {
 	{ E_NO_CALLBACK_GIVEN, "No callback provided, check function docs" },
 };
 
-void print_cml_error (FILE* fh, char* message, error_t err) {
+void print_cml_error (FILE* fh, char* message, error_t err) 
+{
 	if ( fh == NULL ) return;
 
 	if ( message != NULL ) {
