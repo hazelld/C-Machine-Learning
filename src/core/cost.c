@@ -21,7 +21,6 @@ static error_t cross_entropy_gradient (matrix_t* o, matrix_t* e, matrix_t** resu
 /* calculate_cost_func() */
 double calculate_cost_func (net* n, matrix_t* expected) 
 {
-
 	matrix_t* output = n->layers[n->layer_count - 1]->output;
 
 	switch (n->costf) {

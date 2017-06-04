@@ -13,7 +13,8 @@ static error_t set_feature_types(data_set* ds, char** features, int size);
 static error_t shuffle_data (data_set* ds, double split);
 
 /* init_cml_data() */
-cml_data* init_cml_data () {
+cml_data* init_cml_data () 
+{
 	cml_data* new_data = calloc(1, sizeof(cml_data));
 	new_data->items = NULL;
 	new_data->types = NULL;
@@ -22,12 +23,14 @@ cml_data* init_cml_data () {
 
 
 /* get_value_at() */
-double get_value_at (cml_data* data, int index) {
+double get_value_at (cml_data* data, int index) 
+{
 	return *((double*) data->items[index]);
 }
 
 /* add_to_cml_data() */
-error_t add_to_cml_data (cml_data* data, void* value) {
+error_t add_to_cml_data (cml_data* data, void* value) 
+{
 	if (data == NULL || value == NULL) return E_NULL_ARG;
 
 	unsigned int oldnum = data->count++;
@@ -38,8 +41,8 @@ error_t add_to_cml_data (cml_data* data, void* value) {
 
 
 /* copy_cml_data() */
-error_t copy_cml_data (cml_data* src, cml_data** dst) {
-	
+error_t copy_cml_data (cml_data* src, cml_data** dst) 
+{	
 	if (src == NULL || dst == NULL)
 		return E_NULL_ARG;
 
@@ -56,9 +59,9 @@ error_t copy_cml_data (cml_data* src, cml_data** dst) {
 }
 
 
-
 /* cml_data_to_matrix() */
-error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
+error_t cml_data_to_matrix (cml_data* data, matrix_t** m) 
+{
 	if (data == NULL || m == NULL)
 		return E_NULL_ARG;
 
@@ -77,7 +80,8 @@ error_t cml_data_to_matrix (cml_data* data, matrix_t** m) {
 
 
 /* matrix_to_cml_data() */
-error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
+error_t matrix_to_cml_data (matrix_t* m, cml_data** data) 
+{
 	if (m == NULL || data == NULL)
 		return E_NULL_ARG;
 
@@ -96,7 +100,8 @@ error_t matrix_to_cml_data (matrix_t* m, cml_data** data) {
 }
 
 /* free_cml_data() */
-error_t free_cml_data (cml_data*  data) {
+error_t free_cml_data (cml_data*  data) 
+{
 	if (data == NULL) return E_NULL_ARG;
 
 	for (int i = 0; i < data->count; i++)
@@ -108,7 +113,8 @@ error_t free_cml_data (cml_data*  data) {
 
 
 /* init_data_pair() */
-data_pair* init_data_pair (cml_data* input, cml_data* output) {
+data_pair* init_data_pair (cml_data* input, cml_data* output) 
+{
 	if (input == NULL || output == NULL)
 		return NULL;
 
@@ -120,7 +126,8 @@ data_pair* init_data_pair (cml_data* input, cml_data* output) {
 }
 
 /* free_data_pair() */
-error_t free_data_pair (data_pair* pair) {
+error_t free_data_pair (data_pair* pair) 
+{
 	if (pair == NULL) return E_NULL_ARG;
 
 	free_cml_data(pair->input);
@@ -130,8 +137,8 @@ error_t free_data_pair (data_pair* pair) {
 }
 
 /* add_data_pair() */
-error_t add_data_pair (data_set* set, data_pair* pair) {
-	
+error_t add_data_pair (data_set* set, data_pair* pair) 
+{	
 	if (set == NULL || pair == NULL)
 		return E_NULL_ARG;
 
@@ -146,7 +153,8 @@ error_t add_data_pair (data_set* set, data_pair* pair) {
 /* add_cml_data() 
  * TODO: Add type here ? 
  * */
-error_t add_cml_data (data_set* ds, cml_data* data) {
+error_t add_cml_data (data_set* ds, cml_data* data) 
+{
 	if (ds == NULL || data == NULL) return E_NULL_ARG;
 
 	ds->raw_data = realloc(ds->raw_data, sizeof(cml_data*) * ++ds->raw_count);
@@ -155,7 +163,8 @@ error_t add_cml_data (data_set* ds, cml_data* data) {
 }
 
 /* init_data_set() */
-data_set* init_data_set () {
+data_set* init_data_set () 
+{
 	data_set* ds = calloc(1, sizeof(data_set));
 	ds->features_specified = NO_FEATURES_SPECIFIED;
 	ds->feature_names = NULL;
@@ -169,7 +178,8 @@ data_set* init_data_set () {
 }
 
 /* free_data_set() */
-error_t free_data_set(data_set* ds) {
+error_t free_data_set(data_set* ds) 
+{
 	if (ds == NULL) return E_NULL_ARG;
 	error_t err;
 
@@ -216,7 +226,8 @@ error_t free_data_set(data_set* ds) {
  * -> Split this into test, train, validation sets based on the user
  *    defined split amount.
  */
-error_t split_data (data_set* ds, double training_split) {
+error_t split_data (data_set* ds, double training_split) 
+{
 	if (ds == NULL) return E_NULL_ARG;
 	if (ds->features_specified == NO_FEATURES_SPECIFIED)
 		return E_NO_INPUT_FEATURES_SPECIFIED;
@@ -231,7 +242,8 @@ error_t split_data (data_set* ds, double training_split) {
 }
 
 /* shuffle_data() */
-static error_t shuffle_data (data_set* ds, double split) {
+static error_t shuffle_data (data_set* ds, double split) 
+{
 
 	/* This is horribly inefficient and probably not completely random, 
 	 * will have to circle back on this */
@@ -267,7 +279,8 @@ static error_t shuffle_data (data_set* ds, double split) {
 	return E_SUCCESS;
 }
 
-static error_t convert_raw_into_pairs (data_set* ds) {
+static error_t convert_raw_into_pairs (data_set* ds) 
+{
 	if (ds == NULL) return E_NULL_ARG;
 	if (ds->input_feature_count > ds->feature_count) 
 		return E_FAILURE;
@@ -333,7 +346,8 @@ static error_t convert_raw_into_pairs (data_set* ds) {
 }
 
 /* set_input_features() */
-error_t set_input_features (data_set* ds, char** features, int count) {
+error_t set_input_features (data_set* ds, char** features, int count) 
+{
 	if (ds == NULL || features == NULL) return E_NULL_ARG;
 	if (count < 0 || count > ds->feature_count)
 		return E_INVALID_FEATURE_COUNT;
@@ -350,7 +364,8 @@ error_t set_input_features (data_set* ds, char** features, int count) {
 }
 
 /* get_feature_names() */
-error_t get_feature_names (data_set* ds, char*** features, int* size) {
+error_t get_feature_names (data_set* ds, char*** features, int* size) 
+{
 	if (ds == NULL || features == NULL || size == NULL) 
 		return E_NULL_ARG;
 
@@ -365,7 +380,8 @@ error_t get_feature_names (data_set* ds, char*** features, int* size) {
 }
 
 /* data_set_from_csv() */
-error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) {
+error_t data_set_from_csv (data_set* ds, FILE* fh, int* lineno) 
+{
 	error_t err;
 	int line = 0;
 	int count;
@@ -418,7 +434,8 @@ error:
 
 
 /* str_to_cml_data */
-static error_t str_to_cml_data (data_set* ds, cml_data* data, char** str, int count) {
+static error_t str_to_cml_data (data_set* ds, cml_data* data, char** str, int count) 
+{
 	error_t err;
 
 	if (ds->feature_count != count)
@@ -444,7 +461,8 @@ static error_t str_to_cml_data (data_set* ds, cml_data* data, char** str, int co
 }
 
 /* add_feature_name */
-static error_t add_feature_name (data_set* ds, char* name) {
+static error_t add_feature_name (data_set* ds, char* name) 
+{
 	if (ds == NULL || name == NULL) return E_NULL_ARG;
 
 	ds->feature_names = realloc(ds->feature_names, sizeof(char*) * ++ds->feature_count);
@@ -454,7 +472,8 @@ static error_t add_feature_name (data_set* ds, char* name) {
 }
 
 /* set_feature_types */
-static error_t set_feature_types (data_set* ds, char** features, int size) {
+static error_t set_feature_types (data_set* ds, char** features, int size) 
+{
 	int i = 0;
 	
 	ds->feature_types = malloc(sizeof(enum InputType) * ds->feature_count);

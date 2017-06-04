@@ -9,7 +9,8 @@ static error_t find_and_move_layer (net* n, layer_type type, int index);
 static void swap_layers (net* n, int index1, int index2);
 
 /* build_layer() */
-layer* build_layer (layer_type lt, int bias, int nodes, activation_f actf) {
+layer* build_layer (layer_type lt, int bias, int nodes, activation_f actf) 
+{
 	layer* l = malloc(sizeof(layer));
 	
 	if (l == NULL)
@@ -30,7 +31,8 @@ layer* build_layer (layer_type lt, int bias, int nodes, activation_f actf) {
 }
 
 /* add_layer() */
-error_t add_layer (net* nn, layer* l) {
+error_t add_layer (net* nn, layer* l) 
+{
 	if (nn == NULL || l == NULL)
 		return E_NULL_ARG;
 
@@ -56,7 +58,8 @@ error_t add_layer (net* nn, layer* l) {
 
 
 /* connect_net */
-error_t connect_net (net* n) {
+error_t connect_net (net* n) 
+{
 	error_t err;
 	if (n == NULL) return E_NULL_ARG;
 
@@ -91,8 +94,8 @@ error_t connect_net (net* n) {
 }
 
 
-static error_t find_and_move_layer (net* n, layer_type type, int index) {
-	
+static error_t find_and_move_layer (net* n, layer_type type, int index) 
+{	
 	for (int i = 0; i < n->layer_count; i++) {
 		if (n->layers[i]->ltype == type) {
 			swap_layers(n, i, index);
@@ -117,8 +120,8 @@ static error_t find_and_move_layer (net* n, layer_type type, int index) {
 }
 
 
-static void swap_layers (net* n, int index1, int index2) {
-	
+static void swap_layers (net* n, int index1, int index2) 
+{	
 	if (index1 > n->layer_count || index2 > n->layer_count)
 		return;
 

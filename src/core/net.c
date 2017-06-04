@@ -16,7 +16,8 @@ static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* 
 /* PUBLIC FUNCTIONS */
 
 /* init_net() */
-net* init_net (double learning_rate, cost_func_t costf) {
+net* init_net (double learning_rate, cost_func_t costf) 
+{
 	net* n = malloc(sizeof(net));
 
 	if (n == NULL)
@@ -34,7 +35,8 @@ net* init_net (double learning_rate, cost_func_t costf) {
 
 
 /* init_layer() [net-internal.h] */
-error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
+error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) 
+{
 	if (l == NULL) return E_NULL_ARG;
 	
 	l->ltype = lt;
@@ -66,7 +68,8 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node) {
  * -> Add verbose mode
  * -> Return error on unconnected net 
  */
-error_t train (net* n, data_set* data, int epochs) {
+error_t train (net* n, data_set* data, int epochs) 
+{
 	double total_err = 0.0;
 	double avg_err = 0.0;
 	
@@ -116,7 +119,8 @@ error_t train (net* n, data_set* data, int epochs) {
 
 
 /* TODO: Fix function to better handle errors */
-cml_data* predict (net* n, cml_data* input) {
+cml_data* predict (net* n, cml_data* input) 
+{
 	int last_layer = n->layer_count - 1;
 
 	matrix_t* input_matrix = NULL;
@@ -134,8 +138,10 @@ cml_data* predict (net* n, cml_data* input) {
 	return data;
 }
 
-/**/
-error_t free_net (net* n) {
+
+/* free_net() */
+error_t free_net (net* n) 
+{
 	if (n == NULL)
 		return E_NULL_ARG;
 
@@ -156,7 +162,8 @@ error_t free_net (net* n) {
  * will be the responsibility of the creator of the net to dealloc.
  *
  */
-error_t free_layer (layer* l) {
+error_t free_layer (layer* l) 
+{
 	if (l == NULL)
 		return E_NULL_ARG;
 
@@ -179,7 +186,8 @@ error_t free_layer (layer* l) {
  *	input => Input matrix to feed through the net
  *
  */
-static error_t feed_forward (net* n, matrix_t* input) {
+static error_t feed_forward (net* n, matrix_t* input) 
+{
 	layer* clayer;
 	
 	if (n == NULL || input == NULL)
@@ -235,7 +243,8 @@ static error_t feed_forward (net* n, matrix_t* input) {
  * 	SUCCESS => Successfully backproped the network
  * 	FAILURE => Could not backprop the network
  */
-static error_t backprop (net* n, matrix_t* expected) {
+static error_t backprop (net* n, matrix_t* expected) 
+{
 	error_t e;
 
 	/* Check for NULL args */
@@ -267,7 +276,8 @@ static error_t backprop (net* n, matrix_t* expected) {
  * 	SUCCESS => Calculated error successfully
  * 	FAILURE => Could not calculate error 
  */
-static error_t net_error (net* n, matrix_t* expected) {
+static error_t net_error (net* n, matrix_t* expected) 
+{
 
 	/* Backprop has already checked, but lets check again! */
 	if (n == NULL || expected == NULL)
@@ -322,7 +332,8 @@ static error_t net_error (net* n, matrix_t* expected) {
  * 	SUCCESS => Updated weights successfully 
  * 	FAILURE => Could not update weights
  */
-static error_t update_weights (net* n) {
+static error_t update_weights (net* n) 
+{
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
 		matrix_t* f_weights = malloc(sizeof(matrix_t));
@@ -354,7 +365,8 @@ static error_t update_weights (net* n) {
  * 	SUCCESS => Updated the biases
  * 	FAILURE => Could not update the weights
  */
-static error_t update_bias (net* n) {
+static error_t update_bias (net* n) 
+{
 	if (n == NULL)
 		return E_NULL_ARG;
 

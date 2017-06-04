@@ -31,7 +31,8 @@ struct _errorstr {
 	{ E_NO_CALLBACK_GIVEN, "No callback provided, check function docs" },
 };
 
-void print_cml_error (FILE* fh, char* message, error_t err) {
+void print_cml_error (FILE* fh, char* message, error_t err) 
+{
 	if ( fh == NULL ) return;
 
 	if ( message != NULL ) {

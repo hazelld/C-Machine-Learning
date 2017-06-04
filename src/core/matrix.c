@@ -8,7 +8,8 @@ static void seed_rng() {
 }
 
 
-error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns) {
+error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns) 
+{
 	if (m == NULL) return E_NULL_ARG;
 
 	m->rows = rows;
@@ -27,7 +28,8 @@ error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns) {
 }
 
 
-error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result) {
+error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result) 
+{
 	
 	if (m == NULL || vec == NULL || *result == NULL || result == NULL)
 		return E_NULL_ARG;
@@ -54,7 +56,8 @@ error_t matrix_vector_mult(matrix_t* m, matrix_t* vec, matrix_t** result) {
 }
 
 
-error_t matrix_scalar_mult (matrix_t* m, double scalar) {
+error_t matrix_scalar_mult (matrix_t* m, double scalar) 
+{
 	if (m == NULL) return E_NULL_ARG;
 
 	for (int i = 0; i < m->rows; i++) {
@@ -65,7 +68,8 @@ error_t matrix_scalar_mult (matrix_t* m, double scalar) {
 	return E_SUCCESS;
 }
 
-error_t vector_scalar_addition (matrix_t* m, double scalar) {	
+error_t vector_scalar_addition (matrix_t* m, double scalar) 
+{	
 	if (m == NULL)
 		return E_NULL_ARG;
 	
@@ -82,7 +86,8 @@ error_t vector_scalar_addition (matrix_t* m, double scalar) {
 }
 
 
-error_t map_vector (matrix_t* vec, double (*f)(double)) {
+error_t map_vector (matrix_t* vec, double (*f)(double)) 
+{
 	if (f == NULL)
 		return E_NULL_ARG;
 	
@@ -93,7 +98,8 @@ error_t map_vector (matrix_t* vec, double (*f)(double)) {
 }
 
 
-error_t map_matrix (matrix_t* m, double(*f)(double)) {
+error_t map_matrix (matrix_t* m, double(*f)(double)) 
+{
 	if (m == NULL || f == NULL) 
 		return E_NULL_ARG;
 
@@ -109,7 +115,8 @@ error_t map_matrix (matrix_t* m, double(*f)(double)) {
 }
 
 
-error_t matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result) {
+error_t matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result) 
+{
 	
 	if (m == NULL || n == NULL || result == NULL || *result == NULL)
 		return E_NULL_ARG;
@@ -128,7 +135,8 @@ error_t matrix_subtraction (matrix_t* m, matrix_t* n, matrix_t** result) {
 }
 
 
-error_t transpose (matrix_t** m) {
+error_t transpose (matrix_t** m) 
+{
 	matrix_t* old_matrix = *m;
 	matrix_t* new_matrix = malloc(sizeof(matrix_t));
 	init_matrix(new_matrix, (*m)->columns, (*m)->rows);
@@ -146,7 +154,8 @@ error_t transpose (matrix_t** m) {
 }
 
 
-matrix_t* transpose_r (matrix_t* const m) {
+matrix_t* transpose_r (matrix_t* const m) 
+{
 	matrix_t* new_matrix = malloc(sizeof(matrix_t));
 	init_matrix(new_matrix, m->columns, m->rows);
 
@@ -159,7 +168,8 @@ matrix_t* transpose_r (matrix_t* const m) {
 }
 
 
-error_t multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result) {
+error_t multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result) 
+{
 	if (m == NULL || n == NULL || result == NULL || *result == NULL)
 		return E_NULL_ARG;
 
@@ -179,7 +189,8 @@ error_t multiply_vector(matrix_t* m, matrix_t* n, matrix_t** result) {
 }
 
 
-matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) {
+matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interval) 
+{
 	matrix_t* random_matrix = malloc(sizeof(matrix_t));
 	init_matrix(random_matrix, rows, columns);
 	double div = RAND_MAX / (interval * 2);
@@ -193,7 +204,8 @@ matrix_t* random_matrix (unsigned int rows, unsigned int columns, double interva
 }
 
 
-error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
+error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) 
+{
 	if (vec1 == NULL || vec2 == NULL || result == NULL || *result == NULL)
 		return E_NULL_ARG;
 	
@@ -226,7 +238,8 @@ error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result) {
 }
 
 
-error_t copy_matrix (matrix_t* src, matrix_t* dest) {
+error_t copy_matrix (matrix_t* src, matrix_t* dest) 
+{
 	if (src == NULL || dest == NULL)
 		return E_NULL_ARG;
 
@@ -240,7 +253,8 @@ error_t copy_matrix (matrix_t* src, matrix_t* dest) {
 	return E_SUCCESS;
 }
 
-error_t free_matrix (matrix_t* m) {
+error_t free_matrix (matrix_t* m) 
+{
 	if (m == NULL) 
 		return E_NULL_ARG;
 
@@ -253,7 +267,8 @@ error_t free_matrix (matrix_t* m) {
 }
 
 
-void print_matrix (FILE* fh, matrix_t* m) {
+void print_matrix (FILE* fh, matrix_t* m) 
+{
 	for (int i = 0; i < m->rows; i++) {
 		for (int j = 0; j < m->columns; j++) {
 			fprintf(fh, "%lf ", m->matrix[i][j]);
