@@ -13,18 +13,6 @@ void print_m (matrix_t* m) {
 	}
 }
 
-/*	Sigmoid function and its derivative
- */
-double sigmoid (double val) {
-	double ret = 1 / (1 + exp(-val));
-	return ret;
-}
-
-double sigmoid_prime (double val) {
-	return val * (1 - val);
-}
-
-
 int main() {
 	int topology[4] = { 1, 5, 5, 1 };
 	data_set* data;

@@ -294,16 +294,21 @@ static error_t convert_raw_into_pairs (data_set* ds)
 	int* output_cols = malloc(sizeof(int) * output_features);
 	
 	in = out = 0;
-	for (int j = 0; j < ds->input_feature_count; j++) {
-		for (int i = 0; i < ds->feature_count; i++) {
-			if (strcmp(ds->feature_names[i], ds->input_features[j]) == 0)
+	for (int i = 0; i < ds->feature_count; i++) {
+		int input_flag = 0;
+		for (int j = 0; j < ds->input_feature_count; j++) {
+			if (strcmp(ds->feature_names[i], ds->input_features[j]) == 0) {
 				input_cols[in++] = i;
-			else
-				output_cols[out++] = i;
+				input_flag++;
+				break;
+			}
 		}
+		if (input_flag == 0) 
+			output_cols[out++] = i;
 	}
-	
-	/* Go through each raw data item, split it into a pair data struct, then 
+
+	/* 
+	 * Go through each raw data item, split it into a pair data struct, then 
 	 * free the old one.
 	 */
 	for (int i = 0; i < ds->raw_count; i++) {

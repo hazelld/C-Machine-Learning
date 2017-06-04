@@ -222,8 +222,9 @@ static error_t feed_forward (net* n, matrix_t* input)
 		
 		map_vector(clayer->output, clayer->actf.af);
 		
-		if (clayer->ltype != output) 
+		if (clayer->ltype != output) {
 			n->layers[i+1]->input = clayer->output;
+		}
 	}
 
 	return E_SUCCESS;
