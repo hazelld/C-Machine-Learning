@@ -60,7 +60,7 @@ test_add_layer_extra_layers(const MunitParameter params[], void* data) {
 	for (int i = 0; i < 2; i++) {
 		
 		/* Build the structures */
-		net* n = init_net(0.1);
+		net* n = init_net(0.1, QUADRATIC);
 		layer* l_one = build_layer(types[i], 0, 10, actf);
 		layer* l_two = build_layer(types[i], 0, 10, actf);
 		
@@ -92,7 +92,7 @@ test_add_layer_duplicate_layers(const MunitParameter params[], void* data) {
 	activation_f actf;
 	get_activation_f(&actf, SIGMOID, NULL, NULL);
 
-	net* n = init_net(0.1);
+	net* n = init_net(0.1, QUADRATIC);
 	layer* l = build_layer(input, 0, 10, actf);
 
 	err = add_layer(n, l);
@@ -122,7 +122,7 @@ test_add_layer(const MunitParameter params[], void* data) {
 	get_activation_f(&actf, SIGMOID, NULL, NULL);
 	int lcount;
 
-	net* n = init_net(1);
+	net* n = init_net(1, QUADRATIC);
 	lcount = n->layer_count;
 	munit_assert(lcount == 0);
 
@@ -260,7 +260,7 @@ static void _shuffle_layers (layer** l, int size) {
  */
 static net* _build_net (int hidden_layers, layer_type missing_lt) {
 	
-	net* n = init_net(1);
+	net* n = init_net(1, QUADRATIC);
 	activation_f actf;
 	get_activation_f(&actf, SIGMOID, NULL, NULL);
 	

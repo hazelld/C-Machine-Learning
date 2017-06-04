@@ -108,6 +108,7 @@ typedef struct activation_f {
 */
 typedef enum cost_functions {
 	QUADRATIC,
+	CROSS_ENTROPY,
 } cost_func_t;
 
 
@@ -172,7 +173,7 @@ void print_cml_error (FILE* fh, char* message, error_t err);
 * this function returns NULL.
 *
 */
-net* init_net (double learning_rate);
+net* init_net (double learning_rate, cost_func_t costf);
 
 
 /* train

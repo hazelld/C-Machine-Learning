@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cml.h"
@@ -15,7 +16,7 @@ static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* 
 /* PUBLIC FUNCTIONS */
 
 /* init_net() */
-net* init_net (double learning_rate) {
+net* init_net (double learning_rate, cost_func_t costf) {
 	net* n = malloc(sizeof(net));
 
 	if (n == NULL)
@@ -24,7 +25,7 @@ net* init_net (double learning_rate) {
 	memset(n, 0, sizeof(net));
 	n->connected = NET_NOT_CONNECTED;
 	n->learning_rate = learning_rate;
-	n->costf = QUADRATIC;
+	n->costf = costf;
 
 	n->topology = NULL;
 	n->layers = NULL;
@@ -285,12 +286,10 @@ static error_t net_error (net* n, matrix_t* expected) {
 			tweights = transpose_r(nlayer->weights);
 			err = matrix_vector_mult(tweights, nlayer->layer_error, &buff_err);
 		} else {
-			//err = matrix_subtraction(clayer->output, expected, &buff_err);	
 			err = calculate_cost_gradient(n, expected, &buff_err);
 		}
 
 		if (err != E_SUCCESS) return err;
-		
 		/* g'(z) */	
 		map_vector(clayer->output, clayer->actf.ap);
 		
@@ -298,7 +297,6 @@ static error_t net_error (net* n, matrix_t* expected) {
 		clayer->layer_error = malloc(sizeof(matrix_t));
 		err = multiply_vector(buff_err, clayer->output, &clayer->layer_error);
 		if (err != E_SUCCESS) return err;
-	
 		matrix_t* transposed_input = transpose_r(clayer->input);
 		
 		/* Get weight delta matrix */

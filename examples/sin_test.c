@@ -49,7 +49,7 @@ int main() {
 	printf("Read %d lines\n", lines);
 
 
-	net* nn = init_net(0.1);
+	net* nn = init_net(0.1, QUADRATIC);
 	
 	/* Build the layers */
 	layer* layers[4] = { 
@@ -69,6 +69,7 @@ int main() {
 	assert(err == E_SUCCESS);
 	
 	err = train(nn, data, 10);
+	print_cml_error(stdout, "Training Error", err);
 	assert(err == E_SUCCESS);
 
 	printf("\n\nRESULTS:\n");
