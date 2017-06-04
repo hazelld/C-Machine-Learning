@@ -35,6 +35,9 @@ int main() {
 	/* Don't need a testing set, so split data as 100% training */
 	err = split_data(data, 1);
 	
+	data->test_set = data->training_set;
+	data->test_count = data->training_count;
+
 	/* Initialize the net with the learning rate and the type of cost func */
 	net* nn = init_net(0.2, CROSS_ENTROPY);
 
@@ -101,7 +104,8 @@ int main() {
 			free_cml_data(ret);
 		}
 	}
-
+	
+	data->test_set = NULL;
 	fclose(fh);
 	free_data_set(data);
 	free_net(nn);
