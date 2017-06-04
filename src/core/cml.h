@@ -173,7 +173,7 @@ void print_cml_error (FILE* fh, char* message, error_t err);
 * this function returns NULL.
 *
 */
-net* init_net (double learning_rate, cost_func_t costf);
+net* init_net (double learning_rate, double momentum, cost_func_t costf);
 
 
 /* train

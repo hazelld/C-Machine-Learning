@@ -28,6 +28,7 @@ typedef struct layer {
 	matrix_t* weights;
 	matrix_t* layer_error;
 	matrix_t* weight_delta;
+	matrix_t* last_weight_delta;
 	activation_f actf;
 } layer;
 
@@ -38,6 +39,7 @@ typedef struct net {
 	int layer_count;
 	int* topology;
 	double learning_rate;
+	double momentum;
 	int connected; // See defines below
 	cost_func_t costf; // Type of cost function 
 } net;

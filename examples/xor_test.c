@@ -39,7 +39,7 @@ int main() {
 	data->test_count = data->training_count;
 
 	/* Initialize the net with the learning rate and the type of cost func */
-	net* nn = init_net(0.2, CROSS_ENTROPY);
+	net* nn = init_net(0.1, 0.9, CROSS_ENTROPY);
 
 	/* Set up the layers */
 	layer* layers[3] = {

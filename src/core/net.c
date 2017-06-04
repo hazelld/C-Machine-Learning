@@ -16,7 +16,7 @@ static error_t calc_test_error(net* n, data_set* ds, double* total_err, double* 
 /* PUBLIC FUNCTIONS */
 
 /* init_net() */
-net* init_net (double learning_rate, cost_func_t costf) 
+net* init_net (double learning_rate, double momentum, cost_func_t costf) 
 {
 	net* n = malloc(sizeof(net));
 
@@ -26,6 +26,7 @@ net* init_net (double learning_rate, cost_func_t costf)
 	memset(n, 0, sizeof(net));
 	n->connected = NET_NOT_CONNECTED;
 	n->learning_rate = learning_rate;
+	n->momentum = momentum;
 	n->costf = costf;
 
 	n->topology = NULL;
@@ -48,7 +49,8 @@ error_t init_layer (layer* l, layer_type lt, int in_node, int out_node)
 	l->output = NULL;
 	l->layer_error = NULL;
 	l->weight_delta = NULL;
-	
+	l->last_weight_delta = NULL;
+
 	/* Output layer has no weights or bias */
 	if (lt == input) {
 		l->weights = NULL;
@@ -342,15 +344,32 @@ static error_t update_weights (net* n)
 		error_t err;
 		err = matrix_scalar_mult(clayer->weight_delta, n->learning_rate);
 		if (err != E_SUCCESS) return err;
+		
+		/* Calculate the momentum term, note that I didn't implement the 
+		 * matrix_addition() function, so for now, we will subtract the 
+		 * negative instead
+		 */
+		if (clayer->last_weight_delta != NULL) {
+			err = matrix_scalar_mult(clayer->last_weight_delta, n->momentum * -1);
+			if (err != E_SUCCESS) return err;
+			
+			matrix_t* buff_delta = malloc(sizeof(matrix_t));
+			err = matrix_subtraction(clayer->weight_delta, clayer->last_weight_delta, &buff_delta);
+			if (err != E_SUCCESS) return err;
 
+			err = copy_matrix(buff_delta, clayer->weight_delta);
+			if (err != E_SUCCESS) return err;
+			free_matrix(buff_delta);
+		}
+
+		/**/
 		err = matrix_subtraction(clayer->weights, clayer->weight_delta, &f_weights);
 		if (err != E_SUCCESS) return err;
-
-		/* Free old memory */
-		free_matrix(clayer->weights);
-		free_matrix(clayer->weight_delta);
 		
-		/* Set new weights */
+		free_matrix(clayer->last_weight_delta);
+		free_matrix(clayer->weights);
+		
+		clayer->last_weight_delta = clayer->weight_delta;
 		clayer->weights = f_weights;
 	}	
 	return E_SUCCESS;

@@ -37,7 +37,7 @@ int main() {
 	printf("Read %d lines\n", lines);
 
 
-	net* nn = init_net(0.1, QUADRATIC);
+	net* nn = init_net(0.1, 0.9, QUADRATIC);
 	
 	/* Build the layers */
 	layer* layers[4] = { 
