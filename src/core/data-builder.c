@@ -65,10 +65,10 @@ error_t cml_data_to_matrix (cml_data* data, matrix_t** m)
 	if (data == NULL || m == NULL)
 		return E_NULL_ARG;
 
-	if (*m == NULL)
+/*	if (*m == NULL)
 		*m = malloc(sizeof(matrix_t));
-
-	error_t err = init_matrix(*m, data->count, 1);
+*/
+	error_t err = init_matrix(m, data->count, 1);
 	if (err != E_SUCCESS) return err;
 
 	for (int i = 0; i < data->count; i++) {

@@ -172,6 +172,7 @@ error_t free_layer (layer* l)
 	free_matrix(l->output);
 	free_matrix(l->weights);
 	free_matrix(l->layer_error);
+	free_matrix(l->weight_delta);
 	free(l);
 	return E_SUCCESS;
 }
@@ -213,7 +214,7 @@ static error_t feed_forward (net* n, matrix_t* input)
 			clayer->layer_error = NULL;
 		}
 
-		clayer->output = malloc(sizeof(matrix_t));
+		//clayer->output = malloc(sizeof(matrix_t));
 
 		error_t err = matrix_vector_mult(clayer->weights, clayer->input, &clayer->output); 
 		if (err != E_SUCCESS) return err;
@@ -290,7 +291,8 @@ static error_t net_error (net* n, matrix_t* expected)
 	 * input layer */
 	for (int i = n->layer_count-1; i > 0; i--) {
 		layer* clayer = n->layers[i];
-		matrix_t* buff_err = malloc(sizeof(matrix_t));
+		//matrix_t* buff_err = malloc(sizeof(matrix_t));
+		matrix_t* buff_err;
 		matrix_t* tweights = NULL;
 		error_t err = E_SUCCESS;
 
@@ -307,13 +309,13 @@ static error_t net_error (net* n, matrix_t* expected)
 		map_vector(clayer->output, clayer->actf.ap);
 		
 		/* S * g'(z) */
-		clayer->layer_error = malloc(sizeof(matrix_t));
+		//clayer->layer_error = malloc(sizeof(matrix_t));
 		err = multiply_vector(buff_err, clayer->output, &clayer->layer_error);
 		if (err != E_SUCCESS) return err;
 		matrix_t* transposed_input = transpose_r(clayer->input);
 		
 		/* Get weight delta matrix */
-		clayer->weight_delta = malloc(sizeof(matrix_t));
+		//clayer->weight_delta = malloc(sizeof(matrix_t));
 		err = kronecker_vectors(clayer->layer_error, transposed_input, &clayer->weight_delta);
 		if (err != E_SUCCESS) return err;
 
@@ -339,8 +341,9 @@ static error_t update_weights (net* n)
 {
 	for (int i = 1; i < n->layer_count; i++) {
 		layer* clayer = n->layers[i];
-		matrix_t* f_weights = malloc(sizeof(matrix_t));
-	
+		//matrix_t* f_weights = malloc(sizeof(matrix_t));
+		matrix_t* f_weights;
+
 		error_t err;
 		err = matrix_scalar_mult(clayer->weight_delta, n->learning_rate);
 		if (err != E_SUCCESS) return err;
@@ -353,11 +356,14 @@ static error_t update_weights (net* n)
 			err = matrix_scalar_mult(clayer->last_weight_delta, n->momentum * -1);
 			if (err != E_SUCCESS) return err;
 			
-			matrix_t* buff_delta = malloc(sizeof(matrix_t));
+			//matrix_t* buff_delta = malloc(sizeof(matrix_t));
+			matrix_t* buff_delta;
 			err = matrix_subtraction(clayer->weight_delta, clayer->last_weight_delta, &buff_delta);
 			if (err != E_SUCCESS) return err;
-
-			err = copy_matrix(buff_delta, clayer->weight_delta);
+		
+			/* clayer->weight_delta is re-init within copy-matrix */
+			free_matrix(clayer->weight_delta);
+			err = copy_matrix(buff_delta, &clayer->weight_delta);
 			if (err != E_SUCCESS) return err;
 			free_matrix(buff_delta);
 		}

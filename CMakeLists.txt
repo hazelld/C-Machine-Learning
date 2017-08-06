@@ -19,7 +19,11 @@ set(TEST_COMPILE_LOCATION ${CMAKE_BINARY_DIR}/bin/test)
 
 # Unit testing library 
 set(UNIT_TEST_LIB munit)
-set(UNIT_TEST_HEADERS ${PROJECT_SOURCE_DIR}/libs/munit)
+set(UNIT_TEST_HEADERS ${LIBS_SOURCE_LOCATION}/munit)
+
+# MPool library
+set(MPOOL_LIB mpool)
+set(MPOOL_HEADERS ${LIBS_SOURCE_LOCATION}/mpool)
 
 # Set the name of the python library
 set(PYTHON_LIBRARY_NAME py${CMAKE_PROJECT_NAME})

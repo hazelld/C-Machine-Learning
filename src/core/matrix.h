@@ -20,7 +20,7 @@ typedef struct matrix_t {
  *	free_matrix().
 *
 */
-error_t init_matrix(matrix_t* m, unsigned int rows, unsigned int columns);
+error_t init_matrix(matrix_t** m, unsigned int rows, unsigned int columns);
 
 
 /* matrix_vector_product
@@ -187,7 +187,7 @@ error_t kronecker_vectors (matrix_t* vec1, matrix_t* vec2, matrix_t** result);
  *	has been initialized. The second must be allocated already.
  *
  */
-error_t copy_matrix (matrix_t* src, matrix_t* dest);
+error_t copy_matrix (matrix_t* src, matrix_t** dest);
 
 
 /*	free_matrix
