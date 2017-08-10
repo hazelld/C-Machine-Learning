@@ -65,9 +65,6 @@ error_t cml_data_to_matrix (cml_data* data, matrix_t** m)
 	if (data == NULL || m == NULL)
 		return E_NULL_ARG;
 
-/*	if (*m == NULL)
-		*m = malloc(sizeof(matrix_t));
-*/
 	error_t err = init_matrix(m, data->count, 1);
 	if (err != E_SUCCESS) return err;
 
@@ -330,7 +327,7 @@ static error_t convert_raw_into_pairs (data_set* ds)
 
 		/* This is super hacky and I am not proud of it, but basically because 
 		 * add_to_cml_data() does a shallow copy of the void*, since it can't deref
-		 * it to the proper type, the items ds->raw_data[i]->items[] stay on the 
+		 * it to the proper type, the items ds->raw_data[i]->items[j] stay on the 
 		 * heap, with the new cml_data pointing to them, we can't use free_cml_data
 		 * here to free the old struct. For now manually free the InputTypes array
 		 * and the pointer to the items array
