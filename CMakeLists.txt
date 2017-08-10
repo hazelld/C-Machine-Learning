@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (cnn)
+project (cml)
 
 # Variables needed for library compilation
 set(LIBRARY_COMPILE_FLAGS "-std=c99 -g")
