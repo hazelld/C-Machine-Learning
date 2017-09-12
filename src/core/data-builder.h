@@ -6,7 +6,13 @@ enum InputType {
 	T_STR,
 };
 
-/* Implementation of cml_data struct */
+/* Implementation of cml_data struct
+ *
+ * @items - Array of pointers to the items
+ * @types - Types that are held **not used currently**
+ * @count - Size of @items
+ * @pos - Eventually will be used for iterator
+ */
 typedef struct cml_data {
 	void** items;
 	enum InputType* types;

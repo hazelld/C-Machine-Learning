@@ -117,8 +117,9 @@ static error_t cross_entropy_gradient (matrix_t* o, matrix_t* e, matrix_t** resu
 		
 	if (o->rows != e->rows || o->columns != e->columns)
 		return E_MATRIX_WRONG_DIM;
-	matrix_t* res = malloc(sizeof(matrix_t));
-	init_matrix(res, o->rows, o->columns);
+	//matrix_t* res = malloc(sizeof(matrix_t));
+	matrix_t* res;
+	init_matrix(&res, o->rows, o->columns);
 
 	for (int i = 0; i < o->rows; i++) {
 		double expected = e->matrix[i][0];
