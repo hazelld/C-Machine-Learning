@@ -11,7 +11,7 @@ include_directories(${UNIT_TEST_HEADERS})
 
 # Set all the current tests
 set(TEST_EXECUTABLES 
-	matrix_test
+	#	matrix_test
 	net-builder_test
 	data-builder_test
 	)
