@@ -42,7 +42,7 @@
 #	define MUTEX_UNLOCK pthread_mutex_unlock
 #	define MUTEX_INIT pthread_mutex_init
 #else
-#	warn Unknown compiler being used.
+#	warning Unknown compiler being used.
 #endif
 
 #define MPOOL_MAJOR_VERSION 0
